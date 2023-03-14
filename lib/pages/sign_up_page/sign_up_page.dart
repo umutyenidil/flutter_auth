@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/constants/border_radius_constants.dart';
+import 'package:flutter_auth/constants/error_message_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/constants/regular_expression_constants.dart';
+import 'package:flutter_auth/constants/string_error_constants.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/pages/common_widgets/horizontal_space.dart';
 import 'package:flutter_auth/pages/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/back_svg_button.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/input_field.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/page_background.dart';
+import 'package:flutter_auth/pages/sign_up_page/widgets/secure_input_field.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/sign_in_text_button.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/sign_up_form_background.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/social_media_svg_button.dart';
@@ -107,14 +110,50 @@ class _SignUpPageState extends State<SignUpPage> {
                             const VerticalSpace(36),
                             InputField(
                               node: _mailInputNode,
-                              controller: _mailInputController,
                               svgIcon: IconPathConstants.mailIcon,
                               regularExpression: RegularExpressionConstants.emailRegex,
                               inputType: TextInputType.emailAddress,
                               hintText: 'Email adresinizi giriniz',
-                              errorMessage: 'Lütfen geçerli bir email adresi giriniz.',
+                              errorMessage: ErrorMessageConstants.emailInputFieldErrorMessage,
+                              getValue: (String value) {
+                                _mailInputController.text = value;
+                              },
                             ),
-                            VerticalSpace(40),
+                            InputField(
+                              node: _usernameInputNode,
+                              svgIcon: IconPathConstants.userIcon,
+                              regularExpression: RegularExpressionConstants.min8CharacterWithJustLettersAndNumbers,
+                              inputType: TextInputType.text,
+                              hintText: 'Kullanıcı adınızı giriniz',
+                              errorMessage: ErrorMessageConstants.usernameInputFieldErrorMessage,
+                              getValue: (String value) {
+                                _usernameInputController.text = value;
+                              },
+                            ),
+                            SecureInputField(
+                              node: _passwordInputNode,
+                              svgIcon: IconPathConstants.lockIcon,
+                              regularExpression: RegularExpressionConstants.min8CharacterRegex,
+                              inputType: TextInputType.text,
+                              hintText: 'Parolanizi giriniz',
+                              errorMessage: ErrorMessageConstants.passwordInputFieldErrorMessage,
+                              getValue: (String value) {
+                                setState(() {
+                                  _passwordInputController.text = value;
+                                });
+                              },
+                            ),
+                            SecureInputField(
+                              node: _passwordAgainInputNode,
+                              svgIcon: IconPathConstants.lockIcon,
+                              regularExpression: RegularExpressionConstants.toRegex(_passwordInputController.text),
+                              inputType: TextInputType.text,
+                              hintText: 'Parolanizi tekrar giriniz',
+                              errorMessage: ErrorMessageConstants.passwordAgainInputFieldErrorMessage,
+                              getValue: (String value) {
+                                _passwordAgainInputController.text = value;
+                              },
+                            ),
                             SizedBox(
                               height: 54,
                               width: double.infinity,
@@ -128,6 +167,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ),
                                 onPressed: () {
                                   print(_mailInputController.text);
+                                  print(_usernameInputController.text);
+                                  print(_passwordInputController.text);
+                                  print(_passwordAgainInputController.text);
                                 },
                                 child: Text(
                                   'Sign Up',
@@ -160,6 +202,11 @@ class _SignUpPageState extends State<SignUpPage> {
     _usernameInputController = TextEditingController();
     _passwordInputController = TextEditingController();
     _passwordAgainInputController = TextEditingController();
+
+    _mailInputController.text = StringErrorConstants.error;
+    _usernameInputController.text = StringErrorConstants.error;
+    _passwordInputController.text = StringErrorConstants.error;
+    _passwordAgainInputController.text = StringErrorConstants.error;
 
     _mailInputNode = FocusNode();
     _usernameInputNode = FocusNode();
