@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/constants/border_radius_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
-import 'package:flutter_auth/view/common_widgets/horizontal_space.dart';
-import 'package:flutter_auth/view/common_widgets/vertical_space.dart';
+import 'package:flutter_auth/pages/common_widgets/horizontal_space.dart';
+import 'package:flutter_auth/pages/common_widgets/vertical_space.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class InputField extends StatefulWidget {
@@ -22,6 +22,7 @@ class InputField extends StatefulWidget {
   final String regularExpression;
   final String errorMessage;
   final String svgIcon;
+  final TextEditingController controller;
 
   @override
   State<InputField> createState() => _InputFieldState();
@@ -57,7 +58,7 @@ class _InputFieldState extends State<InputField> {
             color: Colors.grey.shade300,
             borderRadius: BorderRadiusConstants.allCorners10,
             border: Border.all(
-              color: (_hasFocus ? _activeColor : Colors.black),
+              color: (_hasFocus ? _activeColor : Colors.transparent),
             ),
           ),
           child: Row(
@@ -67,7 +68,7 @@ class _InputFieldState extends State<InputField> {
                 dimension: 32,
                 child: SvgPicture.asset(
                   widget.svgIcon,
-                  color: _hasFocus ? _activeColor : Colors.black,
+                  color: _hasFocus ? _activeColor : Colors.grey,
                 ),
               ),
               HorizontalSpace(8),
@@ -80,6 +81,7 @@ class _InputFieldState extends State<InputField> {
                     });
                   },
                   child: TextField(
+                    controller: widget.controller,
                     keyboardType: widget.inputType,
                     cursorColor: Colors.grey,
                     decoration: InputDecoration(
@@ -93,8 +95,12 @@ class _InputFieldState extends State<InputField> {
                         setState(() {
                           _activeColor = _hasError ? Colors.red : Colors.green;
                         });
-                      } else {}
+                      }
                     },
+                    onEditingComplete: () {
+                      widget.controller.text = _hasError ? '#ERROR#' : widget.controller.text;
+                    },
+
                   ),
                 ),
               ),
@@ -104,12 +110,14 @@ class _InputFieldState extends State<InputField> {
         const VerticalSpace(4),
         Container(
           width: double.infinity,
-          // color: Colors.red,
-          padding: EdgeInsets.only(left: 8),
+          padding: const EdgeInsets.only(left: 8),
           alignment: Alignment.centerLeft,
           child: Text(
-            _hasError ? widget.errorMessage : '',
-            style: TextStyle(color: Colors.red, fontSize: 10),
+            widget.errorMessage,
+            style: TextStyle(
+              color: (_hasError) ? Colors.red : Colors.transparent,
+              fontSize: 10,
+            ),
           ),
         ),
       ],
