@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/constants/border_radius_constants.dart';
+import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/constants/string_error_constants.dart';
 import 'package:flutter_auth/pages/common_widgets/horizontal_space.dart';
 import 'package:flutter_auth/pages/common_widgets/vertical_space.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-typedef InputFieldController = void Function(String value);
+typedef SecureInputFieldController = void Function(String value);
 
-class InputField extends StatefulWidget {
-  const InputField({
+class SecureInputField extends StatefulWidget {
+  const SecureInputField({
     Key? key,
     required this.node,
     required this.hintText,
@@ -25,16 +26,17 @@ class InputField extends StatefulWidget {
   final String regularExpression;
   final String errorMessage;
   final String svgIcon;
-  final InputFieldController getValue;
+  final SecureInputFieldController getValue;
 
   @override
-  State<InputField> createState() => _InputFieldState();
+  State<SecureInputField> createState() => _SecureInputFieldState();
 }
 
-class _InputFieldState extends State<InputField> {
+class _SecureInputFieldState extends State<SecureInputField> {
   late bool _hasFocus;
   late bool _hasError;
   late Color _activeColor;
+  late bool _isObsecured;
 
   @override
   void initState() {
@@ -43,6 +45,7 @@ class _InputFieldState extends State<InputField> {
     _hasFocus = false;
     _hasError = false;
     _activeColor = Colors.green;
+    _isObsecured = true;
   }
 
   @override
@@ -87,6 +90,8 @@ class _InputFieldState extends State<InputField> {
                     });
                   },
                   child: TextField(
+                    obscureText: _isObsecured,
+                    autocorrect: false,
                     keyboardType: widget.inputType,
                     cursorColor: Colors.grey,
                     decoration: InputDecoration(
@@ -95,20 +100,44 @@ class _InputFieldState extends State<InputField> {
                       border: InputBorder.none,
                     ),
                     onChanged: (value) {
+                      print(widget.regularExpression);
+                      print(value);
                       _hasError = !RegExp(widget.regularExpression).hasMatch(value);
-                      print('$_hasError');
                       setState(() {
                         _activeColor = _hasError ? Colors.red : Colors.green;
                       });
                       if (_hasError) {
                         widget.getValue(StringErrorConstants.error);
+                        print('callback e error gonderdim');
                       } else {
                         widget.getValue(value);
+                        print('callback e degeri gonderdim');
                       }
                     },
                   ),
                 ),
               ),
+              SizedBox.square(
+                dimension: 32,
+                child: MaterialButton(
+                  minWidth: 0,
+                  height: 0,
+                  padding: EdgeInsets.zero,
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusConstants.allCorners10,
+                  ),
+                  child: SvgPicture.asset(
+                    _isObsecured ? IconPathConstants.eyeIcon : IconPathConstants.eyeSlashIcon,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isObsecured = !_isObsecured;
+                    });
+                  },
+                ),
+              ),
+              const HorizontalSpace(8),
             ],
           ),
         ),
@@ -122,6 +151,7 @@ class _InputFieldState extends State<InputField> {
             widget.errorMessage,
             maxLines: 2,
             style: TextStyle(
+              overflow: TextOverflow.ellipsis,
               color: (_hasError) ? Colors.red : Colors.transparent,
               fontSize: 10,
             ),
