@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_auth/constants/route_constants.dart';
 import 'package:flutter_auth/pages/error_page/error_page.dart';
 import 'package:flutter_auth/pages/home_page/home_page.dart';
+import 'package:flutter_auth/pages/sign_in_page/sign_in_page.dart';
 import 'package:flutter_auth/pages/sign_up_page/sign_up_page.dart';
 
 class App extends StatelessWidget {
@@ -19,9 +20,11 @@ class App extends StatelessWidget {
   Route? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case RouteConstants.homePageRoute:
-        return MaterialPageRoute(builder: (BuildContext context) => ErrorPage());
+        return MaterialPageRoute(builder: (BuildContext context) => SignInPage());
       case RouteConstants.signUpPageRoute:
         return MaterialPageRoute(builder: (BuildContext context) => SignUpPage());
+      case RouteConstants.signInPageRoute:
+        return MaterialPageRoute(builder: (BuildContext context) => SignInPage());
       case RouteConstants.errorPageRoute:
         return MaterialPageRoute(builder: (BuildContext context) => const ErrorPage());
       default:
