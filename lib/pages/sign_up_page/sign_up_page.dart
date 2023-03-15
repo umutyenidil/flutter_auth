@@ -10,6 +10,7 @@ import 'package:flutter_auth/common_widgets/horizontal_space.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/common_widgets/back_svg_button.dart';
 import 'package:flutter_auth/common_widgets/input_field.dart';
+import 'package:flutter_auth/extensions/single_child_scroll_view_extensions.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/page_background.dart';
 import 'package:flutter_auth/common_widgets/secure_input_field.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/sign_in_text_button.dart';
@@ -63,7 +64,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         SignInTextButton(onPressed: () {
                           Navigator.of(context).pushNamedAndRemoveUntil(
                             RouteConstants.signInPageRoute,
-                                (route) => false,
+                            (route) => false,
                           );
                         }),
                       ],
@@ -196,7 +197,7 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ),
         ),
-      ),
+      ).removeScrollGlow(),
     );
   }
 
