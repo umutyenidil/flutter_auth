@@ -33,7 +33,7 @@ class SocialMediaSvgButton extends StatelessWidget {
 
   factory SocialMediaSvgButton.facebook({required Function onPressed}) {
     return SocialMediaSvgButton._(
-      backgroundColor: Colors.blue,
+      backgroundColor: const Color(0xff4267b2),
       svgIcon: IconPathConstants.facebookLogoIcon,
       onPressed: onPressed,
       iconColor: Colors.white,
@@ -42,13 +42,12 @@ class SocialMediaSvgButton extends StatelessWidget {
 
   factory SocialMediaSvgButton.twitter({required Function onPressed}) {
     return SocialMediaSvgButton._(
-      backgroundColor: Colors.blue,
+      backgroundColor: const Color(0xff1da1f2),
       svgIcon: IconPathConstants.twitterLogoIcon,
       onPressed: onPressed,
       iconColor: Colors.white,
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
