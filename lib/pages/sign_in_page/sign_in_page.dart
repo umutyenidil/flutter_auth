@@ -12,6 +12,7 @@ import 'package:flutter_auth/common_widgets/back_svg_button.dart';
 import 'package:flutter_auth/common_widgets/input_field.dart';
 import 'package:flutter_auth/common_widgets/secure_input_field.dart';
 import 'package:flutter_auth/common_widgets/social_media_svg_button.dart';
+import 'package:flutter_auth/extensions/single_child_scroll_view_extensions.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/page_background.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/sign_up_text_button.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/sign_in_form_background.dart';
@@ -177,7 +178,7 @@ class _SignInPageState extends State<SignInPage> {
             ),
           ),
         ),
-      ),
+      ).removeScrollGlow(),
     );
   }
 
