@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
-import 'package:flutter_auth/pages/common_widgets/vertical_space.dart';
+import 'package:flutter_auth/common_widgets/vertical_space.dart';
 
 class SignUpFormBackground extends StatelessWidget {
   const SignUpFormBackground({Key? key, required this.child}) : super(key: key);
