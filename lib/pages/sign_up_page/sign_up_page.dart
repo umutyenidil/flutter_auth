@@ -3,17 +3,18 @@ import 'package:flutter_auth/constants/border_radius_constants.dart';
 import 'package:flutter_auth/constants/error_message_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/constants/regular_expression_constants.dart';
+import 'package:flutter_auth/constants/route_constants.dart';
 import 'package:flutter_auth/constants/string_error_constants.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/common_widgets/horizontal_space.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
-import 'package:flutter_auth/pages/sign_up_page/widgets/back_svg_button.dart';
-import 'package:flutter_auth/pages/sign_up_page/widgets/input_field.dart';
+import 'package:flutter_auth/common_widgets/back_svg_button.dart';
+import 'package:flutter_auth/common_widgets/input_field.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/page_background.dart';
-import 'package:flutter_auth/pages/sign_up_page/widgets/secure_input_field.dart';
+import 'package:flutter_auth/common_widgets/secure_input_field.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/sign_in_text_button.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/sign_up_form_background.dart';
-import 'package:flutter_auth/pages/sign_up_page/widgets/social_media_svg_button.dart';
+import 'package:flutter_auth/common_widgets/social_media_svg_button.dart';
 
 class SignUpPage extends StatefulWidget {
   SignUpPage({Key? key}) : super(key: key);
@@ -44,7 +45,7 @@ class _SignUpPageState extends State<SignUpPage> {
             child: SafeArea(
               child: Column(
                 children: [
-                  VerticalSpace(8),
+                  const VerticalSpace(8),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Row(
@@ -59,7 +60,12 @@ class _SignUpPageState extends State<SignUpPage> {
                             color: Colors.white,
                           ),
                         ),
-                        SignInTextButton(onPressed: () {}),
+                        SignInTextButton(onPressed: () {
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                            RouteConstants.signInPageRoute,
+                                (route) => false,
+                          );
+                        }),
                       ],
                     ),
                   ),
