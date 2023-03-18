@@ -66,7 +66,7 @@ class _InputFieldState extends State<InputField> {
           ),
           child: Row(
             children: [
-              HorizontalSpace(8),
+              const HorizontalSpace(8),
               SizedBox.square(
                 dimension: 32,
                 child: Padding(
@@ -77,7 +77,7 @@ class _InputFieldState extends State<InputField> {
                   ),
                 ),
               ),
-              HorizontalSpace(8),
+              const HorizontalSpace(8),
               Expanded(
                 child: Focus(
                   focusNode: widget.node,
@@ -96,7 +96,6 @@ class _InputFieldState extends State<InputField> {
                     ),
                     onChanged: (value) {
                       _hasError = !RegExp(widget.regularExpression).hasMatch(value);
-                      print('$_hasError');
                       setState(() {
                         _activeColor = _hasError ? Colors.red : Colors.green;
                       });

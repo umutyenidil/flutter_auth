@@ -69,7 +69,7 @@ class _SecureInputFieldState extends State<SecureInputField> {
           ),
           child: Row(
             children: [
-              HorizontalSpace(8),
+              const HorizontalSpace(8),
               SizedBox.square(
                 dimension: 32,
                 child: Padding(
@@ -80,7 +80,7 @@ class _SecureInputFieldState extends State<SecureInputField> {
                   ),
                 ),
               ),
-              HorizontalSpace(8),
+              const HorizontalSpace(8),
               Expanded(
                 child: Focus(
                   focusNode: widget.node,
@@ -100,18 +100,14 @@ class _SecureInputFieldState extends State<SecureInputField> {
                       border: InputBorder.none,
                     ),
                     onChanged: (value) {
-                      print(widget.regularExpression);
-                      print(value);
                       _hasError = !RegExp(widget.regularExpression).hasMatch(value);
                       setState(() {
                         _activeColor = _hasError ? Colors.red : Colors.green;
                       });
                       if (_hasError) {
                         widget.getValue(StringErrorConstants.error);
-                        print('callback e error gonderdim');
                       } else {
                         widget.getValue(value);
-                        print('callback e degeri gonderdim');
                       }
                     },
                   ),

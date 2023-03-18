@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
-import 'package:flutter_auth/constants/border_radius_constants.dart';
-import 'package:flutter_auth/constants/lottie_path_constants.dart';
 import 'package:flutter_auth/pages/error_page/widgets/back_text_button.dart';
 import 'package:flutter_auth/pages/error_page/widgets/error_lottie_animation.dart';
-import 'package:lottie/lottie.dart';
 
 class ErrorPage extends StatefulWidget {
   const ErrorPage({Key? key}) : super(key: key);

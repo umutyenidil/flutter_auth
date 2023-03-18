@@ -57,7 +57,7 @@ class SocialMediaSvgButton extends StatelessWidget {
         color: backgroundColor,
         height: 0,
         minWidth: 0,
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         shape: const CircleBorder(),
         child: SvgPicture.asset(
           svgIcon,

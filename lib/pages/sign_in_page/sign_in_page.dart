@@ -18,7 +18,7 @@ import 'package:flutter_auth/pages/sign_in_page/widgets/sign_up_text_button.dart
 import 'package:flutter_auth/pages/sign_in_page/widgets/sign_in_form_background.dart';
 
 class SignInPage extends StatefulWidget {
-  SignInPage({Key? key}) : super(key: key);
+  const SignInPage({Key? key}) : super(key: key);
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -149,10 +149,8 @@ class _SignInPageState extends State<SignInPage> {
                                   borderRadius: BorderRadiusConstants.allCorners10,
                                 ),
                                 onPressed: () {
-                                  print(_mailInputController.text);
-                                  print(_passwordInputController.text);
                                 },
-                                child: Text(
+                                child: const Text(
                                   'Sign In',
                                   style: TextStyle(
                                     color: Colors.white,
@@ -163,7 +161,7 @@ class _SignInPageState extends State<SignInPage> {
                             ),
                             TextButton(
                               onPressed: () {},
-                              child: Text(
+                              child: const Text(
                                 'Forgot your password?',
                                 style: TextStyle(),
                               ),

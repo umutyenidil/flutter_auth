@@ -13,7 +13,7 @@ class SignInTextButton extends StatelessWidget {
       onPressed: () {
         onPressed();
       },
-      child: Text('Sign In'),
+      child: const Text('Sign In'),
     );
   }
 }
