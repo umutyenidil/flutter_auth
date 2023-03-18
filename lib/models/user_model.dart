@@ -2,26 +2,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/map_extensions.dart';
-import 'package:flutter_auth/models/base_models/model.dart';
+import 'package:flutter_auth/models/base_models/firebase_model.dart';
 import 'package:uuid/uuid.dart';
 
 typedef UserModelMap = Map<String, dynamic>;
 
-class UserModel extends Model {
+class UserModel extends FirebaseModel {
   static final UserModel _shared = UserModel._sharedInstance();
 
   UserModel._sharedInstance();
 
   factory UserModel() => _shared;
 
-  static Future<bool> create({
-    required String emailAddress,
-    required String password,
+  @override
+  Future<bool> create({
+    required Map<String, dynamic> data,
   }) async {
     // create an user with email and password
     UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: emailAddress,
-      password: password,
+      email: data[UserModelFields.emailAddress],
+      password: data[UserModelFields.password],
     );
 
     // throw exception when the user is empty
@@ -52,7 +52,7 @@ class UserModel extends Model {
     // set data for the user_details collection
     Map<String, dynamic> userDetailDocumentData = {
       UserModelFields.uuid: generatedUuid,
-      UserModelFields.emailAddress: emailAddress,
+      UserModelFields.emailAddress: data[UserModelFields.emailAddress],
     };
 
     // create new named document for users collection with user uid
@@ -66,7 +66,8 @@ class UserModel extends Model {
     return true;
   }
 
-  static Future<UserModelMap?> read({
+  @override
+  Future<Map<String, dynamic>?> readWithUid({
     required String uid,
   }) async {
     // get users and user_details collection reference
@@ -76,7 +77,7 @@ class UserModel extends Model {
     // read the document which in users collection
     DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
     DocumentSnapshot userDocumentSnapshot = await userDocumentReference.get();
-    Map<String, dynamic> userData = userDocumentSnapshot.data() as Map<String, dynamic>;
+    Map<String, dynamic>? userData = userDocumentSnapshot.data() as Map<String, dynamic>?;
 
     if (userData == null) {
       throw UserDocumentNotFoundException();
@@ -85,21 +86,22 @@ class UserModel extends Model {
     // read the document which in user_details collection
     DocumentReference userDetailDocumentReference = userDetailsCollectionReference.doc(uid);
     DocumentSnapshot userDetailDocumentSnapshot = await userDetailDocumentReference.get();
-    Map<String, dynamic> userDetailData = userDetailDocumentSnapshot.data() as Map<String, dynamic>;
+    Map<String, dynamic>? userDetailData = userDetailDocumentSnapshot.data() as Map<String, dynamic>?;
 
     if (userDetailData == null) {
       throw UserDetailDocumentNotFoundException();
     }
 
     // merge datas of user document and user_detail document
-    UserModelMap user = {};
+    Map<String, dynamic>? user = {};
     user.addAll(userData);
     user.addAll(userDetailData);
 
     return user;
   }
 
-  static Future<List<UserModelMap?>?> readAll() async {
+  @override
+  Future<List<Map<String, dynamic>?>?> readAll() async {
     // users ve user_details koleksiyonlarinin referanslarini getir
     CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
     CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.userDetails);
@@ -109,7 +111,7 @@ class UserModel extends Model {
     List<DocumentSnapshot> userDocumentSnapshots = usersCollectionQuerySnapshot.docs;
 
     // dondurmek icin bos users list'i olustur
-    List<UserModelMap> users = [];
+    List<Map<String, dynamic>?> users = [];
 
     for (DocumentSnapshot userDocumentSnapshot in userDocumentSnapshots) {
       // current user'in uid'sini al
@@ -124,7 +126,7 @@ class UserModel extends Model {
       Map<String, dynamic> userDetailData = userDetailDocumentSnapshot.data() as Map<String, dynamic>;
 
       // users ve user_details koleksiyonlarindaki dokumanlarin alanlarini birlestir
-      UserModelMap user = {};
+      Map<String, dynamic>? user = {};
       user.addAll(userData);
       user.addAll(userDetailData);
 
@@ -136,10 +138,18 @@ class UserModel extends Model {
     return users;
   }
 
-  static Future<bool> updateWithUid({required String uid, String? emailAddress}) async {
-    // hicbir silinecek arguman gonderilmezse false dondur
-    if (emailAddress == null) {
+  @override
+  Future<bool> updateWithUid({required String uid, required Map<String, dynamic> data}) async {
+    // hicbir arguman gonderilmezse false dondur
+    if (data.isEmpty) {
       return false;
+    }
+
+    // alanlardan herhangi biri null ise false dondurur
+    for (var value in data.values) {
+      if (value == null) {
+        return false;
+      }
     }
 
     // dokumanlarin guncellenip guncellenmedigini kontrol degiskenler
@@ -151,8 +161,8 @@ class UserModel extends Model {
     Map<String, dynamic> userDetailDocumentData = {};
 
     // null olmayan alanlari map'lere ekle
-    if (emailAddress != null) {
-      userDetailDocumentData[UserModelFields.emailAddress] = emailAddress;
+    if (data[UserModelFields.emailAddress] != null) {
+      userDetailDocumentData[UserModelFields.emailAddress] = data[UserModelFields.emailAddress];
     }
 
     // users collection'daki dokuman'a gidecek veri varsa dokumani guncelle ve kontrol degiskenini true yap
@@ -179,7 +189,8 @@ class UserModel extends Model {
     return isUserDocumentUpdated && isUserDetailDocumentUpdated;
   }
 
-  static Future<bool> deleteWithUid({required String uid}) async {
+  @override
+  Future<bool> deleteWithUid({required String uid}) async {
     // silinecek dokumanin uid'si ile dokumani bul ve is_deleted alanini 1 yap
     CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
     DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
@@ -192,10 +203,25 @@ class UserModel extends Model {
     return true;
   }
 
-  static Future<String> toJson({required String uid}) async {
-    UserModelMap? user = await read(uid: uid);
+  Future<String> toJson({required String uid}) async {
+    Map<String, dynamic>? user = await readWithUid(uid: uid);
 
     return user!.toPrettyJson();
+  }
+
+  @override
+  Future<bool> delete({required String uuid}) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> update({required String uuid}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Map<String, dynamic>?> read({required String uuid}) {
+    throw UnimplementedError();
   }
 }
 
