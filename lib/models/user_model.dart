@@ -1,11 +1,11 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/map_extensions.dart';
 import 'package:flutter_auth/models/base_models/model.dart';
 import 'package:uuid/uuid.dart';
+
+typedef UserModelMap = Map<String, dynamic>;
 
 class UserModel extends Model {
   static final UserModel _shared = UserModel._sharedInstance();
@@ -66,7 +66,7 @@ class UserModel extends Model {
     return true;
   }
 
-  static Future<Map<String, dynamic>?> read({
+  static Future<UserModelMap?> read({
     required String uid,
   }) async {
     // get users and user_details collection reference
@@ -92,14 +92,14 @@ class UserModel extends Model {
     }
 
     // merge datas of user document and user_detail document
-    Map<String, dynamic> user = {};
+    UserModelMap user = {};
     user.addAll(userData);
     user.addAll(userDetailData);
 
     return user;
   }
 
-  static Future<List<Map<String, dynamic>?>?> readAll() async {
+  static Future<List<UserModelMap?>?> readAll() async {
     // users ve user_details koleksiyonlarinin referanslarini getir
     CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
     CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.userDetails);
@@ -109,7 +109,7 @@ class UserModel extends Model {
     List<DocumentSnapshot> userDocumentSnapshots = usersCollectionQuerySnapshot.docs;
 
     // dondurmek icin bos users list'i olustur
-    List<Map<String, dynamic>> users = [];
+    List<UserModelMap> users = [];
 
     for (DocumentSnapshot userDocumentSnapshot in userDocumentSnapshots) {
       // current user'in uid'sini al
@@ -124,7 +124,7 @@ class UserModel extends Model {
       Map<String, dynamic> userDetailData = userDetailDocumentSnapshot.data() as Map<String, dynamic>;
 
       // users ve user_details koleksiyonlarindaki dokumanlarin alanlarini birlestir
-      Map<String, dynamic> user = {};
+      UserModelMap user = {};
       user.addAll(userData);
       user.addAll(userDetailData);
 
@@ -193,7 +193,7 @@ class UserModel extends Model {
   }
 
   static Future<String> toJson({required String uid}) async {
-    Map<String, dynamic>? user = await read(uid: uid);
+    UserModelMap? user = await read(uid: uid);
 
     return user!.toPrettyJson();
   }
