@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_auth/common_widgets/pop_up_message.dart';
 import 'package:flutter_auth/constants/border_radius_constants.dart';
 import 'package:flutter_auth/constants/error_message_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
@@ -16,6 +19,7 @@ import 'package:flutter_auth/common_widgets/secure_input_field.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/sign_in_text_button.dart';
 import 'package:flutter_auth/pages/sign_up_page/widgets/sign_up_form_background.dart';
 import 'package:flutter_auth/common_widgets/social_media_svg_button.dart';
+import 'package:flutter_auth/pages/sign_up_page/widgets/sign_up_material_button.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -64,7 +68,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         SignInTextButton(onPressed: () {
                           Navigator.of(context).pushNamedAndRemoveUntil(
                             RouteConstants.signInPageRoute,
-                                (route) => false,
+                            (route) => false,
                           );
                         }),
                       ],
@@ -150,28 +154,14 @@ class _SignUpPageState extends State<SignUpPage> {
                                 _passwordAgainInputController.text = value;
                               },
                             ),
-                            SizedBox(
-                              height: 54,
-                              width: double.infinity,
-                              child: MaterialButton(
-                                color: Colors.blue,
-                                minWidth: 0,
-                                height: 0,
-                                padding: EdgeInsets.zero,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadiusConstants.allCorners10,
-                                ),
-                                onPressed: () {
-
-                                },
-                                child: const Text(
-                                  'Sign Up',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
+                            SignUpMaterialButton(
+                              onPressed: () {
+                                PopUp(
+                                  title: 'Oturum Açılamadı!',
+                                  type: PopUpMessageType.danger,
+                                  message: 'Test message',
+                                ).show(context);
+                              },
                             ),
                           ],
                         ),
