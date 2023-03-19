@@ -9,4 +9,5 @@ class IconPathConstants {
   static const String lockIcon = 'assets/icons/lock_icon.svg';
   static const String eyeIcon = 'assets/icons/eye_icon.svg';
   static const String eyeSlashIcon = 'assets/icons/eye_slash_icon.svg';
+  static const String warningIcon = 'assets/icons/warning_icon.svg';
 }
