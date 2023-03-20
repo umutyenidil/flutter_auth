@@ -7,30 +7,61 @@ import 'package:uuid/uuid.dart';
 
 typedef UserModelMap = Map<String, dynamic>;
 
-class UserModel extends FirebaseModel {
+class UserModel implements FirebaseModel {
   static final UserModel _shared = UserModel._sharedInstance();
 
   UserModel._sharedInstance();
 
   factory UserModel() => _shared;
 
+  Future<bool> signUpWithEmailAndPassword({
+    required String emailAddress,
+    required String password,
+  }) async {
+    // create an user with email and password
+    UserCredential? userCredential;
+    try {
+      userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
+      );
+    } on FirebaseAuthException catch (exception) {
+      switch (exception.code) {
+        case 'email-already-in-use':
+          throw UserEmailAlreadyInUseException();
+        case 'invalid-email':
+          throw UserInvalidEmailException();
+        case 'operation-not-allowed':
+          throw UserOperationNotAllowedException();
+        case 'weak-password':
+          throw UserWeakPasswordException();
+      }
+    } catch (exception) {
+      rethrow;
+    }
+
+    // throw exception when the user is empty
+    if (userCredential!.user == null) {
+      throw UserHasNotBeenCreatedException();
+    }
+
+    create(
+      data: {
+        UserModelFields.emailAddress: emailAddress,
+        UserModelFields.password: password,
+        'createdUser': userCredential.user,
+      },
+    );
+
+    return true;
+  }
+
   @override
   Future<bool> create({
     required Map<String, dynamic> data,
   }) async {
-    // create an user with email and password
-    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: data[UserModelFields.emailAddress],
-      password: data[UserModelFields.password],
-    );
-
-    // throw exception when the user is empty
-    if (userCredential.user == null) {
-      throw UserHasNotBeenCreatedException();
-    }
-
     // get the uid of created user
-    String userUid = userCredential.user!.uid;
+    String userUid = (data['createdUser'] as User).uid;
 
     // get users and user_details collection reference
     CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
@@ -41,8 +72,8 @@ class UserModel extends FirebaseModel {
     // set data for the users collection
     Map<String, dynamic> userDocumentData = {
       UserModelFields.uuid: generatedUuid,
-      UserModelFields.createdAt: DateTime.now(),
-      UserModelFields.updatedAt: DateTime.now(),
+      UserModelFields.createdAt: FieldValue.serverTimestamp(),
+      UserModelFields.updatedAt: FieldValue.serverTimestamp(),
       UserModelFields.deletedAt: null,
       UserModelFields.isDeleted: false,
       UserModelFields.lastLogin: null,
@@ -215,12 +246,12 @@ class UserModel extends FirebaseModel {
   }
 
   @override
-  Future<bool> update({required String uuid}) {
+  Future<Map<String, dynamic>?> read({required String uuid}) {
     throw UnimplementedError();
   }
 
   @override
-  Future<Map<String, dynamic>?> read({required String uuid}) {
+  Future<bool> update({required String uuid}) {
     throw UnimplementedError();
   }
 }
