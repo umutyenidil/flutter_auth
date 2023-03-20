@@ -6,7 +6,6 @@ import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 enum PopUpMessageType {
-  primary,
   success,
   danger,
   warning,
@@ -17,30 +16,32 @@ class PopUp {
   PopUp({
     required this.title,
     required this.message,
-    required PopUpMessageType type,
+    PopUpMessageType type = PopUpMessageType.info,
   }) {
     switch (type) {
-      case PopUpMessageType.primary:
-        color = const Color(0xff0d6efd);
-        break;
       case PopUpMessageType.success:
-        color = const Color(0xff198754);
+        _color = const Color(0xff198754);
+        _svgIcon = IconPathConstants.checkIcon;
         break;
       case PopUpMessageType.danger:
-        color = const Color(0xffdc3545);
+        _color = const Color(0xffdc3545);
+        _svgIcon = IconPathConstants.warningIcon;
         break;
       case PopUpMessageType.warning:
-        color = const Color(0xffffc107);
+        _color = const Color(0xffdfa800);
+        _svgIcon = IconPathConstants.warningIcon;
         break;
       case PopUpMessageType.info:
-        color = const Color(0xff0dcaf0);
+        _color = const Color(0xff0dcaf0);
+        _svgIcon = IconPathConstants.infoIcon;
         break;
     }
   }
 
   final String title;
   final String message;
-  Color color = const Color(0xff0d6efd);
+  String? _svgIcon;
+  Color? _color;
 
   Future<dynamic> show(BuildContext context) async {
     return await showDialog(
@@ -54,9 +55,10 @@ class PopUp {
           ),
           child: Center(
             child: _PopUpMessage(
-              color: color,
-              message: message,
               title: title,
+              message: message,
+              color: _color!,
+              svgIcon: _svgIcon!,
             ),
           ),
         );
@@ -71,10 +73,12 @@ class _PopUpMessage extends StatelessWidget {
     required this.message,
     required this.color,
     required this.title,
+    required this.svgIcon,
   }) : super(key: key);
   final String title;
   final String message;
   final Color color;
+  final String svgIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +112,7 @@ class _PopUpMessage extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(0.0),
                       child: SvgPicture.asset(
-                        IconPathConstants.warningIcon,
+                        svgIcon,
                         color: Colors.white,
                       ),
                     ),
