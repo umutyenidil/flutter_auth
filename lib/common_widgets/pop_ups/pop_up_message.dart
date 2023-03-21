@@ -1,74 +1,11 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_auth/common_widgets/pop_ups/pop_up.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-enum PopUpMessageType {
-  success,
-  danger,
-  warning,
-  info,
-}
-
-class PopUp {
-  PopUp({
-    required this.title,
-    required this.message,
-    PopUpMessageType type = PopUpMessageType.info,
-  }) {
-    switch (type) {
-      case PopUpMessageType.success:
-        _color = const Color(0xff198754);
-        _svgIcon = IconPathConstants.checkIcon;
-        break;
-      case PopUpMessageType.danger:
-        _color = const Color(0xffdc3545);
-        _svgIcon = IconPathConstants.warningIcon;
-        break;
-      case PopUpMessageType.warning:
-        _color = const Color(0xffdfa800);
-        _svgIcon = IconPathConstants.warningIcon;
-        break;
-      case PopUpMessageType.info:
-        _color = const Color(0xff0dcaf0);
-        _svgIcon = IconPathConstants.infoIcon;
-        break;
-    }
-  }
-
-  final String title;
-  final String message;
-  String? _svgIcon;
-  Color? _color;
-
-  Future<dynamic> show(BuildContext context) async {
-    return await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaY: 2,
-            sigmaX: 2,
-          ),
-          child: Center(
-            child: _PopUpMessage(
-              title: title,
-              message: message,
-              color: _color!,
-              svgIcon: _svgIcon!,
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _PopUpMessage extends StatelessWidget {
-  const _PopUpMessage({
+class PopUpMessage extends StatelessWidget implements PopUp {
+  const PopUpMessage._({
     Key? key,
     required this.message,
     required this.color,
@@ -79,6 +16,54 @@ class _PopUpMessage extends StatelessWidget {
   final String message;
   final Color color;
   final String svgIcon;
+
+  factory PopUpMessage.success({
+    required String title,
+    required String message,
+  }) {
+    return PopUpMessage._(
+      title: title,
+      message: message,
+      color: const Color(0xff198754),
+      svgIcon: IconPathConstants.checkIcon,
+    );
+  }
+
+  factory PopUpMessage.danger({
+    required String title,
+    required String message,
+  }) {
+    return PopUpMessage._(
+      title: title,
+      message: message,
+      color: const Color(0xffdc3545),
+      svgIcon: IconPathConstants.warningIcon,
+    );
+  }
+
+  factory PopUpMessage.warning({
+    required String title,
+    required String message,
+  }) {
+    return PopUpMessage._(
+      title: title,
+      message: message,
+      color: const Color(0xffdfa800),
+      svgIcon: IconPathConstants.warningIcon,
+    );
+  }
+
+  factory PopUpMessage.info({
+    required String title,
+    required String message,
+  }) {
+    return PopUpMessage._(
+      title: title,
+      message: message,
+      color: const Color(0xff0dcaf0),
+      svgIcon: IconPathConstants.infoIcon,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

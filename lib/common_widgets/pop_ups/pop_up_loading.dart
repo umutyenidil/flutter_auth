@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_auth/common_widgets/pop_ups/pop_up.dart';
 import 'package:flutter_auth/constants/lottie_path_constants.dart';
 import 'package:lottie/lottie.dart';
 
-class PopUpLoading extends StatelessWidget {
+class PopUpLoading extends StatelessWidget implements PopUp {
   const PopUpLoading({
     Key? key,
   }) : super(key: key);
@@ -17,13 +18,13 @@ class PopUpLoading extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: SizedBox(
-        width: 256,
-        height: 240,
+        width: 256 * 0.75,
+        height: 240 * 0.75,
         child: Padding(
-          padding: EdgeInsets.all(0),
+          padding: const EdgeInsets.all(16.0),
           child: Lottie.asset(
-            LottiePathConstants.progressIndicatorLottie,
-            repeat: true,
+            LottiePathConstants.progressIndicatorGearLottie,
+            fit: BoxFit.contain,
           ),
         ),
       ),
