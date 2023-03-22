@@ -12,6 +12,8 @@ class SecureInputField extends StatefulWidget {
   const SecureInputField({
     Key? key,
     required this.node,
+    this.nextNode,
+    this.textInputAction,
     required this.hintText,
     required this.inputType,
     required this.regularExpression,
@@ -21,6 +23,8 @@ class SecureInputField extends StatefulWidget {
   }) : super(key: key);
 
   final FocusNode node;
+  final FocusNode? nextNode;
+  final TextInputAction? textInputAction;
   final String hintText;
   final TextInputType inputType;
   final String regularExpression;
@@ -44,8 +48,9 @@ class _SecureInputFieldState extends State<SecureInputField> {
 
     _hasFocus = false;
     _hasError = false;
-    _activeColor = Colors.green;
+    _activeColor = Colors.red;
     _isObsecured = true;
+
   }
 
   @override
@@ -110,6 +115,12 @@ class _SecureInputFieldState extends State<SecureInputField> {
                         widget.getValue(value);
                       }
                     },
+                    onSubmitted: (value) {
+                      widget.node.unfocus();
+                      widget.nextNode?.requestFocus();
+
+                    },
+                    textInputAction: widget.textInputAction,
                   ),
                 ),
               ),

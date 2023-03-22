@@ -11,6 +11,8 @@ class InputField extends StatefulWidget {
   const InputField({
     Key? key,
     required this.node,
+    this.nextNode,
+    this.textInputAction,
     required this.hintText,
     required this.inputType,
     required this.regularExpression,
@@ -20,6 +22,8 @@ class InputField extends StatefulWidget {
   }) : super(key: key);
 
   final FocusNode node;
+  final FocusNode? nextNode;
+  final TextInputAction? textInputAction;
   final String hintText;
   final TextInputType inputType;
   final String regularExpression;
@@ -42,7 +46,7 @@ class _InputFieldState extends State<InputField> {
 
     _hasFocus = false;
     _hasError = false;
-    _activeColor = Colors.green;
+    _activeColor = Colors.red;
   }
 
   @override
@@ -54,61 +58,72 @@ class _InputFieldState extends State<InputField> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          height: 50,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            borderRadius: BorderRadiusConstants.allCorners10,
-            border: Border.all(
-              color: (_hasFocus ? _activeColor : Colors.transparent),
+        GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(widget.node);
+            // widget.node.requestFocus();
+          },
+          child: Container(
+            height: 50,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadiusConstants.allCorners10,
+              border: Border.all(
+                color: (_hasFocus ? _activeColor : Colors.transparent),
+              ),
             ),
-          ),
-          child: Row(
-            children: [
-              const HorizontalSpace(8),
-              SizedBox.square(
-                dimension: 32,
-                child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: SvgPicture.asset(
-                    widget.svgIcon,
-                    color: _hasFocus ? _activeColor : Colors.grey,
-                  ),
-                ),
-              ),
-              const HorizontalSpace(8),
-              Expanded(
-                child: Focus(
-                  focusNode: widget.node,
-                  onFocusChange: (hasFocus) {
-                    setState(() {
-                      _hasFocus = hasFocus;
-                    });
-                  },
-                  child: TextField(
-                    keyboardType: widget.inputType,
-                    cursorColor: Colors.grey,
-                    decoration: InputDecoration(
-                      hintText: widget.hintText,
-                      contentPadding: EdgeInsets.zero,
-                      border: InputBorder.none,
+            child: Row(
+              children: [
+                const HorizontalSpace(8),
+                SizedBox.square(
+                  dimension: 32,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: SvgPicture.asset(
+                      widget.svgIcon,
+                      color: _hasFocus ? _activeColor : Colors.grey,
                     ),
-                    onChanged: (value) {
-                      _hasError = !RegExp(widget.regularExpression).hasMatch(value);
-                      setState(() {
-                        _activeColor = _hasError ? Colors.red : Colors.green;
-                      });
-                      if (_hasError) {
-                        widget.getValue(StringErrorConstants.error);
-                      } else {
-                        widget.getValue(value);
-                      }
-                    },
                   ),
                 ),
-              ),
-            ],
+                const HorizontalSpace(8),
+                Expanded(
+                  child: Focus(
+                    focusNode: widget.node,
+                    onFocusChange: (hasFocus) {
+                      setState(() {
+                        _hasFocus = hasFocus;
+                      });
+                    },
+                    child: TextField(
+                      keyboardType: widget.inputType,
+                      cursorColor: Colors.grey,
+                      decoration: InputDecoration(
+                        hintText: widget.hintText,
+                        contentPadding: EdgeInsets.zero,
+                        border: InputBorder.none,
+                      ),
+                      onChanged: (value) {
+                        _hasError = !RegExp(widget.regularExpression).hasMatch(value);
+                        setState(() {
+                          _activeColor = _hasError ? Colors.red : Colors.green;
+                        });
+                        if (_hasError) {
+                          widget.getValue(StringErrorConstants.error);
+                        } else {
+                          widget.getValue(value);
+                        }
+                      },
+                      onSubmitted: (value) {
+                        widget.node.unfocus();
+                        widget.nextNode?.requestFocus();
+                      },
+                      textInputAction: widget.textInputAction,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         const VerticalSpace(4),
