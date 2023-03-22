@@ -179,7 +179,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ),
                                 const VerticalSpace(36),
                                 InputField(
+                                  textInputAction: TextInputAction.next,
                                   node: _mailInputNode,
+                                  nextNode: _passwordInputNode,
                                   svgIcon: IconPathConstants.mailIcon,
                                   regularExpression: RegularExpressionConstants.emailRegex,
                                   inputType: TextInputType.emailAddress,
@@ -190,7 +192,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                   },
                                 ),
                                 SecureInputField(
+                                  textInputAction: TextInputAction.next,
                                   node: _passwordInputNode,
+                                  nextNode: _passwordAgainInputNode,
                                   svgIcon: IconPathConstants.lockIcon,
                                   regularExpression: RegularExpressionConstants.min8CharacterRegex,
                                   inputType: TextInputType.text,
@@ -203,6 +207,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   },
                                 ),
                                 SecureInputField(
+                                  textInputAction: TextInputAction.done,
                                   node: _passwordAgainInputNode,
                                   svgIcon: IconPathConstants.lockIcon,
                                   regularExpression: RegularExpressionConstants.toRegex(_passwordInputController.text),
