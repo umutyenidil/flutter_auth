@@ -50,7 +50,6 @@ class _SecureInputFieldState extends State<SecureInputField> {
     _hasError = false;
     _activeColor = Colors.red;
     _isObsecured = true;
-
   }
 
   @override
@@ -62,90 +61,95 @@ class _SecureInputFieldState extends State<SecureInputField> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          height: 50,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            borderRadius: BorderRadiusConstants.allCorners10,
-            border: Border.all(
-              color: (_hasFocus ? _activeColor : Colors.transparent),
+        GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(widget.node);
+            // widget.node.requestFocus();
+          },
+          child: Container(
+            height: 50,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadiusConstants.allCorners10,
+              border: Border.all(
+                color: (_hasFocus ? _activeColor : Colors.transparent),
+              ),
             ),
-          ),
-          child: Row(
-            children: [
-              const HorizontalSpace(8),
-              SizedBox.square(
-                dimension: 32,
-                child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: SvgPicture.asset(
-                    widget.svgIcon,
-                    color: _hasFocus ? _activeColor : Colors.grey,
-                  ),
-                ),
-              ),
-              const HorizontalSpace(8),
-              Expanded(
-                child: Focus(
-                  focusNode: widget.node,
-                  onFocusChange: (hasFocus) {
-                    setState(() {
-                      _hasFocus = hasFocus;
-                    });
-                  },
-                  child: TextField(
-                    obscureText: _isObsecured,
-                    autocorrect: false,
-                    keyboardType: widget.inputType,
-                    cursorColor: Colors.grey,
-                    decoration: InputDecoration(
-                      hintText: widget.hintText,
-                      contentPadding: EdgeInsets.zero,
-                      border: InputBorder.none,
+            child: Row(
+              children: [
+                const HorizontalSpace(8),
+                SizedBox.square(
+                  dimension: 32,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: SvgPicture.asset(
+                      widget.svgIcon,
+                      color: _hasFocus ? _activeColor : Colors.grey,
                     ),
-                    onChanged: (value) {
-                      _hasError = !RegExp(widget.regularExpression).hasMatch(value);
+                  ),
+                ),
+                const HorizontalSpace(8),
+                Expanded(
+                  child: Focus(
+                    focusNode: widget.node,
+                    onFocusChange: (hasFocus) {
                       setState(() {
-                        _activeColor = _hasError ? Colors.red : Colors.green;
+                        _hasFocus = hasFocus;
                       });
-                      if (_hasError) {
-                        widget.getValue(StringErrorConstants.error);
-                      } else {
-                        widget.getValue(value);
-                      }
                     },
-                    onSubmitted: (value) {
-                      widget.node.unfocus();
-                      widget.nextNode?.requestFocus();
-
-                    },
-                    textInputAction: widget.textInputAction,
+                    child: TextField(
+                      obscureText: _isObsecured,
+                      autocorrect: false,
+                      keyboardType: widget.inputType,
+                      cursorColor: Colors.grey,
+                      decoration: InputDecoration(
+                        hintText: widget.hintText,
+                        contentPadding: EdgeInsets.zero,
+                        border: InputBorder.none,
+                      ),
+                      onChanged: (value) {
+                        _hasError = !RegExp(widget.regularExpression).hasMatch(value);
+                        setState(() {
+                          _activeColor = _hasError ? Colors.red : Colors.green;
+                        });
+                        if (_hasError) {
+                          widget.getValue(StringErrorConstants.error);
+                        } else {
+                          widget.getValue(value);
+                        }
+                      },
+                      onSubmitted: (value) {
+                        widget.node.unfocus();
+                        widget.nextNode?.requestFocus();
+                      },
+                      textInputAction: widget.textInputAction,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox.square(
-                dimension: 32,
-                child: MaterialButton(
-                  minWidth: 0,
-                  height: 0,
-                  padding: EdgeInsets.zero,
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusConstants.allCorners10,
+                SizedBox.square(
+                  dimension: 32,
+                  child: MaterialButton(
+                    minWidth: 0,
+                    height: 0,
+                    padding: EdgeInsets.zero,
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadiusConstants.allCorners10,
+                    ),
+                    child: SvgPicture.asset(
+                      _isObsecured ? IconPathConstants.eyeIcon : IconPathConstants.eyeSlashIcon,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isObsecured = !_isObsecured;
+                      });
+                    },
                   ),
-                  child: SvgPicture.asset(
-                    _isObsecured ? IconPathConstants.eyeIcon : IconPathConstants.eyeSlashIcon,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isObsecured = !_isObsecured;
-                    });
-                  },
                 ),
-              ),
-              const HorizontalSpace(8),
-            ],
+                const HorizontalSpace(8),
+              ],
+            ),
           ),
         ),
         const VerticalSpace(4),
