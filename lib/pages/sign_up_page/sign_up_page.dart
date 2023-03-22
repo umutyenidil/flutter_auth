@@ -55,41 +55,43 @@ class _SignUpPageState extends State<SignUpPage> {
             (route) => false,
           );
         }
+        if (state is AuthStateSignUpLoading) {
+          const PopUpLoading().show(context);
+        }
         if (state is AuthStateSignUpFailed) {
-          if (state.exception is UserEmailAlreadyInUseException) {
+          UserModelException exception = state.exception;
+          if (exception is UserEmailAlreadyInUseException) {
             await PopUpMessage.danger(
               title: 'Email Hatası',
               message: 'Email başka bir kullanıcı tarafından kullanılıyor.',
             ).show(context).then((value) => null);
           }
-          if (state.exception is UserInvalidEmailException) {
+          if (exception is UserInvalidEmailException) {
             await PopUpMessage.danger(
               title: 'Email Hatası',
               message: 'Kullandığınız email geçersizdir.',
             ).show(context);
           }
-          if (state.exception is UserOperationNotAllowedException) {
+          if (exception is UserOperationNotAllowedException) {
             await PopUpMessage.danger(
               title: 'İzin Hatası',
               message: 'Lütfen yöneticilerle iletişime geçiniz.',
             ).show(context);
           }
-          if (state.exception is UserWeakPasswordException) {
+          if (exception is UserWeakPasswordException) {
             await PopUpMessage.danger(
               title: 'Parola Hatası',
               message: 'Daha güçlü bir parola deneyiniz.',
             ).show(context);
           }
-          if (state.exception is UserGenericException) {
+          if (exception is UserGenericException) {
             await PopUpMessage.danger(
               title: 'Beklenmedik Bir Hata',
               message: state.exception.toString(),
             ).show(context);
           }
         }
-        if (state is AuthStateSignUpLoading) {
-          const PopUpLoading().show(context);
-        }
+
       },
       listenWhen: (previous, current) {
         if (previous is AuthStateSignUpLoading && current is! AuthStateSignUpLoading) {
@@ -226,7 +228,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                     if (emailAddress != StringErrorConstants.error && password != StringErrorConstants.error && passwordAgain != StringErrorConstants.error) {
                                       BlocProvider.of<AuthBloc>(context).add(
                                         AuthEventSignUpWithEmailAndPassword(
-                                          context: context,
                                           emailAddress: emailAddress,
                                           password: password,
                                         ),
