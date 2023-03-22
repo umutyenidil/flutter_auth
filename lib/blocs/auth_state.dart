@@ -5,12 +5,22 @@ abstract class AuthState {}
 
 class AuthInitial extends AuthState {}
 
-class AuthStateSignUpSuccess extends AuthInitial {}
+class AuthStateSignUpSuccess extends AuthState {}
 
-class AuthStateSignUpFailed extends AuthInitial {
-  final UserModelExceptions exception;
+class AuthStateSignUpFailed extends AuthState {
+  final UserModelException exception;
 
   AuthStateSignUpFailed({required this.exception});
 }
 
-class AuthStateSignUpLoading extends AuthInitial {}
+class AuthStateSignUpLoading extends AuthState {}
+
+class AuthStateSignInSuccess extends AuthState {}
+
+class AuthStateSignInFailed extends AuthState {
+  final UserModelException exception;
+
+  AuthStateSignInFailed({required this.exception});
+}
+
+class AuthStateSignInLoading extends AuthState {}

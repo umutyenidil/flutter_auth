@@ -18,39 +18,67 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emailAddress: event.emailAddress,
           password: event.password,
         );
-
         emit(
           AuthStateSignUpSuccess(),
         );
-      } on UserEmailAlreadyInUseException {
+      } on UserEmailAlreadyInUseException catch (exception) {
         emit(
-          AuthStateSignUpFailed(
-            exception: UserEmailAlreadyInUseException(),
-          ),
+          AuthStateSignUpFailed(exception: exception),
         );
-      } on UserInvalidEmailException {
+      } on UserInvalidEmailException catch (exception) {
         emit(
-          AuthStateSignUpFailed(
-            exception: UserInvalidEmailException(),
-          ),
+          AuthStateSignUpFailed(exception: exception),
         );
-      } on UserOperationNotAllowedException {
+      } on UserOperationNotAllowedException catch (exception) {
         emit(
-          AuthStateSignUpFailed(
-            exception: UserOperationNotAllowedException(),
-          ),
+          AuthStateSignUpFailed(exception: exception),
         );
-      } on UserWeakPasswordException {
+      } on UserWeakPasswordException catch (exception) {
         emit(
-          AuthStateSignUpFailed(
-            exception: UserWeakPasswordException(),
-          ),
+          AuthStateSignUpFailed(exception: exception),
         );
       } catch (exception) {
         emit(
-          AuthStateSignUpFailed(
-            exception: UserGenericException(),
-          ),
+          AuthStateSignUpFailed(exception: UserGenericException()),
+        );
+      }
+    });
+
+    on<AuthEventSignInWithEmailAndPassword>((event, emit) async {
+      try {
+        emit(
+          AuthStateSignInLoading(),
+        );
+        await UserModel().signInWithEmailAndPassword(
+          emailAddress: event.emailAddress,
+          password: event.password,
+        );
+        emit(
+          AuthStateSignInSuccess(),
+        );
+      } on UserInvalidEmailException catch (exception) {
+        emit(
+          AuthStateSignInFailed(exception: exception),
+        );
+      } on UserDisabledException catch (exception) {
+        emit(
+          AuthStateSignInFailed(exception: exception),
+        );
+      } on UserNotFoundException catch (exception) {
+        emit(
+          AuthStateSignInFailed(exception: exception),
+        );
+      } on UserWrongPasswordException catch (exception) {
+        emit(
+          AuthStateSignInFailed(exception: exception),
+        );
+      } on UserDidntSignInException catch (exception) {
+        emit(
+          AuthStateSignInFailed(exception: exception),
+        );
+      } catch (exception) {
+        emit(
+          AuthStateSignInFailed(exception: UserGenericException()),
         );
       }
     });
