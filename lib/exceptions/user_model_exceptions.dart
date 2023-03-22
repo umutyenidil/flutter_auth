@@ -1,17 +1,25 @@
-class UserModelExceptions implements Exception {}
+class UserModelException implements Exception {}
 
-class UserHasNotBeenCreatedException implements UserModelExceptions {}
+class UserHasNotBeenCreatedException implements UserModelException {}
 
-class UserDocumentNotFoundException implements UserModelExceptions {}
+class UserDidntSignInException implements UserModelException {}
 
-class UserDetailDocumentNotFoundException implements UserModelExceptions {}
+class UserDocumentNotFoundException implements UserModelException {}
 
-class UserEmailAlreadyInUseException implements UserModelExceptions {}
+class UserDetailDocumentNotFoundException implements UserModelException {}
 
-class UserInvalidEmailException implements UserModelExceptions {}
+class UserEmailAlreadyInUseException implements UserModelException {}
 
-class UserOperationNotAllowedException implements UserModelExceptions {}
+class UserInvalidEmailException implements UserModelException {}
 
-class UserWeakPasswordException implements UserModelExceptions {}
+class UserOperationNotAllowedException implements UserModelException {}
 
-class UserGenericException implements UserModelExceptions {}
+class UserWeakPasswordException implements UserModelException {}
+
+class UserDisabledException implements UserModelException {}
+
+class UserNotFoundException implements UserModelException {}
+
+class UserWrongPasswordException implements UserModelException {}
+
+class UserGenericException implements UserModelException {}
