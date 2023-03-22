@@ -56,6 +56,47 @@ class UserModel implements FirebaseModel {
     return true;
   }
 
+  Future<void> signInWithEmailAndPassword({
+    required String emailAddress,
+    required String password,
+  }) async {
+    UserCredential? userCredential;
+    try {
+      userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
+      );
+    } on FirebaseAuthException catch (exception) {
+      switch (exception.code) {
+        case 'invalid-email':
+          throw UserInvalidEmailException();
+        case 'user-disabled':
+          throw UserDisabledException();
+        case 'user-not-found':
+          throw UserNotFoundException();
+        case 'wrong-password':
+          throw UserWrongPasswordException();
+      }
+    } catch (exception) {
+      rethrow;
+    }
+    if (userCredential!.user == null) {
+      throw UserDidntSignInException();
+    }
+
+    await updateLastLoginValueWithUid(userCredential.user!.uid);
+  }
+
+  Future<void> updateLastLoginValueWithUid(String uid) async {
+    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
+    DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
+    await userDocumentReference.update(
+      {
+        UserModelFields.lastLogin: FieldValue.serverTimestamp(),
+      },
+    );
+  }
+
   @override
   Future<bool> create({
     required Map<String, dynamic> data,
@@ -170,19 +211,14 @@ class UserModel implements FirebaseModel {
   }
 
   @override
-  Future<bool> updateWithUid({required String uid, required Map<String, dynamic> data}) async {
+  Future<bool> updateWithUid({
+    required String uid,
+    String? emailAddress,
+  }) async {
     // hicbir arguman gonderilmezse false dondur
-    if (data.isEmpty) {
+    if (emailAddress == null) {
       return false;
     }
-
-    // alanlardan herhangi biri null ise false dondurur
-    for (var value in data.values) {
-      if (value == null) {
-        return false;
-      }
-    }
-
     // dokumanlarin guncellenip guncellenmedigini kontrol degiskenler
     bool isUserDocumentUpdated = false;
     bool isUserDetailDocumentUpdated = false;
@@ -192,29 +228,33 @@ class UserModel implements FirebaseModel {
     Map<String, dynamic> userDetailDocumentData = {};
 
     // null olmayan alanlari map'lere ekle
-    if (data[UserModelFields.emailAddress] != null) {
-      userDetailDocumentData[UserModelFields.emailAddress] = data[UserModelFields.emailAddress];
+    if (emailAddress != null) {
+      userDetailDocumentData[UserModelFields.emailAddress] = emailAddress;
     }
 
     // users collection'daki dokuman'a gidecek veri varsa dokumani guncelle ve kontrol degiskenini true yap
     if (userDocumentData.isNotEmpty) {
       CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
       DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
+      userDocumentData.addAll({
+        UserModelFields.updatedAt: FieldValue.serverTimestamp(),
+      });
       await userDocumentReference.update(userDocumentData);
-      await userDocumentReference.update({UserModelFields.updatedAt: DateTime.now()});
-
       isUserDocumentUpdated = true;
     }
 
+    print('user detail document guncellenecek');
     // user_details collection'daki dokuman'a gidecek veri varsa dokumani guncelle ve kontrol degiskenini true yap
     if (userDocumentData.isNotEmpty) {
       CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.userDetails);
       DocumentReference userDetailDocumentReference = userDetailsCollectionReference.doc(uid);
+      userDetailDocumentData.addAll({
+        UserModelFields.updatedAt: FieldValue.serverTimestamp(),
+      });
       await userDetailDocumentReference.update(userDetailDocumentData);
-      await userDetailDocumentReference.update({UserModelFields.updatedAt: DateTime.now()});
-
       isUserDetailDocumentUpdated = true;
     }
+    print('user detail document guncellendi');
 
     // alanlarin degistirilip degistirilmedigini dondur
     return isUserDocumentUpdated && isUserDetailDocumentUpdated;
@@ -228,7 +268,7 @@ class UserModel implements FirebaseModel {
 
     userDocumentReference.update({
       UserModelFields.isDeleted: true,
-      UserModelFields.deletedAt: DateTime.now(),
+      UserModelFields.deletedAt: FieldValue.serverTimestamp(),
     });
 
     return true;
