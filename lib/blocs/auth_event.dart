@@ -22,3 +22,7 @@ class AuthEventSignInWithEmailAndPassword extends AuthEvent {
     required this.password,
   });
 }
+
+class AuthEventIsUserVerified extends AuthEvent {}
+
+class AuthEventSendEmailVerification extends AuthEvent {}

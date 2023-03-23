@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/models/user_model.dart';
@@ -82,5 +83,50 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
       }
     });
+
+    on<AuthEventIsUserVerified>(
+      (event, emit) async {
+        try {
+          emit(AuthStateIsUserVerifiedLoading());
+          User currentUser = await UserModel().getCurrentUser();
+          await currentUser.reload();
+
+          if (currentUser.emailVerified) {
+            emit(
+              AuthStateIsUserVerifiedVerified(),
+            );
+          } else {
+            emit(
+              AuthStateIsUserVerifiedNotVerified(),
+            );
+          }
+        } catch (exception) {
+          emit(
+            AuthStateIsUserVerifiedFailed(exception: UserGenericException()),
+          );
+        }
+      },
+    );
+
+    on<AuthEventSendEmailVerification>(
+      (event, emit) async {
+        try {
+          emit(
+            AuthStateSendEmailVerificationLoading(),
+          );
+          User currentUser = await UserModel().getCurrentUser();
+
+          await currentUser.sendEmailVerification();
+
+          emit(
+            AuthStateSendEmailVerificationSuccess(),
+          );
+        } catch (exception) {
+          emit(
+            AuthStateSendEmailVerificationFailed(exception: UserGenericException()),
+          );
+        }
+      },
+    );
   }
 }

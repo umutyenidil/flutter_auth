@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
@@ -18,6 +17,7 @@ import 'package:flutter_auth/common_widgets/secure_input_field.dart';
 import 'package:flutter_auth/common_widgets/social_media_svg_button.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/extensions/single_child_scroll_view_extensions.dart';
+import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/page_background.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/sign_in_material_button.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/sign_up_text_button.dart';
@@ -47,9 +47,25 @@ class _SignInPageState extends State<SignInPage> {
             title: 'Islem Basarili',
             message: 'Basariyla giris yaptiniz. Yonlendiriliyorsunuz',
           ).show(context);
+
+          BlocProvider.of<AuthBloc>(context).add(
+            AuthEventIsUserVerified(),
+          );
         }
         if (state is AuthStateSignInLoading) {
           PopUpLoading().show(context);
+        }
+
+        if (state is AuthStateIsUserVerifiedVerified) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            RouteConstants.profilePageRoute,
+            (route) => false,
+          );
+        } else if (state is AuthStateIsUserVerifiedNotVerified) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            RouteConstants.emailVerificationPageRoute,
+            (route) => false,
+          );
         }
 
         if (state is AuthStateSignInFailed) {
@@ -96,6 +112,7 @@ class _SignInPageState extends State<SignInPage> {
         if (previous is AuthStateSignInLoading && current is! AuthStateSignInLoading) {
           Navigator.of(context).pop();
         }
+
         return true;
       },
       builder: (context, state) {

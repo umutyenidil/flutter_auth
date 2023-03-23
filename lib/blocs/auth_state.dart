@@ -24,3 +24,27 @@ class AuthStateSignInFailed extends AuthState {
 }
 
 class AuthStateSignInLoading extends AuthState {}
+
+class AuthStateIsUserVerifiedLoading extends AuthState {}
+
+class AuthStateIsUserVerifiedSuccess extends AuthState {}
+
+class AuthStateIsUserVerifiedNotVerified extends AuthState {}
+
+class AuthStateIsUserVerifiedVerified extends AuthState {}
+
+class AuthStateIsUserVerifiedFailed extends AuthState {
+  final UserModelException exception;
+
+  AuthStateIsUserVerifiedFailed({required this.exception});
+}
+
+class AuthStateSendEmailVerificationLoading extends AuthState {}
+
+class AuthStateSendEmailVerificationSuccess extends AuthState {}
+
+class AuthStateSendEmailVerificationFailed extends AuthState {
+  final UserModelException exception;
+
+  AuthStateSendEmailVerificationFailed({required this.exception});
+}
