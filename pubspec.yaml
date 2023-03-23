@@ -43,6 +43,8 @@ dependencies:
   firebase_auth: ^4.3.0
   cloud_firestore: ^4.4.5
   flutter_bloc: ^8.1.2
+  open_mail_app: ^0.4.5
+
 
 dev_dependencies:
   flutter_test:
