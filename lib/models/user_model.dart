@@ -56,6 +56,16 @@ class UserModel implements FirebaseModel {
     return true;
   }
 
+  Future<User> getCurrentUser() async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      throw CurrentUserNotFoundException();
+    }
+
+    return user;
+  }
+
   Future<void> signInWithEmailAndPassword({
     required String emailAddress,
     required String password,

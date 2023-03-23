@@ -23,3 +23,5 @@ class UserNotFoundException implements UserModelException {}
 class UserWrongPasswordException implements UserModelException {}
 
 class UserGenericException implements UserModelException {}
+
+class CurrentUserNotFoundException implements UserModelException {}
