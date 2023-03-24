@@ -12,4 +12,5 @@ class IconPathConstants {
   static const String warningIcon = 'assets/icons/warning_icon.svg';
   static const String checkIcon = 'assets/icons/check_icon.svg';
   static const String infoIcon = 'assets/icons/info_icon.svg';
+  static const String logoutIcon = 'assets/icons/logout_icon.svg';
 }
