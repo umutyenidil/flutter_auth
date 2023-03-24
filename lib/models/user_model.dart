@@ -120,7 +120,7 @@ class UserModel implements FirebaseModel {
   Future<void> logout() async {
     try {
       User user = await getCurrentUser();
-      updateLastLogoutValueWithUid(user.uid);
+      await updateLastLogoutValueWithUid(user.uid);
       await FirebaseAuth.instance.signOut();
     } catch (exception) {
       print(exception);
