@@ -36,6 +36,29 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) async {
+        if (state is AuthStateLogoutLoading) {
+          PopUpLoading().show(context);
+        }
+
+        if (state is AuthStateLogoutSuccess) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            RouteConstants.signInPageRoute,
+            (route) => false,
+          );
+        }
+
+        if (state is AuthStateLogoutFailed) {
+          Navigator.of(context).pop();
+
+          UserModelException exception = state.exception;
+          if (exception is UserGenericException) {
+            PopUpMessage.danger(
+              title: 'Bir hata olustu',
+              message: 'Beklenmedik bir hata olustu',
+            ).show(context);
+          }
+        }
+
         if (state is AuthStateSendEmailVerificationLoading) {
           PopUpLoading().show(context);
         }
@@ -53,6 +76,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
             rightButtonText: 'Open Mail App',
             rightButtonOnPressed: () async {
               OpenMailAppResult result = await OpenMailApp.openMailApp();
+              Navigator.of(context).pop();
             },
           ).show(context);
           BlocProvider.of<AuthBloc>(context).add(
@@ -85,6 +109,9 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
         }
       },
       listenWhen: (previous, current) {
+        if (previous is AuthStateLogoutLoading && current is! AuthStateLogoutLoading) {
+          Navigator.of(context).pop();
+        }
         if (previous is AuthStateSendEmailVerificationLoading && current is! AuthStateSendEmailVerificationLoading) {
           Navigator.of(context).pop();
         }
@@ -135,7 +162,24 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                     ),
                     const Spacer(),
                     LogoutButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        PopUpAcceptable(
+                          color: Colors.red,
+                          description: 'Are you sure?',
+                          title: 'Logging out',
+                          rightButtonText: 'Logout',
+                          leftButtonText: 'Cancel',
+                          leftButtonOnPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          svgIcon: IconPathConstants.logoutIcon,
+                          rightButtonOnPressed: () {
+                            BlocProvider.of<AuthBloc>(context).add(
+                              AuthEventLogout(),
+                            );
+                          },
+                        ).show(context);
+                      },
                     ),
                   ],
                 ),
