@@ -222,6 +222,9 @@ class _SignInPageState extends State<SignInPage> {
                                 ),
                                 SignInMaterialButton(
                                   onPressed: () async {
+                                    // to dismiss keyboard before routing
+                                    FocusManager.instance.primaryFocus?.unfocus();
+
                                     String emailAddress = _mailInputController.text;
                                     String password = _passwordInputController.text;
                                     if (emailAddress != StringErrorConstants.error && password != StringErrorConstants.error) {
