@@ -107,6 +107,27 @@ class UserModel implements FirebaseModel {
     );
   }
 
+  Future<void> updateLastLogoutValueWithUid(String uid) async {
+    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
+    DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
+    await userDocumentReference.update(
+      {
+        UserModelFields.lastLogout: FieldValue.serverTimestamp(),
+      },
+    );
+  }
+
+  Future<void> logout() async {
+    try {
+      User user = await getCurrentUser();
+      updateLastLogoutValueWithUid(user.uid);
+      await FirebaseAuth.instance.signOut();
+    } catch (exception) {
+      print(exception);
+      throw UserGenericException();
+    }
+  }
+
   @override
   Future<bool> create({
     required Map<String, dynamic> data,

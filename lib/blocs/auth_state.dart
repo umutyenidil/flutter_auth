@@ -5,6 +5,7 @@ abstract class AuthState {}
 
 class AuthInitial extends AuthState {}
 
+// SignUp Event States
 class AuthStateSignUpSuccess extends AuthState {}
 
 class AuthStateSignUpFailed extends AuthState {
@@ -15,6 +16,7 @@ class AuthStateSignUpFailed extends AuthState {
 
 class AuthStateSignUpLoading extends AuthState {}
 
+// SignIn Event States
 class AuthStateSignInSuccess extends AuthState {}
 
 class AuthStateSignInFailed extends AuthState {
@@ -25,6 +27,7 @@ class AuthStateSignInFailed extends AuthState {
 
 class AuthStateSignInLoading extends AuthState {}
 
+// IsUserVerified Event States
 class AuthStateIsUserVerifiedLoading extends AuthState {}
 
 class AuthStateIsUserVerifiedSuccess extends AuthState {}
@@ -39,6 +42,7 @@ class AuthStateIsUserVerifiedFailed extends AuthState {
   AuthStateIsUserVerifiedFailed({required this.exception});
 }
 
+// SendEmailVerification Event States
 class AuthStateSendEmailVerificationLoading extends AuthState {}
 
 class AuthStateSendEmailVerificationSuccess extends AuthState {}
@@ -47,4 +51,16 @@ class AuthStateSendEmailVerificationFailed extends AuthState {
   final UserModelException exception;
 
   AuthStateSendEmailVerificationFailed({required this.exception});
+}
+
+// Logout Event States
+
+class AuthStateLogoutLoading extends AuthState {}
+
+class AuthStateLogoutSuccess extends AuthState {}
+
+class AuthStateLogoutFailed extends AuthState {
+  final UserModelException exception;
+
+  AuthStateLogoutFailed({required this.exception});
 }

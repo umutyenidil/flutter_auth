@@ -128,5 +128,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       },
     );
+
+    on<AuthEventLogout>(
+      (event, emit) async {
+        try {
+          emit(
+            AuthStateLogoutLoading(),
+          );
+
+          await UserModel().logout();
+
+          emit(
+            AuthStateLogoutSuccess(),
+          );
+        } catch (exception) {
+          emit(
+            AuthStateLogoutFailed(exception: UserGenericException()),
+          );
+        }
+      },
+    );
   }
 }
