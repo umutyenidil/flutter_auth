@@ -4,13 +4,20 @@ import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class BackSvgButton extends StatelessWidget {
-  const BackSvgButton({Key? key, required this.onPressed}) : super(key: key);
+  const BackSvgButton({
+    Key? key,
+    required this.onPressed,
+    this.size = 32.0,
+    this.padding = 0.0,
+  }) : super(key: key);
   final Function onPressed;
+  final double size;
+  final double padding;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: 32,
+      dimension: size,
       child: MaterialButton(
         color: Colors.white,
         height: 0,
@@ -18,9 +25,12 @@ class BackSvgButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadiusConstants.allCorners10,
         ),
-        padding: const EdgeInsets.all(8),
-        child: SvgPicture.asset(
-          IconPathConstants.chevronLeftIcon,
+        padding: EdgeInsets.zero,
+        child: SizedBox.square(
+          dimension: size - padding,
+          child: SvgPicture.asset(
+            IconPathConstants.chevronLeftIcon,
+          ),
         ),
         onPressed: () {
           onPressed();
