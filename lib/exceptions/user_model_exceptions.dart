@@ -25,3 +25,5 @@ class UserWrongPasswordException implements UserModelException {}
 class UserGenericException implements UserModelException {}
 
 class CurrentUserNotFoundException implements UserModelException {}
+
+class UserCannotReadFromCloudException implements UserModelException {}
