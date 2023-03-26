@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_auth/blocs/auth_bloc.dart';
+import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
+import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
 import 'package:flutter_auth/constants/error_message_constants.dart';
@@ -32,248 +34,18 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
-  late final TextEditingController _mailInputController;
-  late final TextEditingController _passwordInputController;
+  late String _mailInputValue;
+  late String _passwordInputValue;
 
   late final FocusNode _mailInputNode;
   late final FocusNode _passwordInputNode;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocConsumer<AuthBloc, AuthState>(
-      listener: (context, state) async {
-        if (state is AuthStateSignInSuccess) {
-          await PopUpMessage.success(
-            title: 'Islem Basarili',
-            message: 'Basariyla giris yaptiniz. Yonlendiriliyorsunuz',
-          ).show(context);
-
-          BlocProvider.of<AuthBloc>(context).add(
-            AuthEventIsUserVerified(),
-          );
-        }
-        if (state is AuthStateSignInLoading) {
-          PopUpLoading().show(context);
-        }
-
-        if (state is AuthStateIsUserVerifiedVerified) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            RouteConstants.profilePageRoute,
-            (route) => false,
-          );
-        } else if (state is AuthStateIsUserVerifiedNotVerified) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            RouteConstants.emailVerificationPageRoute,
-            (route) => false,
-          );
-        }
-
-        if (state is AuthStateSignInFailed) {
-          UserModelException exception = state.exception;
-          if (exception is UserInvalidEmailException) {
-            await PopUpMessage.danger(
-              title: 'Email Hatası',
-              message: 'Lütfen geçerli bir email adresi giriniz.',
-            ).show(context);
-          }
-          if (exception is UserDisabledException) {
-            await PopUpMessage.danger(
-              title: 'Kullanıcı Hatası',
-              message: 'Hesabınız dondurulmuştur. Lütfen yöneticilerle iletişime geçiniz.',
-            ).show(context);
-          }
-          if (exception is UserNotFoundException) {
-            await PopUpMessage.danger(
-              title: 'Kullanıcı Hatası',
-              message: 'Email adresiniz veya parolanız hatalıdır. Lütfen kontrol ediniz.',
-            ).show(context);
-          }
-          if (exception is UserWrongPasswordException) {
-            await PopUpMessage.danger(
-              title: 'Kullanici Hatasi',
-              message: 'Email adresiniz veya parolanız hatalıdır. Lütfen kontrol ediniz.',
-            ).show(context);
-          }
-          if (exception is UserDidntSignInException) {
-            await PopUpMessage.danger(
-              title: 'Oturum Açma Hatası',
-              message: 'Oturum açılamadı. Tekrar deneyiniz.',
-            ).show(context);
-          }
-          if (exception is UserGenericException) {
-            await PopUpMessage.danger(
-              title: 'Beklenmedik Bir Hata',
-              message: exception.toString(),
-            ).show(context);
-          }
-        }
-      },
-      listenWhen: (previous, current) {
-        if (previous is AuthStateSignInLoading && current is! AuthStateSignInLoading) {
-          Navigator.of(context).pop();
-        }
-
-        return true;
-      },
-      builder: (context, state) {
-        return Scaffold(
-          body: SingleChildScrollView(
-            child: PageBackground(
-              child: SizedBox(
-                width: context.screenWidth,
-                height: context.screenHeight,
-                child: SafeArea(
-                  child: Column(
-                    children: [
-                      const VerticalSpace(8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Row(
-                          children: [
-                            BackSvgButton(
-                              onPressed: () {},
-                            ),
-                            const Spacer(),
-                            const Text(
-                              'Don\'t have an account?',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                            SignUpTextButton(
-                              onPressed: () {
-                                Navigator.of(context).pushNamedAndRemoveUntil(
-                                  RouteConstants.signUpPageRoute,
-                                  (route) => false,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      const VerticalSpace(32),
-                      Expanded(
-                        child: SignUpFormBackground(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Column(
-                              children: [
-                                const VerticalSpace(26),
-                                const Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Let\'s get something',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                const VerticalSpace(8),
-                                const Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Good to see you back.',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                const VerticalSpace(22),
-                                Row(
-                                  children: [
-                                    context.selectWidgetByPlatform(
-                                      androidWidget: SocialMediaSvgButton.google(onPressed: () {}),
-                                      iosWidget: SocialMediaSvgButton.apple(onPressed: () {}),
-                                    ),
-                                    const HorizontalSpace(16),
-                                    SocialMediaSvgButton.facebook(onPressed: () {}),
-                                    const HorizontalSpace(16),
-                                    SocialMediaSvgButton.twitter(onPressed: () {}),
-                                  ],
-                                ),
-                                const VerticalSpace(36),
-                                InputField(
-                                  node: _mailInputNode,
-                                  svgIcon: IconPathConstants.mailIcon,
-                                  regularExpression: RegularExpressionConstants.emailRegex,
-                                  inputType: TextInputType.emailAddress,
-                                  hintText: 'Email adresinizi giriniz',
-                                  errorMessage: ErrorMessageConstants.emailInputFieldErrorMessage,
-                                  getValue: (String value) {
-                                    _mailInputController.text = value;
-                                  },
-                                ),
-                                SecureInputField(
-                                  node: _passwordInputNode,
-                                  svgIcon: IconPathConstants.lockIcon,
-                                  regularExpression: RegularExpressionConstants.min8CharacterWithAnythingRegex,
-                                  inputType: TextInputType.text,
-                                  hintText: 'Parolanizi giriniz',
-                                  errorMessage: ErrorMessageConstants.passwordInputFieldErrorMessage2,
-                                  getValue: (String value) {
-                                    setState(() {
-                                      _passwordInputController.text = value;
-                                    });
-                                  },
-                                ),
-                                SignInMaterialButton(
-                                  onPressed: () async {
-                                    // to dismiss keyboard before routing
-                                    FocusManager.instance.primaryFocus?.unfocus();
-
-                                    String emailAddress = _mailInputController.text;
-                                    String password = _passwordInputController.text;
-                                    if (emailAddress != StringErrorConstants.error && password != StringErrorConstants.error) {
-                                      BlocProvider.of<AuthBloc>(context).add(
-                                        AuthEventSignInWithEmailAndPassword(
-                                          emailAddress: emailAddress,
-                                          password: password,
-                                        ),
-                                      );
-                                    } else {
-                                      await PopUpMessage.warning(
-                                        title: 'Alanlar Hatalı',
-                                        message: 'Lütfen alanlardaki hataları düzeltin.',
-                                      ).show(context);
-                                    }
-                                  },
-                                ),
-                                TextButton(
-                                  onPressed: () {},
-                                  child: const Text(
-                                    'Forgot your password?',
-                                    style: TextStyle(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ).removeScrollGlow(),
-        );
-      },
-    );
-  }
-
-  @override
   void initState() {
     super.initState();
 
-    _mailInputController = TextEditingController();
-    _passwordInputController = TextEditingController();
-
-    _mailInputController.text = StringErrorConstants.error;
-    _passwordInputController.text = StringErrorConstants.error;
+    _mailInputValue = StringErrorConstants.error;
+    _passwordInputValue = StringErrorConstants.error;
 
     _mailInputNode = FocusNode();
     _passwordInputNode = FocusNode();
@@ -281,12 +53,266 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   void dispose() {
-    _mailInputController.dispose();
-    _passwordInputController.dispose();
-
     _mailInputNode.dispose();
     _passwordInputNode.dispose();
 
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: listenerAuthBloc,
+      listenWhen: listenWhenAuthBloc,
+      builder: (context, state) {
+        return BlocConsumer<RemoteStorageBloc, RemoteStorageState>(
+          listener: listenerRemoteStorageBloc,
+          listenWhen: listenWhenRemoteStorageBloc,
+          builder: (context, state) {
+            return Scaffold(
+              body: SingleChildScrollView(
+                child: PageBackground(
+                  child: SizedBox(
+                    width: context.screenWidth,
+                    height: context.screenHeight,
+                    child: SafeArea(
+                      child: Column(
+                        children: [
+                          const VerticalSpace(8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Row(
+                              children: [
+                                BackSvgButton(
+                                  onPressed: () {},
+                                ),
+                                const Spacer(),
+                                const Text(
+                                  'Don\'t have an account?',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SignUpTextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pushNamedAndRemoveUntil(
+                                      RouteConstants.signUpPageRoute,
+                                      (route) => false,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const VerticalSpace(32),
+                          Expanded(
+                            child: SignUpFormBackground(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: Column(
+                                  children: [
+                                    const VerticalSpace(26),
+                                    const Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Let\'s get something',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    const VerticalSpace(8),
+                                    const Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Good to see you back.',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    const VerticalSpace(22),
+                                    Row(
+                                      children: [
+                                        context.selectWidgetByPlatform(
+                                          androidWidget: SocialMediaSvgButton.google(onPressed: () {}),
+                                          iosWidget: SocialMediaSvgButton.apple(onPressed: () {}),
+                                        ),
+                                        const HorizontalSpace(16),
+                                        SocialMediaSvgButton.facebook(onPressed: () {}),
+                                        const HorizontalSpace(16),
+                                        SocialMediaSvgButton.twitter(onPressed: () {}),
+                                      ],
+                                    ),
+                                    const VerticalSpace(36),
+                                    InputField(
+                                      node: _mailInputNode,
+                                      svgIcon: IconPathConstants.mailIcon,
+                                      regularExpression: RegularExpressionConstants.emailRegex,
+                                      inputType: TextInputType.emailAddress,
+                                      hintText: 'Email adresinizi giriniz',
+                                      errorMessage: ErrorMessageConstants.emailInputFieldErrorMessage,
+                                      getValue: (String value) {
+                                        _mailInputValue = value;
+                                      },
+                                    ),
+                                    SecureInputField(
+                                      node: _passwordInputNode,
+                                      svgIcon: IconPathConstants.lockIcon,
+                                      regularExpression: RegularExpressionConstants.min8CharacterWithAnythingRegex,
+                                      inputType: TextInputType.text,
+                                      hintText: 'Parolanizi giriniz',
+                                      errorMessage: ErrorMessageConstants.passwordInputFieldErrorMessage2,
+                                      getValue: (String value) {
+                                        setState(() {
+                                          _passwordInputValue = value;
+                                        });
+                                      },
+                                    ),
+                                    SignInMaterialButton(
+                                      onPressed: () async {
+                                        context.dismissKeyboard() ;
+
+                                        if (_mailInputValue != StringErrorConstants.error && _passwordInputValue != StringErrorConstants.error) {
+                                          BlocProvider.of<AuthBloc>(context).add(
+                                            EventSignInWithEmailAndPassword(
+                                              emailAddress: _mailInputValue,
+                                              password: _passwordInputValue,
+                                            ),
+                                          );
+                                        } else {
+                                          await PopUpMessage.warning(
+                                            title: 'Alanlar Hatalı',
+                                            message: 'Lütfen alanlardaki hataları düzeltin.',
+                                          ).show(context);
+                                        }
+                                      },
+                                    ),
+                                    TextButton(
+                                      onPressed: () {},
+                                      child: const Text(
+                                        'Forgot your password?',
+                                        style: TextStyle(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ).removeScrollGlow(),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void listenerAuthBloc(BuildContext context, AuthState state) async {
+    if (state is StateLoadingSignIn) {
+      PopUpLoading().show(context);
+    }
+    if (state is StateSuccessfulSignIn) {
+      await PopUpMessage.success(
+        title: 'Islem Basarili',
+        message: 'Basariyla giris yaptiniz. Yonlendiriliyorsunuz',
+      ).show(context);
+
+      BlocProvider.of<AuthBloc>(context).add(
+        EventIsUserVerified(),
+      );
+    }
+    if (state is StateFailedSignIn) {
+      UserModelException exception = state.exception;
+      if (exception is UserInvalidEmailException) {
+        await PopUpMessage.danger(
+          title: 'Email Hatası',
+          message: 'Lütfen geçerli bir email adresi giriniz.',
+        ).show(context);
+      }
+      if (exception is UserDisabledException) {
+        await PopUpMessage.danger(
+          title: 'Kullanıcı Hatası',
+          message: 'Hesabınız dondurulmuştur. Lütfen yöneticilerle iletişime geçiniz.',
+        ).show(context);
+      }
+      if (exception is UserNotFoundException) {
+        await PopUpMessage.danger(
+          title: 'Kullanıcı Hatası',
+          message: 'Email adresiniz veya parolanız hatalıdır. Lütfen kontrol ediniz.',
+        ).show(context);
+      }
+      if (exception is UserWrongPasswordException) {
+        await PopUpMessage.danger(
+          title: 'Kullanici Hatasi',
+          message: 'Email adresiniz veya parolanız hatalıdır. Lütfen kontrol ediniz.',
+        ).show(context);
+      }
+      if (exception is UserDidntSignInException) {
+        await PopUpMessage.danger(
+          title: 'Oturum Açma Hatası',
+          message: 'Oturum açılamadı. Tekrar deneyiniz.',
+        ).show(context);
+      }
+      if (exception is UserGenericException) {
+        await PopUpMessage.danger(
+          title: 'Beklenmedik Bir Hata',
+          message: exception.toString(),
+        ).show(context);
+      }
+    }
+    if (state is StateTrueIsUserVerified) {
+      BlocProvider.of<RemoteStorageBloc>(context).add(
+        EventIsUserProfileCreated(),
+      );
+    }
+    if (state is StateFalseIsUserVerified) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        RouteConstants.emailVerificationPageRoute,
+        (route) => false,
+      );
+    }
+  }
+
+  bool listenWhenAuthBloc(AuthState previous, AuthState current) {
+    if (previous is StateLoadingSignIn && current is! StateLoadingSignIn) {
+      Navigator.of(context).pop();
+    }
+
+    return true;
+  }
+
+  void listenerRemoteStorageBloc(BuildContext context, RemoteStorageState state) async {
+    if (state is StateLoadingIsUserProfileCreated) {
+      PopUpLoading().show(context);
+    }
+    if (state is StateTrueUserProfileCreated) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        RouteConstants.homePageRoute,
+        (route) => false,
+      );
+    }
+    if (state is StateFalseUserProfileCreated) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        RouteConstants.createProfilePageRoute,
+        (route) => false,
+      );
+    }
+  }
+
+  bool listenWhenRemoteStorageBloc(RemoteStorageState previous, RemoteStorageState current) {
+    if (previous is StateLoadingIsUserProfileCreated && current is! StateLoadingIsUserProfileCreated) {
+      Navigator.of(context).pop();
+    }
+    return true;
   }
 }
