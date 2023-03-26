@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/map_extensions.dart';
 import 'package:flutter_auth/models/base_models/firebase_model.dart';
@@ -106,6 +108,7 @@ class UserModel implements FirebaseModel {
       },
     );
   }
+  
 
   Future<void> updateLastLogoutValueWithUid(String uid) async {
     CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
@@ -115,6 +118,29 @@ class UserModel implements FirebaseModel {
         UserModelFields.lastLogout: FieldValue.serverTimestamp(),
       },
     );
+  }
+
+  Future<bool> isUserProfileCreatedOnFirebase({required String uid}) async {
+    List<String> profileFields = <String>[
+      UserModelFields.avatarImage,
+      UserModelFields.username,
+    ];
+
+    Map<String, dynamic>? userData = await readWithUid(uid: uid);
+    if (userData == null) {
+      throw UserCannotReadFromCloudException();
+    }
+
+    int nullFieldCount = 0;
+    for (var profileField in profileFields) {
+      if (userData[profileField] == null) {
+        nullFieldCount++;
+      }
+    }
+
+    bool isUserProfileCreated = nullFieldCount != profileFields.length;
+
+    return isUserProfileCreated;
   }
 
   Future<void> logout() async {
@@ -156,6 +182,8 @@ class UserModel implements FirebaseModel {
     Map<String, dynamic> userDetailDocumentData = {
       UserModelFields.uuid: generatedUuid,
       UserModelFields.emailAddress: data[UserModelFields.emailAddress],
+      UserModelFields.avatarImage: null,
+      UserModelFields.username: null,
     };
 
     // create new named document for users collection with user uid
@@ -245,11 +273,14 @@ class UserModel implements FirebaseModel {
   Future<bool> updateWithUid({
     required String uid,
     String? emailAddress,
+    Blob? avatarImage,
+    String? username,
   }) async {
     // hicbir arguman gonderilmezse false dondur
-    if (emailAddress == null) {
+    if (emailAddress == null && avatarImage == null && username == null) {
       return false;
     }
+
     // dokumanlarin guncellenip guncellenmedigini kontrol degiskenler
     bool isUserDocumentUpdated = false;
     bool isUserDetailDocumentUpdated = false;
@@ -261,6 +292,12 @@ class UserModel implements FirebaseModel {
     // null olmayan alanlari map'lere ekle
     if (emailAddress != null) {
       userDetailDocumentData[UserModelFields.emailAddress] = emailAddress;
+    }
+    if (avatarImage != null) {
+      userDetailDocumentData[UserModelFields.avatarImage] = avatarImage;
+    }
+    if (username != null) {
+      userDetailDocumentData[UserModelFields.username] = username;
     }
 
     // users collection'daki dokuman'a gidecek veri varsa dokumani guncelle ve kontrol degiskenini true yap
@@ -274,9 +311,8 @@ class UserModel implements FirebaseModel {
       isUserDocumentUpdated = true;
     }
 
-    print('user detail document guncellenecek');
     // user_details collection'daki dokuman'a gidecek veri varsa dokumani guncelle ve kontrol degiskenini true yap
-    if (userDocumentData.isNotEmpty) {
+    if (userDetailDocumentData.isNotEmpty) {
       CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.userDetails);
       DocumentReference userDetailDocumentReference = userDetailsCollectionReference.doc(uid);
       userDetailDocumentData.addAll({
@@ -285,7 +321,6 @@ class UserModel implements FirebaseModel {
       await userDetailDocumentReference.update(userDetailDocumentData);
       isUserDetailDocumentUpdated = true;
     }
-    print('user detail document guncellendi');
 
     // alanlarin degistirilip degistirilmedigini dondur
     return isUserDocumentUpdated && isUserDetailDocumentUpdated;
@@ -330,6 +365,8 @@ class UserModel implements FirebaseModel {
 class UserModelFields {
   static const String uuid = 'uuid';
   static const String emailAddress = 'email_address';
+  static const String username = 'username';
+  static const String avatarImage = 'avatar_image';
   static const String password = 'password';
   static const String createdAt = 'created_at';
   static const String updatedAt = 'updated_at';
