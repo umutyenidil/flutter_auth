@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_auth/blocs/auth_bloc.dart';
+import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
 import 'package:flutter_auth/constants/error_message_constants.dart';
@@ -31,10 +31,11 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  late final TextEditingController _mailInputController;
-  late final TextEditingController _usernameInputController;
-  late final TextEditingController _passwordInputController;
-  late final TextEditingController _passwordAgainInputController;
+  late String _mailInputValue;
+
+  late String _passwordInputValue;
+
+  late String _passwordAgainInputValue;
 
   late final FocusNode _mailInputNode;
   late final FocusNode _usernameInputNode;
@@ -42,63 +43,34 @@ class _SignUpPageState extends State<SignUpPage> {
   late final FocusNode _passwordAgainInputNode;
 
   @override
+  void initState() {
+    super.initState();
+
+    _mailInputValue = StringErrorConstants.error;
+    _passwordInputValue = StringErrorConstants.error;
+    _passwordAgainInputValue = StringErrorConstants.error;
+
+    _mailInputNode = FocusNode();
+    _usernameInputNode = FocusNode();
+    _passwordInputNode = FocusNode();
+    _passwordAgainInputNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _mailInputNode.dispose();
+    _usernameInputNode.dispose();
+    _passwordInputNode.dispose();
+    _passwordAgainInputNode.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
-      listener: (context, state) async {
-        if (state is AuthStateSignUpSuccess) {
-          await PopUpMessage.success(
-            title: 'İşlem Başarılı',
-            message: 'Hesabınız başarıyla oluşturuldu.',
-          ).show(context);
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            RouteConstants.signInPageRoute,
-            (route) => false,
-          );
-        }
-        if (state is AuthStateSignUpLoading) {
-          const PopUpLoading().show(context);
-        }
-        if (state is AuthStateSignUpFailed) {
-          UserModelException exception = state.exception;
-          if (exception is UserEmailAlreadyInUseException) {
-            await PopUpMessage.danger(
-              title: 'Email Hatası',
-              message: 'Email başka bir kullanıcı tarafından kullanılıyor.',
-            ).show(context).then((value) => null);
-          }
-          if (exception is UserInvalidEmailException) {
-            await PopUpMessage.danger(
-              title: 'Email Hatası',
-              message: 'Kullandığınız email geçersizdir.',
-            ).show(context);
-          }
-          if (exception is UserOperationNotAllowedException) {
-            await PopUpMessage.danger(
-              title: 'İzin Hatası',
-              message: 'Lütfen yöneticilerle iletişime geçiniz.',
-            ).show(context);
-          }
-          if (exception is UserWeakPasswordException) {
-            await PopUpMessage.danger(
-              title: 'Parola Hatası',
-              message: 'Daha güçlü bir parola deneyiniz.',
-            ).show(context);
-          }
-          if (exception is UserGenericException) {
-            await PopUpMessage.danger(
-              title: 'Beklenmedik Bir Hata',
-              message: state.exception.toString(),
-            ).show(context);
-          }
-        }
-
-      },
-      listenWhen: (previous, current) {
-        if (previous is AuthStateSignUpLoading && current is! AuthStateSignUpLoading) {
-          Navigator.of(context).pop();
-        }
-        return true;
-      },
+      listener: listenerAuthBloc,
+      listenWhen: listenWhenAuthBloc,
       builder: (context, state) {
         return Scaffold(
           body: SingleChildScrollView(
@@ -190,7 +162,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   hintText: 'Email adresinizi giriniz',
                                   errorMessage: ErrorMessageConstants.emailInputFieldErrorMessage,
                                   getValue: (String value) {
-                                    _mailInputController.text = value;
+                                    _mailInputValue = value;
                                   },
                                 ),
                                 SecureInputField(
@@ -204,7 +176,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   errorMessage: ErrorMessageConstants.passwordInputFieldErrorMessage,
                                   getValue: (String value) {
                                     setState(() {
-                                      _passwordInputController.text = value;
+                                      _passwordInputValue = value;
                                     });
                                   },
                                 ),
@@ -212,24 +184,22 @@ class _SignUpPageState extends State<SignUpPage> {
                                   textInputAction: TextInputAction.done,
                                   node: _passwordAgainInputNode,
                                   svgIcon: IconPathConstants.lockIcon,
-                                  regularExpression: RegularExpressionConstants.toRegex(_passwordInputController.text),
+                                  regularExpression: RegularExpressionConstants.toRegex(_passwordInputValue),
                                   inputType: TextInputType.text,
                                   hintText: 'Parolanızı tekrar giriniz',
                                   errorMessage: ErrorMessageConstants.passwordAgainInputFieldErrorMessage,
                                   getValue: (String value) {
-                                    _passwordAgainInputController.text = value;
+                                    _passwordAgainInputValue = value;
                                   },
                                 ),
                                 SignUpMaterialButton(
                                   onPressed: () async {
-                                    String emailAddress = _mailInputController.text;
-                                    String password = _passwordInputController.text;
-                                    String passwordAgain = _passwordAgainInputController.text;
-                                    if (emailAddress != StringErrorConstants.error && password != StringErrorConstants.error && passwordAgain != StringErrorConstants.error) {
+                                    context.dismissKeyboard();
+                                    if (_mailInputValue != StringErrorConstants.error && _passwordInputValue != StringErrorConstants.error && _passwordAgainInputValue != StringErrorConstants.error) {
                                       BlocProvider.of<AuthBloc>(context).add(
-                                        AuthEventSignUpWithEmailAndPassword(
-                                          emailAddress: emailAddress,
-                                          password: password,
+                                        EventSignUpWithEmailAndPassword(
+                                          emailAddress: _mailInputValue,
+                                          password: _passwordInputValue,
                                         ),
                                       );
                                     } else {
@@ -256,38 +226,59 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    _mailInputController = TextEditingController();
-    _usernameInputController = TextEditingController();
-    _passwordInputController = TextEditingController();
-    _passwordAgainInputController = TextEditingController();
-
-    _mailInputController.text = StringErrorConstants.error;
-    _usernameInputController.text = StringErrorConstants.error;
-    _passwordInputController.text = StringErrorConstants.error;
-    _passwordAgainInputController.text = StringErrorConstants.error;
-
-    _mailInputNode = FocusNode();
-    _usernameInputNode = FocusNode();
-    _passwordInputNode = FocusNode();
-    _passwordAgainInputNode = FocusNode();
+  void listenerAuthBloc(BuildContext context, AuthState state) async {
+    if (state is StateSuccessfulSignUp) {
+      await PopUpMessage.success(
+        title: 'İşlem Başarılı',
+        message: 'Hesabınız başarıyla oluşturuldu.',
+      ).show(context);
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        RouteConstants.signInPageRoute,
+        (route) => false,
+      );
+    }
+    if (state is StateLoadingSignUp) {
+      const PopUpLoading().show(context);
+    }
+    if (state is StateFailedSignUp) {
+      UserModelException exception = state.exception;
+      if (exception is UserEmailAlreadyInUseException) {
+        await PopUpMessage.danger(
+          title: 'Email Hatası',
+          message: 'Email başka bir kullanıcı tarafından kullanılıyor.',
+        ).show(context).then((value) => null);
+      }
+      if (exception is UserInvalidEmailException) {
+        await PopUpMessage.danger(
+          title: 'Email Hatası',
+          message: 'Kullandığınız email geçersizdir.',
+        ).show(context);
+      }
+      if (exception is UserOperationNotAllowedException) {
+        await PopUpMessage.danger(
+          title: 'İzin Hatası',
+          message: 'Lütfen yöneticilerle iletişime geçiniz.',
+        ).show(context);
+      }
+      if (exception is UserWeakPasswordException) {
+        await PopUpMessage.danger(
+          title: 'Parola Hatası',
+          message: 'Daha güçlü bir parola deneyiniz.',
+        ).show(context);
+      }
+      if (exception is UserGenericException) {
+        await PopUpMessage.danger(
+          title: 'Beklenmedik Bir Hata',
+          message: state.exception.toString(),
+        ).show(context);
+      }
+    }
   }
 
-  @override
-  void dispose() {
-    _mailInputController.dispose();
-    _usernameInputController.dispose();
-    _passwordInputController.dispose();
-    _passwordAgainInputController.dispose();
-
-    _mailInputNode.dispose();
-    _usernameInputNode.dispose();
-    _passwordInputNode.dispose();
-    _passwordAgainInputNode.dispose();
-
-    super.dispose();
+  bool listenWhenAuthBloc(AuthState previous, AuthState current) {
+    if (previous is StateLoadingSignUp && current is! StateLoadingSignUp) {
+      Navigator.of(context).pop();
+    }
+    return true;
   }
 }
