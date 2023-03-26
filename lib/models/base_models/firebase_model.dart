@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_auth/models/base_models/model.dart';
 
 abstract class FirebaseModel extends Model {

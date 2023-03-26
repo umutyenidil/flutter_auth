@@ -114,7 +114,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
 
   void listenerAuthBloc(BuildContext context, AuthState state) async {
     if (state is StateLoadingLogout) {
-      PopUpLoading().show(context);
+      const PopUpLoading().show(context);
     }
 
     if (state is StateSuccessfulLogout) {
@@ -137,7 +137,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
     }
 
     if (state is StateLoadingSendEmailVerification) {
-      PopUpLoading().show(context);
+      const PopUpLoading().show(context);
     }
 
     if (state is StateSuccessfulSendEmailVerification) {
@@ -152,7 +152,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
         },
         rightButtonText: 'Open Mail App',
         rightButtonOnPressed: () async {
-          OpenMailAppResult result = await OpenMailApp.openMailApp();
+          await OpenMailApp.openMailApp();
           Navigator.of(context).pop();
         },
       ).show(context);
@@ -173,7 +173,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
 
     if (state is StateFalseIsUserVerified) {
       await Future.delayed(
-        Duration(seconds: 1),
+        const Duration(seconds: 1),
       );
       BlocProvider.of<AuthBloc>(context).add(
         EventIsUserVerified(),
@@ -199,7 +199,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
 
   void listenerRemoteStorageBloc(BuildContext context, RemoteStorageState state) async {
     if (state is StateLoadingIsUserProfileCreated) {
-      PopUpLoading().show(context);
+      const PopUpLoading().show(context);
     }
     if (state is StateTrueUserProfileCreated) {
       Navigator.of(context).pushNamedAndRemoveUntil(

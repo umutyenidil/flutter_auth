@@ -1,7 +1,4 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_auth/models/user_model.dart';
 
 class ProfileImage extends StatefulWidget {
   const ProfileImage({
@@ -31,7 +28,7 @@ class _ProfileImageState extends State<ProfileImage> {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                offset: Offset(0, 3),
+                offset: const Offset(0, 3),
                 color: Colors.black.withOpacity(0.1),
                 blurRadius: 3,
               ),

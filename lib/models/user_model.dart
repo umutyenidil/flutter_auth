@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/map_extensions.dart';
 import 'package:flutter_auth/models/base_models/firebase_model.dart';
@@ -108,7 +106,7 @@ class UserModel implements FirebaseModel {
       },
     );
   }
-  
+
 
   Future<void> updateLastLogoutValueWithUid(String uid) async {
     CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
@@ -149,7 +147,7 @@ class UserModel implements FirebaseModel {
       await updateLastLogoutValueWithUid(user.uid);
       await FirebaseAuth.instance.signOut();
     } catch (exception) {
-      print(exception);
+      // print(exception);
       throw UserGenericException();
     }
   }

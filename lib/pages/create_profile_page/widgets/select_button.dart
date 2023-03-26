@@ -18,11 +18,11 @@ class SelectButton extends StatelessWidget {
       minWidth: 0,
       height: 0,
       color: Colors.blue,
-      padding: EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadiusConstants.allCorners10,
       ),
-      child: Text(
+      child: const Text(
         'Select',
         style: TextStyle(
           color: Colors.white,

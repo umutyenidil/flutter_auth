@@ -2,7 +2,7 @@ import 'dart:developer' as devtools show log;
 
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/models/user_model.dart';
 
@@ -177,7 +177,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           await Future.delayed(
             const Duration(seconds: 3),
           );
-          User user = await UserModel().getCurrentUser();
+          await UserModel().getCurrentUser();
 
           emit(
             StateTrueUserLoggedIn(),
@@ -187,7 +187,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             StateFalseUserLoggedIn(),
           );
         } catch (exception) {
-          print(exception);
+          // print(exception);
         }
         devtools.log('EventCheckUserAuthentication finished');
       },

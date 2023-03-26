@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
@@ -15,10 +14,7 @@ import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/bool_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/models/user_model.dart';
-import 'package:flutter_auth/pages/profile_page/widgets/avatar_list_view.dart';
 import 'package:flutter_auth/pages/profile_page/widgets/logout_button.dart';
-import 'package:flutter_auth/pages/profile_page/widgets/profile_image.dart';
-import 'package:flutter_auth/pages/profile_page/widgets/save_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -111,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const VerticalSpace(32),
                       Text(userProfileData[UserModelFields.username]),
-                      Spacer(),
+                      const Spacer(),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: LogoutButton(
@@ -144,7 +140,7 @@ class _ProfilePageState extends State<ProfilePage> {
           );
         }
 
-        return Scaffold(
+        return const Scaffold(
           body: Center(
             child: PopUpLoading(),
           ),
@@ -161,7 +157,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void listenerAuthBloc(BuildContext context, AuthState state) async {
     if (state is StateLoadingLogout) {
-      PopUpLoading().show(context);
+      const PopUpLoading().show(context);
     }
 
     if (state is StateSuccessfulLogout) {

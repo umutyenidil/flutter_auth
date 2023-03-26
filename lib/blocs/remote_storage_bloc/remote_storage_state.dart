@@ -26,7 +26,7 @@ class StateFailedCreateUserProfile extends RemoteStorageState {}
 class StateLoadingGetUserProfile extends RemoteStorageState {}
 
 class StateSuccessfulGetUserProfile extends RemoteStorageState {
-  Map<String, dynamic> userProfileData;
+  final Map<String, dynamic> userProfileData;
 
   StateSuccessfulGetUserProfile({required this.userProfileData});
 }

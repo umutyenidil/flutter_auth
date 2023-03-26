@@ -20,12 +20,12 @@ class LogoutButton extends StatelessWidget {
         ),
         minWidth: 0,
         height: 0,
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           vertical: 12,
           // horizontal: 20,
         ),
         color: Colors.red,
-        child: Text(
+        child: const Text(
           'Log out',
           style: TextStyle(
             fontWeight: FontWeight.w500,

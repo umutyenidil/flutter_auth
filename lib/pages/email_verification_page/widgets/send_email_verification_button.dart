@@ -20,12 +20,12 @@ class SendEmailVerificationButton extends StatelessWidget {
         ),
         minWidth: 0,
         height: 0,
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           vertical: 12,
           // horizontal: 20,
         ),
         color: Colors.blue,
-        child: Text(
+        child: const Text(
           'Send Email Verification',
           style: TextStyle(
             fontWeight: FontWeight.w500,

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'dart:developer' as devtools show log;
 
@@ -43,7 +42,7 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
             StateFailedCreateUserProfile(),
           );
         } catch (exception) {
-          print(exception);
+          // print(exception);
         }
         devtools.log('EventCreateProfileOnCloud finished');
       },
@@ -74,7 +73,7 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
             StateFailedIsUserProfileCreated(),
           );
         } catch (exception) {
-          print(exception);
+          // print(exception);
         }
         devtools.log('EventIsUserProfileCreatedOnCloud finished');
       },
@@ -93,7 +92,7 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
 
           Map<String, dynamic> userProfileData = {
             UserModelFields.avatarImage: userData![UserModelFields.avatarImage],
-            UserModelFields.username: userData![UserModelFields.username],
+            UserModelFields.username: userData[UserModelFields.username],
           };
 
           emit(
@@ -104,7 +103,7 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
             StateFailedGetUserProfile(),
           );
         } catch (exception) {
-          print(exception);
+          // print(exception);
         }
         devtools.log('EventGetUserProfile finished');
       },

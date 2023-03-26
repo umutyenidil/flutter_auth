@@ -8,7 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 typedef InputFieldController = void Function(String value);
 
 class InputField extends StatefulWidget {
-  InputField({
+  const InputField({
     Key? key,
     required this.node,
     this.nextNode,
@@ -28,7 +28,7 @@ class InputField extends StatefulWidget {
   final TextInputType inputType;
   final String regularExpression;
   final String errorMessage;
-  String? svgIcon;
+  final String? svgIcon;
   final InputFieldController getValue;
 
   @override
@@ -77,7 +77,7 @@ class _InputFieldState extends State<InputField> {
               children: [
                 const HorizontalSpace(8),
                 (widget.svgIcon == null)
-                    ? SizedBox()
+                    ? const SizedBox()
                     : SizedBox.square(
                         dimension: 32,
                         child: Padding(

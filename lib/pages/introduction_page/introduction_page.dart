@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
-import 'package:flutter_auth/blocs/route_bloc/route_bloc.dart';
-import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
-import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
-import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/lottie_path_constants.dart';
 import 'package:flutter_auth/constants/route_constants.dart';
-import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 
@@ -48,7 +43,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
                       LottiePathConstants.introLottie,
                       repeat: true,
                     ),
-                    Text(
+                    const Text(
                       'Flutter Auth',
                       style: TextStyle(
                         fontSize: 22,

@@ -16,7 +16,7 @@ class SaveButton extends StatelessWidget {
         color: Colors.blue,
         minWidth: 0,
         height: 0,
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 0,
           vertical: 12,
         ),
@@ -26,7 +26,7 @@ class SaveButton extends StatelessWidget {
         onPressed: () {
           onPressed();
         },
-        child: Text(
+        child: const Text(
           'Save',
           style: TextStyle(
             color: Colors.white,

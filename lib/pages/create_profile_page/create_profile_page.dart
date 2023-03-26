@@ -7,7 +7,6 @@ import 'package:flutter_auth/common_widgets/input_field.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
-import 'package:flutter_auth/constants/image_path_constants.dart';
 import 'package:flutter_auth/constants/route_constants.dart';
 import 'package:flutter_auth/constants/string_error_constants.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
@@ -59,13 +58,13 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                 height: context.safeAreaHeight,
                 child: Column(
                   children: [
-                    VerticalSpace(32),
+                    const VerticalSpace(32),
                     AvatarListView(
                       getImageAsByteList: (Uint8List? bytes) async {
                         profilePhotoBytes = bytes;
                       },
                     ),
-                    VerticalSpace(32),
+                    const VerticalSpace(32),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: InputField(
@@ -79,7 +78,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                         },
                       ),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SaveButton(
@@ -125,7 +124,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
 
   void listenerRemoteStorageBloc(BuildContext context, RemoteStorageState state) async {
     if (state is StateLoadingCreateUserProfile) {
-      PopUpLoading().show(context);
+      const PopUpLoading().show(context);
     }
     if (state is StateSuccessfulCreateUserProfile) {
       await PopUpMessage.success(

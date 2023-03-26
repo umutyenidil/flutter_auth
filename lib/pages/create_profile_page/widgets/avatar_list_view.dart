@@ -1,17 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
-import 'package:flutter_auth/constants/border_radius_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/constants/image_path_constants.dart';
-import 'package:flutter_auth/extensions/bool_extensions.dart';
 import 'package:flutter_auth/mixins/image_storage_mixin.dart';
-import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_auth/pages/create_profile_page/widgets/select_button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:image_picker/image_picker.dart';
 
 class AvatarListView extends StatefulWidget {
   const AvatarListView({
@@ -102,7 +97,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
       height: 128 + 8 + 32,
       child: Column(
         children: [
-          Container(
+          SizedBox(
             width: double.infinity,
             height: 128,
             child: PageView.builder(
@@ -119,8 +114,8 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
                   listItem = Container(
                     width: 100,
                     height: 100,
-                    padding: EdgeInsets.all(32),
-                    decoration: BoxDecoration(
+                    padding: const EdgeInsets.all(32),
+                    decoration: const BoxDecoration(
                       color: Colors.grey,
                       shape: BoxShape.circle,
                     ),
@@ -145,10 +140,10 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
                   );
                 }
 
-                double _scale = selectedIndex == index ? 1.0 : 0.7;
+                double scale = selectedIndex == index ? 1.0 : 0.7;
                 return TweenAnimationBuilder(
-                  duration: Duration(milliseconds: 200),
-                  tween: Tween(begin: _scale, end: _scale),
+                  duration: const Duration(milliseconds: 200),
+                  tween: Tween(begin: scale, end: scale),
                   curve: Curves.ease,
                   builder: (BuildContext context, double value, Widget? child) {
                     return Transform.scale(
@@ -160,7 +155,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
               },
             ),
           ),
-          VerticalSpace(8),
+          const VerticalSpace(8),
           SizedBox(
             height: 32,
             child: selectedIndex != 2

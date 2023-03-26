@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
@@ -19,7 +18,6 @@ import 'package:flutter_auth/common_widgets/secure_input_field.dart';
 import 'package:flutter_auth/common_widgets/social_media_svg_button.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/extensions/single_child_scroll_view_extensions.dart';
-import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/page_background.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/sign_in_material_button.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/sign_up_text_button.dart';
@@ -219,7 +217,7 @@ class _SignInPageState extends State<SignInPage> {
 
   void listenerAuthBloc(BuildContext context, AuthState state) async {
     if (state is StateLoadingSignIn) {
-      PopUpLoading().show(context);
+      const PopUpLoading().show(context);
     }
     if (state is StateSuccessfulSignIn) {
       await PopUpMessage.success(
@@ -293,7 +291,7 @@ class _SignInPageState extends State<SignInPage> {
 
   void listenerRemoteStorageBloc(BuildContext context, RemoteStorageState state) async {
     if (state is StateLoadingIsUserProfileCreated) {
-      PopUpLoading().show(context);
+      const PopUpLoading().show(context);
     }
     if (state is StateTrueUserProfileCreated) {
       Navigator.of(context).pushNamedAndRemoveUntil(

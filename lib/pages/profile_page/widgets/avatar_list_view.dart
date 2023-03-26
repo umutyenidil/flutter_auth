@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/border_radius_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
-import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -47,10 +46,10 @@ class _AvatarListViewState extends State<AvatarListView> {
               ),
               itemBuilder: (BuildContext context, int index) {
                 var image = avatarImages[index];
-                double _scale = selectedIndex == index ? 1.0 : 0.7;
+                double scale = selectedIndex == index ? 1.0 : 0.7;
                 return TweenAnimationBuilder(
-                  duration: Duration(milliseconds: 200),
-                  tween: Tween(begin: _scale, end: _scale),
+                  duration: const Duration(milliseconds: 200),
+                  tween: Tween(begin: scale, end: scale),
                   curve: Curves.ease,
                   builder: (BuildContext context, double value, Widget? child) {
                     return Transform.scale(
@@ -59,8 +58,8 @@ class _AvatarListViewState extends State<AvatarListView> {
                         key: UniqueKey(),
                         width: 100,
                         height: 100,
-                        padding: EdgeInsets.all(32),
-                        decoration: BoxDecoration(
+                        padding: const EdgeInsets.all(32),
+                        decoration: const BoxDecoration(
                           color: Colors.grey,
                           shape: BoxShape.circle,
                         ),
@@ -74,34 +73,33 @@ class _AvatarListViewState extends State<AvatarListView> {
               },
             ),
           ),
-          VerticalSpace(8),
+          const VerticalSpace(8),
           SizedBox(
             height: 32,
             child: MaterialButton(
               onPressed: () async {
                 if (selectedIndex == 0) {
-                  final ImagePicker _picker = ImagePicker();
-                  final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+                  final ImagePicker picker = ImagePicker();
+                  final XFile? photo = await picker.pickImage(source: ImageSource.camera);
                   Uint8List imageAsBytes = await photo!.readAsBytes();
                   widget.getImageAsByteList(imageAsBytes);
                 } else if (selectedIndex == 1) {
-                  final ImagePicker _picker = ImagePicker();
-                  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+                  // final ImagePicker picker = ImagePicker();
+                  // final XFile? image = await picker.pickImage(source: ImageSource.gallery);
                 } else if (selectedIndex == 2) {
-                  print('profil fotografini sil');
+                  // print('profil fotografini sil');
                 } else {
-                  print('avatar image');
-                  ;
+                  // print('avatar image');
                 }
               },
               minWidth: 0,
               height: 0,
               color: Colors.blue,
-              padding: EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadiusConstants.allCorners10,
               ),
-              child: Text(
+              child: const Text(
                 'Select',
                 style: TextStyle(
                   color: Colors.white,

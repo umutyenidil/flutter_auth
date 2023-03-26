@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_auth/blocs/auth_bloc.dart';
+import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
+import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
 import 'package:flutter_auth/constants/route_constants.dart';
+import 'package:flutter_auth/pages/create_profile_page/create_profile_page.dart';
 import 'package:flutter_auth/pages/email_verification_page/email_verification_page.dart';
 import 'package:flutter_auth/pages/error_page/error_page.dart';
+import 'package:flutter_auth/pages/home_page/home_page.dart';
+import 'package:flutter_auth/pages/introduction_page/introduction_page.dart';
 import 'package:flutter_auth/pages/profile_page/profile_page.dart';
 import 'package:flutter_auth/pages/sign_in_page/sign_in_page.dart';
 import 'package:flutter_auth/pages/sign_up_page/sign_up_page.dart';
@@ -18,6 +22,9 @@ class App extends StatelessWidget {
         BlocProvider<AuthBloc>(
           create: (BuildContext context) => AuthBloc(),
         ),
+        BlocProvider<RemoteStorageBloc>(
+          create: (BuildContext context) => RemoteStorageBloc(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -32,8 +39,8 @@ class App extends StatelessWidget {
 
   Route? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case RouteConstants.homePageRoute:
-        return MaterialPageRoute(builder: (BuildContext context) => const SignInPage());
+      case RouteConstants.introductionPageRoute:
+        return MaterialPageRoute(builder: (BuildContext context) => const IntroductionPage());
       case RouteConstants.signUpPageRoute:
         return MaterialPageRoute(builder: (BuildContext context) => const SignUpPage());
       case RouteConstants.signInPageRoute:
@@ -44,6 +51,10 @@ class App extends StatelessWidget {
         return MaterialPageRoute(builder: (BuildContext context) => const EmailVerificationPage());
       case RouteConstants.profilePageRoute:
         return MaterialPageRoute(builder: (BuildContext context) => const ProfilePage());
+      case RouteConstants.homePageRoute:
+        return MaterialPageRoute(builder: (BuildContext context) => const HomePage());
+      case RouteConstants.createProfilePageRoute:
+        return MaterialPageRoute(builder: (BuildContext context) => const CreateProfilePage());
       default:
         return MaterialPageRoute(builder: (BuildContext context) => const ErrorPage());
     }
