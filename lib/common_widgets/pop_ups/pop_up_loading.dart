@@ -21,9 +21,9 @@ class PopUpLoading extends StatelessWidget implements PopUp {
         width: 256 * 0.75,
         height: 240 * 0.75,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(40.0),
           child: Lottie.asset(
-            LottiePathConstants.progressIndicatorGearLottie,
+            LottiePathConstants.clockLottie ,
             fit: BoxFit.contain,
           ),
         ),
