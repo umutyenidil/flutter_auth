@@ -36,3 +36,79 @@ extension KeyBoardOperations on BuildContext {
     FocusManager.instance.primaryFocus?.unfocus();
   }
 }
+
+enum PageTransitionDirection {
+  leftToRight,
+  rightToLeft,
+  bottomToTop,
+  topToBottom,
+}
+
+extension PageTransitions on BuildContext {
+  void pageTransitionSlide({
+    required Widget page,
+    required PageTransitionDirection direction,
+  }) {
+    Offset? beginOffset;
+    switch (direction) {
+      case PageTransitionDirection.leftToRight:
+        beginOffset = const Offset(-1.0, 0.0);
+        break;
+      case PageTransitionDirection.rightToLeft:
+        beginOffset = const Offset(1.0, 0.0);
+        break;
+      case PageTransitionDirection.bottomToTop:
+        beginOffset = const Offset(0.0, 1.0);
+        break;
+      case PageTransitionDirection.topToBottom:
+        beginOffset = const Offset(0.0, -1.0);
+        break;
+    }
+
+    PageRouteBuilder pageRouteBuilder = PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        var tween = Tween(begin: beginOffset, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+
+    Navigator.of(this).pushReplacement(pageRouteBuilder);
+  }
+
+  void pageTransitionFade({required Widget page}) {
+    PageRouteBuilder pageRouteBuilder = PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      },
+    );
+
+    Navigator.of(this).pushReplacement(pageRouteBuilder);
+  }
+
+  void pageTransitionScale({required Widget page}) {
+    PageRouteBuilder pageRouteBuilder = PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return ScaleTransition(
+          scale: animation,
+          alignment: Alignment.center,
+          child: child,
+        );
+      },
+    );
+
+    Navigator.of(this).pushReplacement(pageRouteBuilder);
+  }
+}
