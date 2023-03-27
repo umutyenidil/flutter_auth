@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/constants/route_constants.dart';
+import 'package:flutter_auth/extensions/build_context_extensions.dart';
+import 'package:flutter_auth/pages/profile_page/profile_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomePage extends StatelessWidget {
@@ -23,10 +25,7 @@ class HomePage extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            RouteConstants.profilePageRoute,
-            (route) => false,
-          );
+          context.pageTransitionScale(page: ProfilePage());
         },
       ),
     );

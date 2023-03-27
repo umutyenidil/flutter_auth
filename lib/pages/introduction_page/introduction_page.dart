@@ -3,6 +3,10 @@ import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
 import 'package:flutter_auth/constants/lottie_path_constants.dart';
 import 'package:flutter_auth/constants/route_constants.dart';
+import 'package:flutter_auth/extensions/build_context_extensions.dart';
+import 'package:flutter_auth/pages/email_verification_page/email_verification_page.dart';
+import 'package:flutter_auth/pages/home_page/home_page.dart';
+import 'package:flutter_auth/pages/sign_in_page/sign_in_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 
@@ -62,9 +66,8 @@ class _IntroductionPageState extends State<IntroductionPage> {
 
   void listenerAuthBloc(BuildContext context, AuthState state) async {
     if (state is StateFalseUserLoggedIn) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        RouteConstants.signInPageRoute,
-        (route) => false,
+      context.pageTransitionFade(
+        page: const SignInPage(),
       );
     }
 
@@ -75,9 +78,8 @@ class _IntroductionPageState extends State<IntroductionPage> {
     }
 
     if (state is StateFalseIsUserVerified) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        RouteConstants.emailVerificationPageRoute,
-        (route) => false,
+      context.pageTransitionFade(
+        page: const EmailVerificationPage(),
       );
     }
   }
@@ -94,15 +96,13 @@ class _IntroductionPageState extends State<IntroductionPage> {
 
   void listenerRemoteStorageBloc(BuildContext context, RemoteStorageState state) async {
     if (state is StateFalseUserProfileCreated) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        RouteConstants.createProfilePageRoute,
-        (route) => false,
+      context.pageTransitionFade(
+        page: const SignInPage(),
       );
     }
     if (state is StateTrueUserProfileCreated) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        RouteConstants.homePageRoute,
-        (route) => false,
+      context.pageTransitionFade(
+        page: const HomePage(),
       );
     }
   }

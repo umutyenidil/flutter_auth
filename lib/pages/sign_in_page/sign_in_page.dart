@@ -18,10 +18,14 @@ import 'package:flutter_auth/common_widgets/secure_input_field.dart';
 import 'package:flutter_auth/common_widgets/social_media_svg_button.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/extensions/single_child_scroll_view_extensions.dart';
+import 'package:flutter_auth/pages/create_profile_page/create_profile_page.dart';
+import 'package:flutter_auth/pages/email_verification_page/email_verification_page.dart';
+import 'package:flutter_auth/pages/home_page/home_page.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/page_background.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/sign_in_material_button.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/sign_up_text_button.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/sign_in_form_background.dart';
+import 'package:flutter_auth/pages/sign_up_page/sign_up_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignInPage extends StatefulWidget {
@@ -93,9 +97,8 @@ class _SignInPageState extends State<SignInPage> {
                                 ),
                                 SignUpTextButton(
                                   onPressed: () {
-                                    Navigator.of(context).pushNamedAndRemoveUntil(
-                                      RouteConstants.signUpPageRoute,
-                                      (route) => false,
+                                    context.pageTransitionFade(
+                                      page: const SignUpPage(),
                                     );
                                   },
                                 ),
@@ -173,7 +176,7 @@ class _SignInPageState extends State<SignInPage> {
                                     ),
                                     SignInMaterialButton(
                                       onPressed: () async {
-                                        context.dismissKeyboard() ;
+                                        context.dismissKeyboard();
 
                                         if (_mailInputValue != StringErrorConstants.error && _passwordInputValue != StringErrorConstants.error) {
                                           BlocProvider.of<AuthBloc>(context).add(
@@ -274,9 +277,8 @@ class _SignInPageState extends State<SignInPage> {
       );
     }
     if (state is StateFalseIsUserVerified) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        RouteConstants.emailVerificationPageRoute,
-        (route) => false,
+      context.pageTransitionFade(
+        page: const EmailVerificationPage(),
       );
     }
   }
@@ -294,15 +296,13 @@ class _SignInPageState extends State<SignInPage> {
       const PopUpLoading().show(context);
     }
     if (state is StateTrueUserProfileCreated) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        RouteConstants.homePageRoute,
-        (route) => false,
+      context.pageTransitionFade(
+        page: const HomePage(),
       );
     }
     if (state is StateFalseUserProfileCreated) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        RouteConstants.createProfilePageRoute,
-        (route) => false,
+      context.pageTransitionFade(
+        page: const CreateProfilePage(),
       );
     }
   }

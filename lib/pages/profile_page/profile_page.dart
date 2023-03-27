@@ -12,9 +12,12 @@ import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/constants/route_constants.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/bool_extensions.dart';
+import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/models/user_model.dart';
+import 'package:flutter_auth/pages/home_page/home_page.dart';
 import 'package:flutter_auth/pages/profile_page/widgets/logout_button.dart';
+import 'package:flutter_auth/pages/sign_in_page/sign_in_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -64,9 +67,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                 size: 40,
                                 padding: 4,
                                 onPressed: () {
-                                  Navigator.of(context).pushNamedAndRemoveUntil(
-                                    RouteConstants.homePageRoute,
-                                    (route) => false,
+                                  context.pageTransitionSlide(
+                                    page: HomePage(),
+                                    direction: PageTransitionDirection.leftToRight,
                                   );
                                 },
                               ),
@@ -161,9 +164,8 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     if (state is StateSuccessfulLogout) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        RouteConstants.signInPageRoute,
-        (route) => false,
+      context.pageTransitionFade(
+        page: const SignInPage(),
       );
     }
 

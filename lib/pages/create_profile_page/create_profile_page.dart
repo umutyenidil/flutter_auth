@@ -14,6 +14,7 @@ import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_auth/pages/create_profile_page/widgets/avatar_list_view.dart';
 import 'package:flutter_auth/pages/create_profile_page/widgets/save_button.dart';
+import 'package:flutter_auth/pages/home_page/home_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CreateProfilePage extends StatefulWidget {
@@ -131,9 +132,8 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
         title: 'Hazirsin!',
         message: 'Profiliniz basariyla olusturuldu. Artik uygulamayi kullanabilirsiniz :)',
       ).show(context);
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        RouteConstants.homePageRoute,
-        (route) => false,
+      context.pageTransitionFade(
+        page: const HomePage(),
       );
     }
     if (state is StateFailedCreateUserProfile) {
