@@ -6,35 +6,35 @@ abstract class AuthState {}
 class StateInitial extends AuthState {}
 
 // SignUp Event States
-class StateSuccessfulSignUp extends AuthState {}
+class StateSuccessfulSignUpWithEmailAndPassword extends AuthState {}
 
-class StateFailedSignUp extends AuthState {
+class StateFailedSignUpWithEmailAndPassword extends AuthState {
   final UserModelException exception;
 
-  StateFailedSignUp({required this.exception});
+  StateFailedSignUpWithEmailAndPassword({required this.exception});
 }
 
-class StateLoadingSignUp extends AuthState {}
+class StateLoadingSignUpWithEmailAndPassword extends AuthState {}
 
 // SignIn Event States
-class StateSuccessfulSignIn extends AuthState {}
+class StateSuccessfulSignInWithEmailAndPassword extends AuthState {}
 
-class StateFailedSignIn extends AuthState {
+class StateFailedSignInWithEmailAndPassword extends AuthState {
   final UserModelException exception;
 
-  StateFailedSignIn({required this.exception});
+  StateFailedSignInWithEmailAndPassword({required this.exception});
 }
 
-class StateLoadingSignIn extends AuthState {}
+class StateLoadingSignInWithEmailAndPassword extends AuthState {}
 
 // IsUserVerified Event States
 class StateLoadingIsUserVerified extends AuthState {}
 
 class StateSuccessfulIsUserVerified extends AuthState {}
 
-class StateFalseIsUserVerified extends AuthState {}
+class StateFalseUserVerified extends AuthState {}
 
-class StateTrueIsUserVerified extends AuthState {}
+class StateTrueUserVerified extends AuthState {}
 
 class StateFailedIsUserVerified extends AuthState {
   final UserModelException exception;
@@ -65,8 +65,9 @@ class StateFailedLogout extends AuthState {
   StateFailedLogout({required this.exception});
 }
 
-// Check Authentication states
+// EventIsUserSignedIn states
+class StateLoadingIsUserSignedIn extends AuthState {}
 
-class StateTrueUserLoggedIn extends AuthState {}
+class StateTrueUserSignedIn extends AuthState {}
 
-class StateFalseUserLoggedIn extends AuthState {}
+class StateFalseUserSignedIn extends AuthState {}

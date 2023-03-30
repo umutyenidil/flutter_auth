@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as devtools show log;
 
 import 'package:bloc/bloc.dart';
@@ -14,37 +15,44 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(StateInitial()) {
     on<EventSignUpWithEmailAndPassword>(
       (event, emit) async {
-        devtools.log('EventSignUpWithEmailAndPassword started');
+        devtools.log('EventSignUpWithEmailAndPassword: started');
         try {
           emit(
-            StateLoadingSignUp(),
+            StateLoadingSignUpWithEmailAndPassword(),
           );
           await UserModel().signUpWithEmailAndPassword(
             emailAddress: event.emailAddress,
             password: event.password,
           );
+
+          devtools.log('EventSignUpWithEmailAndPassword: user signed up');
           emit(
-            StateSuccessfulSignUp(),
+            StateSuccessfulSignUpWithEmailAndPassword(),
           );
         } on UserEmailAlreadyInUseException catch (exception) {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (UserEmailAlreadyInUseException)');
           emit(
-            StateFailedSignUp(exception: exception),
+            StateFailedSignUpWithEmailAndPassword(exception: exception),
           );
         } on UserInvalidEmailException catch (exception) {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (UserInvalidEmailException)');
           emit(
-            StateFailedSignUp(exception: exception),
+            StateFailedSignUpWithEmailAndPassword(exception: exception),
           );
         } on UserOperationNotAllowedException catch (exception) {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (UserOperationNotAllowedException)');
           emit(
-            StateFailedSignUp(exception: exception),
+            StateFailedSignUpWithEmailAndPassword(exception: exception),
           );
         } on UserWeakPasswordException catch (exception) {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (UserWeakPasswordException)');
           emit(
-            StateFailedSignUp(exception: exception),
+            StateFailedSignUpWithEmailAndPassword(exception: exception),
           );
         } catch (exception) {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (unhandled exception)');
           emit(
-            StateFailedSignUp(exception: UserGenericException()),
+            StateFailedSignUpWithEmailAndPassword(exception: UserGenericException()),
           );
         }
         devtools.log('EventSignUpWithEmailAndPassword finished');
@@ -53,77 +61,96 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<EventSignInWithEmailAndPassword>(
       (event, emit) async {
-        devtools.log('EventSignInWithEmailAndPassword started');
+        devtools.log('EventSignInWithEmailAndPassword: started');
 
         try {
           emit(
-            StateLoadingSignIn(),
+            StateLoadingSignInWithEmailAndPassword(),
           );
           await UserModel().signInWithEmailAndPassword(
             emailAddress: event.emailAddress,
             password: event.password,
           );
+
+          devtools.log('EventSignInWithEmailAndPassword: user signed in');
           emit(
-            StateSuccessfulSignIn(),
+            StateSuccessfulSignInWithEmailAndPassword(),
           );
         } on UserInvalidEmailException catch (exception) {
+          devtools.log('EventSignInWithEmailAndPassword: user not signed in (UserInvalidEmailException)');
           emit(
-            StateFailedSignIn(exception: exception),
+            StateFailedSignInWithEmailAndPassword(exception: exception),
           );
         } on UserDisabledException catch (exception) {
+          devtools.log('EventSignInWithEmailAndPassword: user not signed in (UserDisabledException)');
+
           emit(
-            StateFailedSignIn(exception: exception),
+            StateFailedSignInWithEmailAndPassword(exception: exception),
           );
         } on UserNotFoundException catch (exception) {
+          devtools.log('EventSignInWithEmailAndPassword: user not signed in (UserNotFoundException)');
+
           emit(
-            StateFailedSignIn(exception: exception),
+            StateFailedSignInWithEmailAndPassword(exception: exception),
           );
         } on UserWrongPasswordException catch (exception) {
+          devtools.log('EventSignInWithEmailAndPassword: user not signed in (UserWrongPasswordException)');
+
           emit(
-            StateFailedSignIn(exception: exception),
+            StateFailedSignInWithEmailAndPassword(exception: exception),
           );
         } on UserDidntSignInException catch (exception) {
+          devtools.log('EventSignInWithEmailAndPassword: user not signed in (UserDidntSignInException)');
+
           emit(
-            StateFailedSignIn(exception: exception),
+            StateFailedSignInWithEmailAndPassword(exception: exception),
           );
         } catch (exception) {
+          devtools.log('EventSignInWithEmailAndPassword: user not signed in (unhandled exception)');
           emit(
-            StateFailedSignIn(exception: UserGenericException()),
+            StateFailedSignInWithEmailAndPassword(exception: UserGenericException()),
           );
         }
-        devtools.log('EventSignInWithEmailAndPassword finished');
+        devtools.log('EventSignInWithEmailAndPassword: finished');
       },
     );
 
     on<EventIsUserVerified>(
       (event, emit) async {
-        devtools.log('EventIsUserVerified started');
+        devtools.log('EventIsUserVerified: started');
         try {
-          emit(StateLoadingIsUserVerified());
+          emit(
+            StateLoadingIsUserVerified(),
+          );
+
           User currentUser = await UserModel().getCurrentUser();
-          await currentUser.reload();
 
           if (currentUser.emailVerified) {
+            devtools.log('EventIsUserVerified: user verified');
             emit(
-              StateTrueIsUserVerified(),
+              StateTrueUserVerified(),
             );
           } else {
+            devtools.log('EventIsUserVerified: user not verified');
             emit(
-              StateFalseIsUserVerified(),
+              StateFalseUserVerified(),
             );
           }
         } catch (exception) {
+          devtools.log('EventIsUserVerified: user not verified (unhandled exception)');
           emit(
-            StateFailedIsUserVerified(exception: UserGenericException()),
+            StateFailedIsUserVerified(
+              exception: UserGenericException(),
+            ),
           );
         }
-        devtools.log('EventIsUserVerified finished');
+        devtools.log('EventIsUserVerified: finished');
       },
     );
 
     on<EventSendEmailVerification>(
       (event, emit) async {
-        devtools.log('EventSendEmailVerification started');
+        devtools.log('EventSendEmailVerification: started');
 
         try {
           emit(
@@ -133,10 +160,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
           await currentUser.sendEmailVerification();
 
+          devtools.log('EventSendEmailVerification: email has been sent');
           emit(
             StateSuccessfulSendEmailVerification(),
           );
         } catch (exception) {
+          devtools.log('EventSendEmailVerification: email hasn\'t been sent (unhandled exception)');
           emit(
             StateFailedSendEmailVerification(exception: UserGenericException()),
           );
@@ -148,7 +177,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<EventLogout>(
       (event, emit) async {
-        devtools.log('EventLogout started');
+        devtools.log('EventLogout: started');
 
         try {
           emit(
@@ -157,39 +186,49 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
           await UserModel().logout();
 
+          devtools.log('EventLogout: user logged out');
           emit(
             StateSuccessfulLogout(),
           );
         } catch (exception) {
+          devtools.log('EventLogout: not logged out (unhandled exception)');
           emit(
             StateFailedLogout(exception: UserGenericException()),
           );
         }
-        devtools.log('EventLogout finished');
+        devtools.log('EventLogout: finished');
       },
     );
 
-    on<EventCheckUserAuthentication>(
+    on<EventIsUserSignedIn>(
       (event, emit) async {
-        devtools.log('EventCheckUserAuthentication started');
+        devtools.log('EventIsUserSignedIn: started');
 
         try {
+          emit(
+            StateLoadingIsUserSignedIn(),
+          );
+
+          await UserModel().getCurrentUser();
           await Future.delayed(
             const Duration(seconds: 3),
           );
-          await UserModel().getCurrentUser();
 
+          devtools.log('EventIsUserSignedIn: user signed in');
           emit(
-            StateTrueUserLoggedIn(),
+            StateTrueUserSignedIn(),
           );
         } on CurrentUserNotFoundException {
+          devtools.log('EventIsUserSignedIn: user not signed in');
           emit(
-            StateFalseUserLoggedIn(),
+            StateFalseUserSignedIn(),
           );
         } catch (exception) {
+          devtools.log('EventIsUserSignedIn: user not signed in (unhandled exception)');
+
           // print(exception);
         }
-        devtools.log('EventCheckUserAuthentication finished');
+        devtools.log('EventIsUserSignedIn: finished');
       },
     );
   }

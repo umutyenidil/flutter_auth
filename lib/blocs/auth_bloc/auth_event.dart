@@ -29,5 +29,5 @@ class EventSendEmailVerification extends AuthEvent {}
 
 class EventLogout extends AuthEvent {}
 
-class EventCheckUserAuthentication extends AuthEvent {}
+class EventIsUserSignedIn extends AuthEvent {}
 
