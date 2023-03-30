@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_auth/common_widgets/horizontal_space.dart';
+import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -9,17 +11,25 @@ class SocialMediaSvgButton extends StatelessWidget {
     required this.svgIcon,
     required this.onPressed,
     this.iconColor,
+    required this.title,
+    required this.titleColor,
+    this.iconSize = 32,
   }) : super(key: key);
   final Color backgroundColor;
   final Color? iconColor;
   final String svgIcon;
+  final double iconSize;
   final Function onPressed;
+  final String title;
+  final Color titleColor;
 
   factory SocialMediaSvgButton.apple({required Function onPressed}) {
     return SocialMediaSvgButton._(
       backgroundColor: Colors.white,
       svgIcon: IconPathConstants.appleLogoIcon,
       onPressed: onPressed,
+      title: 'Apple',
+      titleColor: Colors.black,
     );
   }
 
@@ -28,6 +38,8 @@ class SocialMediaSvgButton extends StatelessWidget {
       backgroundColor: Colors.white,
       svgIcon: IconPathConstants.googleLogoIcon,
       onPressed: onPressed,
+      title: 'Google',
+      titleColor: Colors.black,
     );
   }
 
@@ -37,6 +49,8 @@ class SocialMediaSvgButton extends StatelessWidget {
       svgIcon: IconPathConstants.facebookLogoIcon,
       onPressed: onPressed,
       iconColor: Colors.white,
+      titleColor: Colors.white,
+      title: 'Facebook',
     );
   }
 
@@ -46,22 +60,50 @@ class SocialMediaSvgButton extends StatelessWidget {
       svgIcon: IconPathConstants.twitterLogoIcon,
       onPressed: onPressed,
       iconColor: Colors.white,
+      title: 'Twitter',
+      titleColor: Colors.white,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: 48,
+    return SizedBox(
       child: MaterialButton(
         color: backgroundColor,
         height: 0,
         minWidth: 0,
-        padding: const EdgeInsets.all(8),
-        shape: const CircleBorder(),
-        child: SvgPicture.asset(
-          svgIcon,
-          color: iconColor,
+        padding: EdgeInsets.symmetric(
+          horizontal: iconSize / 4,
+          vertical: iconSize / 4,
+        ),
+        shape: const StadiumBorder(),
+        child: SizedBox(
+          width: 80,
+          height: iconSize,
+          child: Row(
+            children: [
+              SizedBox.square(
+                dimension: iconSize,
+                child: SvgPicture.asset(
+                  svgIcon,
+                  color: iconColor,
+                ),
+              ),
+              HorizontalSpace(iconSize / 4),
+              SizedBox(
+                width: 40,
+                height: iconSize / 2,
+                child: FittedBox(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: titleColor,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         onPressed: () {
           onPressed();
