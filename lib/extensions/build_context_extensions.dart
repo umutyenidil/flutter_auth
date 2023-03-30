@@ -112,3 +112,11 @@ extension PageTransitions on BuildContext {
     Navigator.of(this).pushReplacement(pageRouteBuilder);
   }
 }
+
+extension AsyncPopWithDelay on BuildContext {
+  Future<void> delayedPop({
+    Duration delay = const Duration(milliseconds: 500),
+  }) async {
+    await Future.delayed(delay).then((value) => Navigator.of(this).pop());
+  }
+}
