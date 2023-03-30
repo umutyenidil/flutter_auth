@@ -63,6 +63,8 @@ class UserModel implements FirebaseModel {
       throw CurrentUserNotFoundException();
     }
 
+    await user.reload();
+
     return user;
   }
 
@@ -106,7 +108,6 @@ class UserModel implements FirebaseModel {
       },
     );
   }
-
 
   Future<void> updateLastLogoutValueWithUid(String uid) async {
     CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
@@ -198,6 +199,17 @@ class UserModel implements FirebaseModel {
   @override
   Future<Map<String, dynamic>?> readWithUid({
     required String uid,
+    bool readUuid = false,
+    bool readEmailAddress = false,
+    bool readUsername = false,
+    bool readAvatarImage = false,
+    bool readPassword = false,
+    bool readCreatedAt = false,
+    bool readUpdatedAt = false,
+    bool readDeletedAt = false,
+    bool readIsDeleted = false,
+    bool readLastLogin = false,
+    bool readLastLogout = false,
   }) async {
     // get users and user_details collection reference
     CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
@@ -206,25 +218,25 @@ class UserModel implements FirebaseModel {
     // read the document which in users collection
     DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
     DocumentSnapshot userDocumentSnapshot = await userDocumentReference.get();
-    Map<String, dynamic>? userData = userDocumentSnapshot.data() as Map<String, dynamic>?;
+    Map<String, dynamic>? userDocumentData = userDocumentSnapshot.data() as Map<String, dynamic>?;
 
-    if (userData == null) {
+    if (userDocumentData == null) {
       throw UserDocumentNotFoundException();
     }
 
     // read the document which in user_details collection
     DocumentReference userDetailDocumentReference = userDetailsCollectionReference.doc(uid);
     DocumentSnapshot userDetailDocumentSnapshot = await userDetailDocumentReference.get();
-    Map<String, dynamic>? userDetailData = userDetailDocumentSnapshot.data() as Map<String, dynamic>?;
+    Map<String, dynamic>? userDetailDocumentData = userDetailDocumentSnapshot.data() as Map<String, dynamic>?;
 
-    if (userDetailData == null) {
+    if (userDetailDocumentData == null) {
       throw UserDetailDocumentNotFoundException();
     }
 
     // merge datas of user document and user_detail document
     Map<String, dynamic>? user = {};
-    user.addAll(userData);
-    user.addAll(userDetailData);
+    user.addAll(userDocumentData);
+    user.addAll(userDetailDocumentData);
 
     return user;
   }
@@ -271,7 +283,7 @@ class UserModel implements FirebaseModel {
   Future<bool> updateWithUid({
     required String uid,
     String? emailAddress,
-    Blob? avatarImage,
+    String? avatarImage,
     String? username,
   }) async {
     // hicbir arguman gonderilmezse false dondur
