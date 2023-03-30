@@ -18,12 +18,12 @@ class PopUpLoading extends StatelessWidget implements PopUp {
         borderRadius: BorderRadius.circular(20),
       ),
       child: SizedBox(
-        width: 256 * 0.75,
-        height: 240 * 0.75,
+        width: 256 * 0.5,
+        height: 240 * 0.5,
         child: Padding(
-          padding: const EdgeInsets.all(40.0),
+          padding: const EdgeInsets.all(8.0),
           child: Lottie.asset(
-            LottiePathConstants.clockLottie ,
+            LottiePathConstants.fingerprintLottie,
             fit: BoxFit.contain,
           ),
         ),
