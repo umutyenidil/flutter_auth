@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/constants/border_radius_constants.dart';
-import 'package:flutter_auth/constants/string_error_constants.dart';
 import 'package:flutter_auth/common_widgets/horizontal_space.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-typedef InputFieldController = void Function(String value);
+typedef InputFieldController = void Function(InputFieldValue value);
 
 class InputField extends StatefulWidget {
   const InputField({
@@ -61,70 +60,85 @@ class _InputFieldState extends State<InputField> {
         GestureDetector(
           onTap: () {
             FocusScope.of(context).requestFocus(widget.node);
-            // widget.node.requestFocus();
           },
-          child: Container(
+          child: SizedBox(
             height: 50,
             width: double.infinity,
-            decoration: BoxDecoration(
+            child: Material(
               color: Colors.grey.shade300,
-              borderRadius: BorderRadiusConstants.allCorners10,
-              border: Border.all(
-                color: (_hasFocus ? _activeColor : Colors.transparent),
+              shape: StadiumBorder(
+                side: BorderSide(
+                  color: (_hasFocus ? _activeColor : Colors.transparent),
+                ),
               ),
-            ),
-            child: Row(
-              children: [
-                const HorizontalSpace(8),
-                (widget.svgIcon == null)
-                    ? const SizedBox()
-                    : SizedBox.square(
-                        dimension: 32,
-                        child: Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: SvgPicture.asset(
-                            widget.svgIcon!,
-                            color: _hasFocus ? _activeColor : Colors.grey,
+              child: Row(
+                children: [
+                  const HorizontalSpace(16),
+                  (widget.svgIcon == null)
+                      ? const SizedBox()
+                      : SizedBox.square(
+                          dimension: 32,
+                          child: Padding(
+                            padding: const EdgeInsets.all(2.0),
+                            child: SvgPicture.asset(
+                              widget.svgIcon!,
+                              color: _hasFocus ? _activeColor : Colors.grey,
+                            ),
                           ),
                         ),
-                      ),
-                const HorizontalSpace(8),
-                Expanded(
-                  child: Focus(
-                    focusNode: widget.node,
-                    onFocusChange: (hasFocus) {
-                      setState(() {
-                        _hasFocus = hasFocus;
-                      });
-                    },
-                    child: TextField(
-                      keyboardType: widget.inputType,
-                      cursorColor: Colors.grey,
-                      decoration: InputDecoration(
-                        hintText: widget.hintText,
-                        contentPadding: EdgeInsets.zero,
-                        border: InputBorder.none,
-                      ),
-                      onChanged: (value) {
-                        _hasError = !RegExp(widget.regularExpression).hasMatch(value);
+                  const HorizontalSpace(8),
+                  Expanded(
+                    child: Focus(
+                      focusNode: widget.node,
+                      onFocusChange: (hasFocus) {
                         setState(() {
-                          _activeColor = _hasError ? Colors.red : Colors.green;
+                          _hasFocus = hasFocus;
                         });
-                        if (_hasError) {
-                          widget.getValue(StringErrorConstants.error);
-                        } else {
-                          widget.getValue(value);
-                        }
                       },
-                      onSubmitted: (value) {
-                        widget.node.unfocus();
-                        widget.nextNode?.requestFocus();
-                      },
-                      textInputAction: widget.textInputAction,
+                      child: TextField(
+                        key: widget.key,
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                        keyboardType: widget.inputType,
+                        cursorColor: Colors.grey,
+                        decoration: InputDecoration(
+                          hintText: widget.hintText,
+                          contentPadding: EdgeInsets.zero,
+                          border: InputBorder.none,
+                        ),
+                        onChanged: (value) {
+                          _hasError = !RegExp(widget.regularExpression).hasMatch(value);
+                          setState(() {
+                            _activeColor = _hasError ? Colors.red : Colors.green;
+                          });
+                          if (_hasError) {
+                            widget.getValue(
+                              InputFieldValue(
+                                value: value,
+                                status: InputFieldStatusEnum.notMatched,
+                              ),
+                            );
+                          } else {
+                            widget.getValue(
+                              InputFieldValue(
+                                value: value,
+                                status: InputFieldStatusEnum.matched,
+                              ),
+                            );
+                          }
+                        },
+                        onSubmitted: (value) {
+                          widget.node.unfocus();
+                          widget.nextNode?.requestFocus();
+                        },
+                        textInputAction: widget.textInputAction,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  const HorizontalSpace(16),
+                ],
+              ),
             ),
           ),
         ),
@@ -146,4 +160,20 @@ class _InputFieldState extends State<InputField> {
       ],
     );
   }
+}
+
+class InputFieldValue {
+  final String value;
+  final InputFieldStatusEnum status;
+
+  InputFieldValue({
+    required this.value,
+    required this.status,
+  });
+}
+
+enum InputFieldStatusEnum {
+  empty,
+  matched,
+  notMatched,
 }

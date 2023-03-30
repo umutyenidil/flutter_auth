@@ -6,7 +6,7 @@ import 'package:flutter_auth/common_widgets/horizontal_space.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-typedef SecureInputFieldController = void Function(String value);
+typedef SecureInputFieldController = void Function(SecureInputFieldValue value);
 
 class SecureInputField extends StatefulWidget {
   const SecureInputField({
@@ -64,91 +64,103 @@ class _SecureInputFieldState extends State<SecureInputField> {
         GestureDetector(
           onTap: () {
             FocusScope.of(context).requestFocus(widget.node);
-            // widget.node.requestFocus();
           },
-          child: Container(
+          child: SizedBox(
             height: 50,
             width: double.infinity,
-            decoration: BoxDecoration(
+            child: Material(
               color: Colors.grey.shade300,
-              borderRadius: BorderRadiusConstants.allCorners10,
-              border: Border.all(
-                color: (_hasFocus ? _activeColor : Colors.transparent),
+              shape: StadiumBorder(
+                side: BorderSide(
+                  color: (_hasFocus ? _activeColor : Colors.transparent),
+                ),
               ),
-            ),
-            child: Row(
-              children: [
-                const HorizontalSpace(8),
-                SizedBox.square(
-                  dimension: 32,
-                  child: Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: SvgPicture.asset(
-                      widget.svgIcon,
-                      color: _hasFocus ? _activeColor : Colors.grey,
-                    ),
-                  ),
-                ),
-                const HorizontalSpace(8),
-                Expanded(
-                  child: Focus(
-                    focusNode: widget.node,
-                    onFocusChange: (hasFocus) {
-                      setState(() {
-                        _hasFocus = hasFocus;
-                      });
-                    },
-                    child: TextField(
-                      obscureText: _isObsecured,
-                      autocorrect: false,
-                      keyboardType: widget.inputType,
-                      cursorColor: Colors.grey,
-                      decoration: InputDecoration(
-                        hintText: widget.hintText,
-                        contentPadding: EdgeInsets.zero,
-                        border: InputBorder.none,
+              child: Row(
+                children: [
+                  const HorizontalSpace(16),
+                  SizedBox.square(
+                    dimension: 32,
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: SvgPicture.asset(
+                        widget.svgIcon,
+                        color: _hasFocus ? _activeColor : Colors.grey,
                       ),
-                      onChanged: (value) {
-                        _hasError = !RegExp(widget.regularExpression).hasMatch(value);
+                    ),
+                  ),
+                  const HorizontalSpace(8),
+                  Expanded(
+                    child: Focus(
+                      focusNode: widget.node,
+                      onFocusChange: (hasFocus) {
                         setState(() {
-                          _activeColor = _hasError ? Colors.red : Colors.green;
+                          _hasFocus = hasFocus;
                         });
-                        if (_hasError) {
-                          widget.getValue(StringErrorConstants.error);
-                        } else {
-                          widget.getValue(value);
-                        }
                       },
-                      onSubmitted: (value) {
-                        widget.node.unfocus();
-                        widget.nextNode?.requestFocus();
-                      },
-                      textInputAction: widget.textInputAction,
+                      child: TextField(
+                        key: widget.key,
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                        obscureText: _isObsecured,
+                        autocorrect: false,
+                        keyboardType: widget.inputType,
+                        cursorColor: Colors.grey,
+                        decoration: InputDecoration(
+                          hintText: widget.hintText,
+                          contentPadding: EdgeInsets.zero,
+                          border: InputBorder.none,
+                        ),
+                        onChanged: (value) {
+                          _hasError = !RegExp(widget.regularExpression).hasMatch(value);
+                          setState(() {
+                            _activeColor = _hasError ? Colors.red : Colors.green;
+                          });
+                          if (_hasError) {
+                            widget.getValue(
+                              SecureInputFieldValue(
+                                value: value,
+                                status: SecureInputFieldStatusEnum.notMatched,
+                              ),
+                            );
+                          } else {
+                            widget.getValue(
+                              SecureInputFieldValue(
+                                value: value,
+                                status: SecureInputFieldStatusEnum.matched,
+                              ),
+                            );
+                          }
+                        },
+                        onSubmitted: (value) {
+                          widget.node.unfocus();
+                          widget.nextNode?.requestFocus();
+                        },
+                        textInputAction: widget.textInputAction,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox.square(
-                  dimension: 32,
-                  child: MaterialButton(
-                    minWidth: 0,
-                    height: 0,
-                    padding: EdgeInsets.zero,
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadiusConstants.allCorners10,
+                  SizedBox.square(
+                    dimension: 32,
+                    child: MaterialButton(
+                      minWidth: 0,
+                      height: 0,
+                      padding: EdgeInsets.zero,
+                      color: Colors.white,
+                      shape: const CircleBorder(),
+                      child: SvgPicture.asset(
+                        _isObsecured ? IconPathConstants.eyeIcon : IconPathConstants.eyeSlashIcon,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isObsecured = !_isObsecured;
+                        });
+                      },
                     ),
-                    child: SvgPicture.asset(
-                      _isObsecured ? IconPathConstants.eyeIcon : IconPathConstants.eyeSlashIcon,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isObsecured = !_isObsecured;
-                      });
-                    },
                   ),
-                ),
-                const HorizontalSpace(8),
-              ],
+                  const HorizontalSpace(8),
+                ],
+              ),
             ),
           ),
         ),
@@ -171,4 +183,20 @@ class _SecureInputFieldState extends State<SecureInputField> {
       ],
     );
   }
+}
+
+class SecureInputFieldValue {
+  final String value;
+  final SecureInputFieldStatusEnum status;
+
+  SecureInputFieldValue({
+    required this.value,
+    required this.status,
+  });
+}
+
+enum SecureInputFieldStatusEnum {
+  empty,
+  matched,
+  notMatched,
 }
