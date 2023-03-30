@@ -17,6 +17,7 @@ import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_auth/pages/home_page/home_page.dart';
 import 'package:flutter_auth/pages/profile_page/widgets/logout_button.dart';
+import 'package:flutter_auth/pages/profile_update_page/profile_update_page.dart';
 import 'package:flutter_auth/pages/sign_in_page/sign_in_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,13 +29,9 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late bool _isEditMode;
-
   @override
   void initState() {
     super.initState();
-
-    _isEditMode = false;
 
     BlocProvider.of<RemoteStorageBloc>(context).add(
       EventGetUserProfile(),
@@ -61,40 +58,24 @@ class _ProfilePageState extends State<ProfilePage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            (_isEditMode).ifTrueSelectFirstWidget(
-                              secondWidget: BackSvgButton(
-                                size: 40,
-                                padding: 4,
-                                onPressed: () {
-                                  context.pageTransitionSlide(
-                                    page: HomePage(),
-                                    direction: PageTransitionDirection.leftToRight,
-                                  );
-                                },
-                              ),
-                              firstWidget: Container(),
+                            BackSvgButton(
+                              size: 40,
+                              padding: 4,
+                              onPressed: () {
+                                context.pageTransitionSlide(
+                                  page: HomePage(),
+                                  direction: PageTransitionDirection.leftToRight,
+                                );
+                              },
                             ),
-                            const Spacer(),
-                            (!_isEditMode).ifTrueSelectFirstWidget(
-                              firstWidget: EditButton(
-                                size: 40,
-                                padding: 20,
-                                onPressed: () {
-                                  setState(() {
-                                    _isEditMode = true;
-                                  });
-                                },
-                              ),
-                              secondWidget: BackSvgButton(
-                                size: 40,
-                                padding: 4,
-                                onPressed: () {
-                                  setState(() {
-                                    _isEditMode = false;
-                                  });
-                                },
-                              ),
+                            EditButton(
+                              size: 40,
+                              padding: 20,
+                              onPressed: () {
+                                context.pageTransitionFade(page: ProfileUpdatePage());
+                              },
                             ),
                           ],
                         ),
