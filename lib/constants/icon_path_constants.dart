@@ -20,4 +20,8 @@ class IconPathConstants {
   static const String infoIcon = 'assets/icons/info_icon.svg';
   static const String logoutIcon = 'assets/icons/logout_icon.svg';
   static const String circleUserIcon = 'assets/icons/circle_user_icon.svg';
+  static const String deleteIcon = 'assets/icons/delete_icon.svg';
+  static const String saveIcon = 'assets/icons/save_icon.svg';
+  static const String cancelIcon = 'assets/icons/cancel_icon.svg';
+  static const String fingerprintIcon = 'assets/icons/fingerprint_icon.svg';
 }

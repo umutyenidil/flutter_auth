@@ -5,4 +5,5 @@ class LottiePathConstants {
   static const String introLottie = 'assets/lotties/intro_lottie.json';
   static const String loadingLottie = 'assets/lotties/loading_lottie.json';
   static const String clockLottie = 'assets/lotties/clock_lottie.json';
+  static const String fingerprintLottie = 'assets/lotties/fingerprint_lottie.json';
 }
