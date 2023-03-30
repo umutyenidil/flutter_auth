@@ -116,7 +116,7 @@ class PopUpMessage extends StatelessWidget implements PopUp {
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 24,
+                        fontSize: 22,
                         color: Colors.black,
                       ),
                     ),
@@ -126,6 +126,9 @@ class PopUpMessage extends StatelessWidget implements PopUp {
                     padding: const EdgeInsets.symmetric(horizontal: 32.0),
                     child: Text(
                       message,
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
