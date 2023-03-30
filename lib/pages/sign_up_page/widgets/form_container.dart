@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 
-class SignUpFormBackground extends StatelessWidget {
-  const SignUpFormBackground({Key? key, required this.child}) : super(key: key);
+class FormContainer extends StatelessWidget {
+  const FormContainer({Key? key, required this.child}) : super(key: key);
   final Widget child;
 
   @override

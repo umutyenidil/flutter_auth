@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/constants/border_radius_constants.dart';
 
-typedef VoidFunctionWithNoParameter = void Function();
+import '../../../typedefs/function_typedefs.dart';
 
-class SignUpMaterialButton extends StatelessWidget {
-  const SignUpMaterialButton({Key? key, required this.onPressed}) : super(key: key);
-  final VoidFunctionWithNoParameter onPressed;
+class SignUpButton extends StatelessWidget {
+  const SignUpButton({
+    Key? key,
+    required this.onPressed,
+  }) : super(key: key);
+  final VoidAsyncFunctionWithNoParameter onPressed;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 54,
+      height: 50,
       width: double.infinity,
       child: MaterialButton(
         color: Colors.blue,
         minWidth: 0,
         height: 0,
         padding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusConstants.allCorners10,
-        ),
+        shape: const StadiumBorder(),
         onPressed: () {
           onPressed();
         },
@@ -27,6 +28,7 @@ class SignUpMaterialButton extends StatelessWidget {
           'Sign Up',
           style: TextStyle(
             color: Colors.white,
+            fontWeight: FontWeight.w600,
             fontSize: 18,
           ),
         ),

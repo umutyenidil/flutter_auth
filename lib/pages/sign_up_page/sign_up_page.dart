@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
+import 'package:flutter_auth/common_widgets/app_logo.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
-import 'package:flutter_auth/constants/error_message_constants.dart';
+import 'package:flutter_auth/common_widgets/text_divider.dart';
+import 'package:flutter_auth/constants/error_text_constants.dart';
+import 'package:flutter_auth/constants/hint_text_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/constants/regular_expression_constants.dart';
-import 'package:flutter_auth/constants/route_constants.dart';
-import 'package:flutter_auth/constants/string_error_constants.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/common_widgets/horizontal_space.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
-import 'package:flutter_auth/common_widgets/back_svg_button.dart';
 import 'package:flutter_auth/common_widgets/input_field.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/extensions/single_child_scroll_view_extensions.dart';
 import 'package:flutter_auth/pages/sign_in_page/sign_in_page.dart';
-import 'package:flutter_auth/pages/sign_up_page/widgets/page_background.dart';
+import 'package:flutter_auth/pages/sign_up_page/widgets/page_container.dart';
 import 'package:flutter_auth/common_widgets/secure_input_field.dart';
-import 'package:flutter_auth/pages/sign_up_page/widgets/sign_in_text_button.dart';
-import 'package:flutter_auth/pages/sign_up_page/widgets/sign_up_form_background.dart';
+import 'package:flutter_auth/pages/sign_up_page/widgets/sign_in_button.dart';
+import 'package:flutter_auth/pages/sign_up_page/widgets/form_container.dart';
 import 'package:flutter_auth/common_widgets/social_media_svg_button.dart';
-import 'package:flutter_auth/pages/sign_up_page/widgets/sign_up_material_button.dart';
+import 'package:flutter_auth/pages/sign_up_page/widgets/sign_up_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -32,13 +32,11 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  late String _mailInputValue;
+  late InputFieldValue _emailAddressInputValue;
+  late SecureInputFieldValue _passwordInputValue;
+  late SecureInputFieldValue _passwordAgainInputValue;
 
-  late String _passwordInputValue;
-
-  late String _passwordAgainInputValue;
-
-  late final FocusNode _mailInputNode;
+  late final FocusNode _emailAddressInputNode;
   late final FocusNode _usernameInputNode;
   late final FocusNode _passwordInputNode;
   late final FocusNode _passwordAgainInputNode;
@@ -47,11 +45,20 @@ class _SignUpPageState extends State<SignUpPage> {
   void initState() {
     super.initState();
 
-    _mailInputValue = StringErrorConstants.error;
-    _passwordInputValue = StringErrorConstants.error;
-    _passwordAgainInputValue = StringErrorConstants.error;
+    _emailAddressInputValue = InputFieldValue(
+      value: '',
+      status: InputFieldStatusEnum.empty,
+    );
+    _passwordInputValue = SecureInputFieldValue(
+      value: '',
+      status: SecureInputFieldStatusEnum.empty,
+    );
+    _passwordAgainInputValue = SecureInputFieldValue(
+      value: '',
+      status: SecureInputFieldStatusEnum.empty,
+    );
 
-    _mailInputNode = FocusNode();
+    _emailAddressInputNode = FocusNode();
     _usernameInputNode = FocusNode();
     _passwordInputNode = FocusNode();
     _passwordAgainInputNode = FocusNode();
@@ -59,7 +66,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   void dispose() {
-    _mailInputNode.dispose();
+    _emailAddressInputNode.dispose();
     _usernameInputNode.dispose();
     _passwordInputNode.dispose();
     _passwordAgainInputNode.dispose();
@@ -74,209 +81,263 @@ class _SignUpPageState extends State<SignUpPage> {
       listenWhen: listenWhenAuthBloc,
       builder: (context, state) {
         return Scaffold(
-          body: SingleChildScrollView(
-            child: PageBackground(
-              child: SizedBox(
-                width: context.screenWidth,
-                height: context.screenHeight,
-                child: SafeArea(
-                  child: Column(
-                    children: [
-                      const VerticalSpace(8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Row(
-                          children: [
-                            BackSvgButton(
-                              onPressed: () {},
-                            ),
-                            const Spacer(),
-                            const Text(
-                              'Already have an account?',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                            SignInTextButton(
-                              onPressed: () {
-                                context.pageTransitionFade(
-                                  page: const SignInPage(),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+          body: PageContainer(
+            content: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 40.0,
+                  ),
+                  child: AppLogo(),
+                ),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(40),
+                        topRight: Radius.circular(40),
                       ),
-                      const VerticalSpace(32),
-                      Expanded(
-                        child: SignUpFormBackground(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Column(
-                              children: [
-                                const VerticalSpace(26),
-                                const Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Getting started',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                const VerticalSpace(8),
-                                const Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Create account to continue!',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                const VerticalSpace(22),
-                                Row(
-                                  children: [
-                                    context.selectWidgetByPlatform(
-                                      androidWidget: SocialMediaSvgButton.google(onPressed: () {}),
-                                      iosWidget: SocialMediaSvgButton.apple(onPressed: () {}),
-                                    ),
-                                    const HorizontalSpace(16),
-                                    SocialMediaSvgButton.facebook(onPressed: () {}),
-                                    const HorizontalSpace(16),
-                                    SocialMediaSvgButton.twitter(onPressed: () {}),
-                                  ],
-                                ),
-                                const VerticalSpace(36),
-                                InputField(
-                                  textInputAction: TextInputAction.next,
-                                  node: _mailInputNode,
-                                  nextNode: _passwordInputNode,
-                                  svgIcon: IconPathConstants.mailIcon,
-                                  regularExpression: RegularExpressionConstants.emailRegex,
-                                  inputType: TextInputType.emailAddress,
-                                  hintText: 'Email adresinizi giriniz',
-                                  errorMessage: ErrorMessageConstants.emailInputFieldErrorMessage,
-                                  getValue: (String value) {
-                                    _mailInputValue = value;
-                                  },
-                                ),
-                                SecureInputField(
-                                  textInputAction: TextInputAction.next,
-                                  node: _passwordInputNode,
-                                  nextNode: _passwordAgainInputNode,
-                                  svgIcon: IconPathConstants.lockIcon,
-                                  regularExpression: RegularExpressionConstants.min8CharacterRegex,
-                                  inputType: TextInputType.text,
-                                  hintText: 'Parolanızı giriniz',
-                                  errorMessage: ErrorMessageConstants.passwordInputFieldErrorMessage,
-                                  getValue: (String value) {
-                                    setState(() {
-                                      _passwordInputValue = value;
-                                    });
-                                  },
-                                ),
-                                SecureInputField(
-                                  textInputAction: TextInputAction.done,
-                                  node: _passwordAgainInputNode,
-                                  svgIcon: IconPathConstants.lockIcon,
-                                  regularExpression: RegularExpressionConstants.toRegex(_passwordInputValue),
-                                  inputType: TextInputType.text,
-                                  hintText: 'Parolanızı tekrar giriniz',
-                                  errorMessage: ErrorMessageConstants.passwordAgainInputFieldErrorMessage,
-                                  getValue: (String value) {
-                                    _passwordAgainInputValue = value;
-                                  },
-                                ),
-                                SignUpMaterialButton(
-                                  onPressed: () async {
-                                    context.dismissKeyboard();
-                                    if (_mailInputValue != StringErrorConstants.error && _passwordInputValue != StringErrorConstants.error && _passwordAgainInputValue != StringErrorConstants.error) {
-                                      BlocProvider.of<AuthBloc>(context).add(
-                                        EventSignUpWithEmailAndPassword(
-                                          emailAddress: _mailInputValue,
-                                          password: _passwordInputValue,
-                                        ),
-                                      );
-                                    } else {
-                                      await PopUpMessage.warning(
-                                        title: 'Alanlar Hatalı',
-                                        message: 'Lütfen alanlardaki hataları düzeltin.',
-                                      ).show(context);
-                                    }
-                                  },
-                                ),
-                              ],
+                    ),
+                    child: Column(
+                      children: [
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Sign up',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontSize: 32,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                        const VerticalSpace(16),
+                        const TextDivider(
+                          fontSize: 12,
+                          text: 'With Social',
+                          textColor: Colors.grey,
+                        ),
+                        const VerticalSpace(12),
+                        Row(
+                          children: [
+                            context.selectWidgetByPlatform(
+                              androidWidget: SocialMediaSvgButton.google(onPressed: () {}),
+                              iosWidget: SocialMediaSvgButton.apple(onPressed: () {}),
+                            ),
+                            const HorizontalSpace(16),
+                            SocialMediaSvgButton.facebook(onPressed: () {}),
+                            const HorizontalSpace(16),
+                            SocialMediaSvgButton.twitter(onPressed: () {}),
+                          ],
+                        ),
+                        const VerticalSpace(24),
+                        const TextDivider(
+                          fontSize: 12,
+                          text: 'With Email',
+                          textColor: Colors.grey,
+                        ),
+                        const VerticalSpace(12),
+                        InputField(
+                          node: _emailAddressInputNode,
+                          nextNode: _passwordInputNode,
+                          inputType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          regularExpression: RegularExpressionConstants.emailAddress,
+                          hintText: HintTextConstants.emailAddressInputFieldHintText,
+                          errorMessage: ErrorTextConstants.emailAddressInputFieldErrorText,
+                          svgIcon: IconPathConstants.mailIcon,
+                          getValue: (InputFieldValue value) {
+                            _emailAddressInputValue = value;
+                          },
+                        ),
+                        SecureInputField(
+                          node: _passwordInputNode,
+                          nextNode: _passwordAgainInputNode,
+                          inputType: TextInputType.text,
+                          textInputAction: TextInputAction.next,
+                          regularExpression: RegularExpressionConstants.min8Char,
+                          hintText: HintTextConstants.passwordInputFieldHintText,
+                          errorMessage: ErrorTextConstants.passwordInputFieldErrorText,
+                          svgIcon: IconPathConstants.lockIcon,
+                          getValue: (SecureInputFieldValue value) {
+                            _passwordInputValue = value;
+                          },
+                        ),
+                        SecureInputField(
+                          node: _passwordAgainInputNode,
+                          inputType: TextInputType.text,
+                          textInputAction: TextInputAction.done,
+                          regularExpression: RegularExpressionConstants.toRegex(_passwordInputValue.value),
+                          hintText: HintTextConstants.passwordAgainInputFieldHintText,
+                          errorMessage: ErrorTextConstants.passwordAgainInputFieldErrorText,
+                          svgIcon: IconPathConstants.lockIcon,
+                          getValue: (SecureInputFieldValue value) {
+                            setState(() {
+                              _passwordAgainInputValue = value;
+                            });
+                          },
+                        ),
+                        SignUpButton(
+                          onPressed: _signUpButtonFunction,
+                        ),
+                        const Spacer(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Already have an account?",
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const HorizontalSpace(12),
+                            SignInButton(
+                              backgroundColor: Colors.blue,
+                              textColor: Colors.white,
+                              fontSize: 13,
+                              onPressed: _signInButtonFunction,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ).removeScrollGlow(),
+          ),
         );
       },
     );
   }
 
-  void listenerAuthBloc(BuildContext context, AuthState state) async {
-    if (state is StateSuccessfulSignUp) {
-      await PopUpMessage.success(
-        title: 'İşlem Başarılı',
-        message: 'Hesabınız başarıyla oluşturuldu.',
+  Future<void> _signUpButtonFunction() async {
+    context.dismissKeyboard();
+    if (_emailAddressInputValue.status == InputFieldStatusEnum.empty) {
+      await PopUpMessage.warning(
+        title: 'Email address error',
+        message: 'Email address field cannot be left empty',
       ).show(context);
-      context.pageTransitionFade(
-        page: const SignInPage(),
-      );
+      return;
     }
-    if (state is StateLoadingSignUp) {
-      const PopUpLoading().show(context);
+    if (_emailAddressInputValue.status == InputFieldStatusEnum.notMatched) {
+      await PopUpMessage.warning(
+        title: 'Email address error',
+        message: 'There is an error in the email address field',
+      ).show(context);
+      return;
     }
-    if (state is StateFailedSignUp) {
-      UserModelException exception = state.exception;
-      if (exception is UserEmailAlreadyInUseException) {
-        await PopUpMessage.danger(
-          title: 'Email Hatası',
-          message: 'Email başka bir kullanıcı tarafından kullanılıyor.',
-        ).show(context).then((value) => null);
-      }
-      if (exception is UserInvalidEmailException) {
-        await PopUpMessage.danger(
-          title: 'Email Hatası',
-          message: 'Kullandığınız email geçersizdir.',
+    if (_passwordInputValue.status == SecureInputFieldStatusEnum.empty) {
+      await PopUpMessage.warning(
+        title: 'Password error',
+        message: 'Password field cannot be left empty',
+      ).show(context);
+      return;
+    }
+    if (_passwordInputValue.status == SecureInputFieldStatusEnum.notMatched) {
+      await PopUpMessage.warning(
+        title: 'Password error',
+        message: 'There is an error in the password field',
+      ).show(context);
+      return;
+    }
+    if (_passwordAgainInputValue.status == SecureInputFieldStatusEnum.empty) {
+      await PopUpMessage.warning(
+        title: 'Password error',
+        message: 'Enter the password again',
+      ).show(context);
+      return;
+    }
+    if (_passwordInputValue.status == SecureInputFieldStatusEnum.notMatched) {
+      await PopUpMessage.warning(
+        title: 'Password error',
+        message: 'The entered passwords do not match',
+      ).show(context);
+      return;
+    }
+    BlocProvider.of<AuthBloc>(context).add(
+      EventSignUpWithEmailAndPassword(
+        emailAddress: _emailAddressInputValue.value,
+        password: _passwordInputValue.value,
+      ),
+    );
+  }
+
+  void _signInButtonFunction() {
+    context.pageTransitionSlide(
+      page: const SignInPage(),
+      direction: PageTransitionDirection.topToBottom,
+    );
+  }
+
+  void listenerAuthBloc(BuildContext context, AuthState state) async {
+    if (state is StateSuccessfulSignUpWithEmailAndPassword) {
+      await context.delayedPop();
+      if (context.mounted) {
+        await PopUpMessage.success(
+          title: 'You have signed up',
+          message: 'You are being redirected to the sign in page',
         ).show(context);
       }
-      if (exception is UserOperationNotAllowedException) {
-        await PopUpMessage.danger(
-          title: 'İzin Hatası',
-          message: 'Lütfen yöneticilerle iletişime geçiniz.',
-        ).show(context);
+      if (context.mounted) {
+        context.pageTransitionFade(
+          page: const SignInPage(),
+        );
       }
-      if (exception is UserWeakPasswordException) {
-        await PopUpMessage.danger(
-          title: 'Parola Hatası',
-          message: 'Daha güçlü bir parola deneyiniz.',
-        ).show(context);
-      }
-      if (exception is UserGenericException) {
-        await PopUpMessage.danger(
-          title: 'Beklenmedik Bir Hata',
-          message: state.exception.toString(),
-        ).show(context);
+      return;
+    }
+
+    if (state is StateFailedSignUpWithEmailAndPassword) {
+      await context.delayedPop();
+      if (context.mounted) {
+        Exception exception = state.exception;
+        if (exception is UserEmailAlreadyInUseException) {
+          await PopUpMessage.danger(
+            title: 'Email address error',
+            message: 'the email address has already been taken by someone else',
+          ).show(context);
+          return;
+        }
+        if (exception is UserInvalidEmailException) {
+          await PopUpMessage.danger(
+            title: 'Email address error',
+            message: 'Please enter a valid email address',
+          ).show(context);
+          return;
+        }
+        if (exception is UserOperationNotAllowedException) {
+          await PopUpMessage.danger(
+            title: 'User error',
+            message: 'Something went wrong, get in touch with your managers',
+          ).show(context);
+          return;
+        }
+        if (exception is UserWeakPasswordException) {
+          await PopUpMessage.danger(
+            title: 'Password error',
+            message: 'Please use a stronger password',
+          ).show(context);
+          return;
+        }
+        if (exception is UserGenericException) {
+          await PopUpMessage.danger(
+            title: 'Unexpected error',
+            message: 'An unexpected error has occurred',
+          ).show(context);
+          return;
+        }
       }
     }
   }
 
   bool listenWhenAuthBloc(AuthState previous, AuthState current) {
-    if (previous is StateLoadingSignUp && current is! StateLoadingSignUp) {
-      Navigator.of(context).pop();
+    if (current is StateLoadingSignUpWithEmailAndPassword) {
+      const PopUpLoading().show(context);
+      return false;
     }
     return true;
   }
