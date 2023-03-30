@@ -32,3 +32,15 @@ class StateSuccessfulGetUserProfile extends RemoteStorageState {
 }
 
 class StateFailedGetUserProfile extends RemoteStorageState {}
+
+// EventGetAvatarImageUrlList
+
+class StateLoadingGetAvatarImageUrlList extends RemoteStorageState {}
+
+class StateSuccessfulGetAvatarImageUrlList extends RemoteStorageState {
+  final Map<String, dynamic> avatarImageUrlMap;
+
+  StateSuccessfulGetAvatarImageUrlList({required this.avatarImageUrlMap});
+}
+
+class StateFailedGetAvatarImageUrlList extends RemoteStorageState {}

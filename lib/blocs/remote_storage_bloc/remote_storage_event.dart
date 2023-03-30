@@ -14,3 +14,5 @@ class EventCreateUserProfile extends RemoteStorageEvent {
 class EventIsUserProfileCreated extends RemoteStorageEvent {}
 
 class EventGetUserProfile extends RemoteStorageEvent {}
+
+class EventGetAvatarImageURlList extends RemoteStorageEvent {}
