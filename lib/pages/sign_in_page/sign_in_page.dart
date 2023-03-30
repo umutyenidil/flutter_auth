@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
+import 'package:flutter_auth/common_widgets/app_logo.dart';
+import 'package:flutter_auth/common_widgets/pop_ups/pop_up_acceptable.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
-import 'package:flutter_auth/constants/error_message_constants.dart';
+import 'package:flutter_auth/common_widgets/text_divider.dart';
+import 'package:flutter_auth/constants/error_text_constants.dart';
+import 'package:flutter_auth/constants/hint_text_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/constants/regular_expression_constants.dart';
-import 'package:flutter_auth/constants/route_constants.dart';
 import 'package:flutter_auth/constants/string_error_constants.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/common_widgets/horizontal_space.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
-import 'package:flutter_auth/common_widgets/back_svg_button.dart';
 import 'package:flutter_auth/common_widgets/input_field.dart';
 import 'package:flutter_auth/common_widgets/secure_input_field.dart';
 import 'package:flutter_auth/common_widgets/social_media_svg_button.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
-import 'package:flutter_auth/extensions/single_child_scroll_view_extensions.dart';
 import 'package:flutter_auth/pages/create_profile_page/create_profile_page.dart';
 import 'package:flutter_auth/pages/email_verification_page/email_verification_page.dart';
 import 'package:flutter_auth/pages/home_page/home_page.dart';
-import 'package:flutter_auth/pages/sign_in_page/widgets/page_background.dart';
-import 'package:flutter_auth/pages/sign_in_page/widgets/sign_in_material_button.dart';
-import 'package:flutter_auth/pages/sign_in_page/widgets/sign_up_text_button.dart';
-import 'package:flutter_auth/pages/sign_in_page/widgets/sign_in_form_background.dart';
+import 'package:flutter_auth/pages/sign_in_page/widgets/forgot_your_password_button.dart';
+import 'package:flutter_auth/pages/sign_in_page/widgets/page_container.dart';
+import 'package:flutter_auth/pages/sign_in_page/widgets/sign_in_button.dart';
+import 'package:flutter_auth/pages/sign_in_page/widgets/sign_up_button.dart';
 import 'package:flutter_auth/pages/sign_up_page/sign_up_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,26 +37,33 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
-  late String _mailInputValue;
-  late String _passwordInputValue;
+  late InputFieldValue _emailAddressInputValue;
+  late SecureInputFieldValue _passwordInputValue;
 
-  late final FocusNode _mailInputNode;
+  late final FocusNode _emailAddressInputNode;
   late final FocusNode _passwordInputNode;
 
   @override
   void initState() {
     super.initState();
 
-    _mailInputValue = StringErrorConstants.error;
-    _passwordInputValue = StringErrorConstants.error;
+    _emailAddressInputValue = InputFieldValue(
+      value: '',
+      status: InputFieldStatusEnum.empty,
+    );
 
-    _mailInputNode = FocusNode();
+    _passwordInputValue = SecureInputFieldValue(
+      value: '',
+      status: SecureInputFieldStatusEnum.empty,
+    );
+
+    _emailAddressInputNode = FocusNode();
     _passwordInputNode = FocusNode();
   }
 
   @override
   void dispose() {
-    _mailInputNode.dispose();
+    _emailAddressInputNode.dispose();
     _passwordInputNode.dispose();
 
     super.dispose();
@@ -72,145 +80,124 @@ class _SignInPageState extends State<SignInPage> {
           listenWhen: listenWhenRemoteStorageBloc,
           builder: (context, state) {
             return Scaffold(
-              body: SingleChildScrollView(
-                child: PageBackground(
-                  child: SizedBox(
-                    width: context.screenWidth,
-                    height: context.screenHeight,
-                    child: SafeArea(
-                      child: Column(
-                        children: [
-                          const VerticalSpace(8),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Row(
-                              children: [
-                                BackSvgButton(
-                                  onPressed: () {},
-                                ),
-                                const Spacer(),
-                                const Text(
-                                  'Don\'t have an account?',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SignUpTextButton(
-                                  onPressed: () {
-                                    context.pageTransitionFade(
-                                      page: const SignUpPage(),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
+              body: PageContainer(
+                content: Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 40.0,
+                      ),
+                      child: AppLogo(),
+                    ),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(40),
+                            topRight: Radius.circular(40),
                           ),
-                          const VerticalSpace(32),
-                          Expanded(
-                            child: SignUpFormBackground(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                child: Column(
-                                  children: [
-                                    const VerticalSpace(26),
-                                    const Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        'Let\'s get something',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                    const VerticalSpace(8),
-                                    const Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        'Good to see you back.',
-                                        style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                    const VerticalSpace(22),
-                                    Row(
-                                      children: [
-                                        context.selectWidgetByPlatform(
-                                          androidWidget: SocialMediaSvgButton.google(onPressed: () {}),
-                                          iosWidget: SocialMediaSvgButton.apple(onPressed: () {}),
-                                        ),
-                                        const HorizontalSpace(16),
-                                        SocialMediaSvgButton.facebook(onPressed: () {}),
-                                        const HorizontalSpace(16),
-                                        SocialMediaSvgButton.twitter(onPressed: () {}),
-                                      ],
-                                    ),
-                                    const VerticalSpace(36),
-                                    InputField(
-                                      node: _mailInputNode,
-                                      svgIcon: IconPathConstants.mailIcon,
-                                      regularExpression: RegularExpressionConstants.emailRegex,
-                                      inputType: TextInputType.emailAddress,
-                                      hintText: 'Email adresinizi giriniz',
-                                      errorMessage: ErrorMessageConstants.emailInputFieldErrorMessage,
-                                      getValue: (String value) {
-                                        _mailInputValue = value;
-                                      },
-                                    ),
-                                    SecureInputField(
-                                      node: _passwordInputNode,
-                                      svgIcon: IconPathConstants.lockIcon,
-                                      regularExpression: RegularExpressionConstants.min8CharacterWithAnythingRegex,
-                                      inputType: TextInputType.text,
-                                      hintText: 'Parolanizi giriniz',
-                                      errorMessage: ErrorMessageConstants.passwordInputFieldErrorMessage2,
-                                      getValue: (String value) {
-                                        setState(() {
-                                          _passwordInputValue = value;
-                                        });
-                                      },
-                                    ),
-                                    SignInMaterialButton(
-                                      onPressed: () async {
-                                        context.dismissKeyboard();
-
-                                        if (_mailInputValue != StringErrorConstants.error && _passwordInputValue != StringErrorConstants.error) {
-                                          BlocProvider.of<AuthBloc>(context).add(
-                                            EventSignInWithEmailAndPassword(
-                                              emailAddress: _mailInputValue,
-                                              password: _passwordInputValue,
-                                            ),
-                                          );
-                                        } else {
-                                          await PopUpMessage.warning(
-                                            title: 'Alanlar Hatalı',
-                                            message: 'Lütfen alanlardaki hataları düzeltin.',
-                                          ).show(context);
-                                        }
-                                      },
-                                    ),
-                                    TextButton(
-                                      onPressed: () {},
-                                      child: const Text(
-                                        'Forgot your password?',
-                                        style: TextStyle(),
-                                      ),
-                                    ),
-                                  ],
+                        ),
+                        child: Column(
+                          children: [
+                            const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Sign in',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            const VerticalSpace(16),
+                            const TextDivider(
+                              fontSize: 12,
+                              text: 'With Social',
+                              textColor: Colors.grey,
+                            ),
+                            const VerticalSpace(12),
+                            Row(
+                              children: [
+                                context.selectWidgetByPlatform(
+                                  androidWidget: SocialMediaSvgButton.google(onPressed: () {}),
+                                  iosWidget: SocialMediaSvgButton.apple(onPressed: () {}),
+                                ),
+                                const HorizontalSpace(16),
+                                SocialMediaSvgButton.facebook(onPressed: () {}),
+                                const HorizontalSpace(16),
+                                SocialMediaSvgButton.twitter(onPressed: () {}),
+                              ],
+                            ),
+                            const VerticalSpace(24),
+                            const TextDivider(
+                              fontSize: 12,
+                              text: 'With Email',
+                              textColor: Colors.grey,
+                            ),
+                            const VerticalSpace(12),
+                            InputField(
+                              node: _emailAddressInputNode,
+                              nextNode: _passwordInputNode,
+                              textInputAction: TextInputAction.next,
+                              inputType: TextInputType.emailAddress,
+                              regularExpression: RegularExpressionConstants.emailAddress,
+                              hintText: HintTextConstants.emailAddressInputFieldHintText,
+                              errorMessage: ErrorTextConstants.emailAddressInputFieldErrorText,
+                              svgIcon: IconPathConstants.mailIcon,
+                              getValue: (InputFieldValue value) {
+                                _emailAddressInputValue = value;
+                              },
+                            ),
+                            SecureInputField(
+                              node: _passwordInputNode,
+                              regularExpression: RegularExpressionConstants.min8Char,
+                              textInputAction: TextInputAction.done,
+                              inputType: TextInputType.text,
+                              hintText: HintTextConstants.passwordInputFieldHintText,
+                              errorMessage: ErrorTextConstants.passwordInputFieldErrorText,
+                              svgIcon: IconPathConstants.lockIcon,
+                              getValue: (SecureInputFieldValue value) {
+                                _passwordInputValue = value;
+                              },
+                            ),
+                            const VerticalSpace(16),
+                            SignInButton(
+                              onPressed: _signInButtonFunction,
+                            ),
+                            ForgotYourPasswordButton(
+                              onPressed: () {},
+                            ),
+                            const Spacer(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  "Don't have an account?",
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const HorizontalSpace(12),
+                                SignUpButton(
+                                  backgroundColor: Colors.blue,
+                                  textColor: Colors.white,
+                                  fontSize: 13,
+                                  onPressed: _signUpButtonFunction,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ).removeScrollGlow(),
+              ),
             );
           },
         );
@@ -218,99 +205,178 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
-  void listenerAuthBloc(BuildContext context, AuthState state) async {
-    if (state is StateLoadingSignIn) {
-      const PopUpLoading().show(context);
-    }
-    if (state is StateSuccessfulSignIn) {
-      await PopUpMessage.success(
-        title: 'Islem Basarili',
-        message: 'Basariyla giris yaptiniz. Yonlendiriliyorsunuz',
-      ).show(context);
+  void _signUpButtonFunction() {
+    context.pageTransitionSlide(
+      page: const SignUpPage(),
+      direction: PageTransitionDirection.bottomToTop,
+    );
+  }
 
-      BlocProvider.of<AuthBloc>(context).add(
-        EventIsUserVerified(),
-      );
+  Future<void> _signInButtonFunction() async {
+    context.dismissKeyboard();
+    if (_emailAddressInputValue.status == InputFieldStatusEnum.empty) {
+      await PopUpMessage.warning(
+        title: 'Email address error',
+        message: 'Email address field cannot be left empty',
+      ).show(context);
+      return;
     }
-    if (state is StateFailedSignIn) {
-      UserModelException exception = state.exception;
-      if (exception is UserInvalidEmailException) {
-        await PopUpMessage.danger(
-          title: 'Email Hatası',
-          message: 'Lütfen geçerli bir email adresi giriniz.',
-        ).show(context);
-      }
-      if (exception is UserDisabledException) {
-        await PopUpMessage.danger(
-          title: 'Kullanıcı Hatası',
-          message: 'Hesabınız dondurulmuştur. Lütfen yöneticilerle iletişime geçiniz.',
-        ).show(context);
-      }
-      if (exception is UserNotFoundException) {
-        await PopUpMessage.danger(
-          title: 'Kullanıcı Hatası',
-          message: 'Email adresiniz veya parolanız hatalıdır. Lütfen kontrol ediniz.',
-        ).show(context);
-      }
-      if (exception is UserWrongPasswordException) {
-        await PopUpMessage.danger(
-          title: 'Kullanici Hatasi',
-          message: 'Email adresiniz veya parolanız hatalıdır. Lütfen kontrol ediniz.',
-        ).show(context);
-      }
-      if (exception is UserDidntSignInException) {
-        await PopUpMessage.danger(
-          title: 'Oturum Açma Hatası',
-          message: 'Oturum açılamadı. Tekrar deneyiniz.',
-        ).show(context);
-      }
-      if (exception is UserGenericException) {
-        await PopUpMessage.danger(
-          title: 'Beklenmedik Bir Hata',
-          message: exception.toString(),
-        ).show(context);
-      }
+    if (_emailAddressInputValue.status == InputFieldStatusEnum.notMatched) {
+      await PopUpMessage.warning(
+        title: 'Email address error',
+        message: 'There is an error in the email address field',
+      ).show(context);
+      return;
     }
-    if (state is StateTrueIsUserVerified) {
-      BlocProvider.of<RemoteStorageBloc>(context).add(
-        EventIsUserProfileCreated(),
-      );
+    if (_passwordInputValue.status == SecureInputFieldStatusEnum.empty) {
+      await PopUpMessage.warning(
+        title: 'Password error',
+        message: 'Password field cannot be left empty',
+      ).show(context);
+      return;
     }
-    if (state is StateFalseIsUserVerified) {
-      context.pageTransitionFade(
-        page: const EmailVerificationPage(),
-      );
+    if (_passwordInputValue.status == SecureInputFieldStatusEnum.notMatched) {
+      await PopUpMessage.warning(
+        title: 'Password error',
+        message: 'There is an error in the password field',
+      ).show(context);
+      return;
+    }
+
+    BlocProvider.of<AuthBloc>(context).add(
+      EventSignInWithEmailAndPassword(
+        emailAddress: _emailAddressInputValue.value,
+        password: _passwordInputValue.value,
+      ),
+    );
+  }
+
+  void listenerAuthBloc(BuildContext context, AuthState state) async {
+    if (state is StateFailedSignInWithEmailAndPassword) {
+      await context.delayedPop();
+      if (context.mounted) {
+        Exception exception = state.exception;
+        if (exception is UserInvalidEmailException) {
+          await PopUpMessage.danger(
+            title: 'Email address error',
+            message: 'Please enter a valid email address',
+          ).show(context);
+          return;
+        }
+        if (exception is UserDisabledException) {
+          await PopUpMessage.danger(
+            title: 'User error',
+            message: 'Your account is disabled. Please contact your manager',
+          ).show(context);
+          return;
+        }
+        if (exception is UserNotFoundException) {
+          await PopUpMessage.danger(
+            title: 'User error',
+            message: 'The user could not be found',
+          ).show(context);
+          return;
+        }
+        if (exception is UserWrongPasswordException) {
+          await PopUpMessage.danger(
+            title: 'User error',
+            message: 'Email address or password is incorrect',
+          ).show(context);
+          return;
+        }
+        if (exception is UserDidntSignInException) {
+          await PopUpMessage.danger(
+            title: 'Sign in error',
+            message: 'An error occurred while logging in',
+          ).show(context);
+          return;
+        }
+        if (exception is UserGenericException) {
+          await PopUpMessage.danger(
+            title: 'Unexpected error',
+            message: 'An unexpected error has occurred',
+          ).show(context);
+          return;
+        }
+      }
+      return;
+    }
+
+    if (state is StateFalseUserVerified) {
+      await context.delayedPop();
+      if (context.mounted) {
+        await PopUpMessage.success(
+          title: 'You have been logged in',
+          message: 'You are being redirected to the verification page',
+        ).show(context);
+      }
+      if (context.mounted) {
+        context.pageTransitionFade(
+          page: const EmailVerificationPage(),
+        );
+      }
+      return;
     }
   }
 
   bool listenWhenAuthBloc(AuthState previous, AuthState current) {
-    if (previous is StateLoadingSignIn && current is! StateLoadingSignIn) {
-      Navigator.of(context).pop();
+    if (current is StateLoadingSignInWithEmailAndPassword) {
+      const PopUpLoading().show(context);
+      return false;
     }
-
+    if (previous is StateLoadingSignInWithEmailAndPassword && current is StateSuccessfulSignInWithEmailAndPassword) {
+      BlocProvider.of<AuthBloc>(context).add(
+        EventIsUserVerified(),
+      );
+      return false;
+    }
+    if (previous is StateLoadingIsUserVerified && current is StateTrueUserVerified) {
+      BlocProvider.of<RemoteStorageBloc>(context).add(
+        EventIsUserProfileCreated(),
+      );
+      return false;
+    }
     return true;
   }
 
   void listenerRemoteStorageBloc(BuildContext context, RemoteStorageState state) async {
-    if (state is StateLoadingIsUserProfileCreated) {
-      const PopUpLoading().show(context);
-    }
     if (state is StateTrueUserProfileCreated) {
-      context.pageTransitionFade(
-        page: const HomePage(),
-      );
+      await context.delayedPop();
+      if (context.mounted) {
+        await PopUpMessage.success(
+          title: 'You have been logged in',
+          message: 'You are being redirected to the home page',
+        ).show(context);
+      }
+      if (context.mounted) {
+        context.pageTransitionFade(
+          page: const HomePage(),
+        );
+      }
+      return;
     }
     if (state is StateFalseUserProfileCreated) {
-      context.pageTransitionFade(
-        page: const CreateProfilePage(),
-      );
+      await context.delayedPop();
+      if (context.mounted) {
+        await PopUpMessage.success(
+          title: 'You have been logged in',
+          message: 'You are being redirected to the profile create page',
+        ).show(context);
+      }
+      if (context.mounted) {
+        context.pageTransitionFade(
+          page: const CreateProfilePage(),
+        );
+      }
+      return;
     }
   }
 
   bool listenWhenRemoteStorageBloc(RemoteStorageState previous, RemoteStorageState current) {
-    if (previous is StateLoadingIsUserProfileCreated && current is! StateLoadingIsUserProfileCreated) {
-      Navigator.of(context).pop();
+    if (current is StateLoadingIsUserProfileCreated) {
+      return false;
     }
+
     return true;
   }
 }

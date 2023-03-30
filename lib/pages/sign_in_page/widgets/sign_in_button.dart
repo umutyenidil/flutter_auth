@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/constants/border_radius_constants.dart';
 
-class SignInMaterialButton extends StatelessWidget {
-  const SignInMaterialButton({
+class SignInButton extends StatelessWidget {
+  const SignInButton({
     super.key,
     required this.onPressed,
   });
@@ -12,16 +12,14 @@ class SignInMaterialButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 54,
+      height: 50,
       width: double.infinity,
       child: MaterialButton(
         color: Colors.blue,
         minWidth: 0,
         height: 0,
         padding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusConstants.allCorners10,
-        ),
+        shape: const StadiumBorder(),
         onPressed: () {
           onPressed();
         },
@@ -30,6 +28,7 @@ class SignInMaterialButton extends StatelessWidget {
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
