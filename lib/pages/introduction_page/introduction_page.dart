@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
-import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/lottie_path_constants.dart';
-import 'package:flutter_auth/constants/route_constants.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/pages/create_profile_page/create_profile_page.dart';
 import 'package:flutter_auth/pages/email_verification_page/email_verification_page.dart';
@@ -25,7 +23,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
     super.initState();
 
     Future.delayed(
-      const Duration(seconds: 5),
+      const Duration(seconds: 2),
     ).then(
       (value) {
         BlocProvider.of<AuthBloc>(context).add(
