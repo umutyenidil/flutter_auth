@@ -1,15 +1,13 @@
-import 'dart:async';
-
 import 'dart:developer' as devtools show log;
 import 'dart:io';
 
-import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/models/user_model.dart';
-import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
 
 part 'remote_storage_event.dart';
@@ -31,16 +29,15 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
           User user = await UserModel().getCurrentUser();
           devtools.log('EventCreateProfile: current user brought in');
           String userUid = user.uid;
-          print(userProfileData);
 
           if (userProfileData[UserModelFields.avatarImage] is File) {
             File userProfilePictureFile = userProfileData[UserModelFields.avatarImage];
-            String generatedUUID = (Uuid()).v4();
+            String generatedUUID = (const Uuid()).v4();
             String userProfilePictureFileExtension = userProfilePictureFile.path.split('.').last;
 
             Reference storageRef = FirebaseStorage.instance.ref();
-            Reference userImagesRef = storageRef.child('user_images/${userUid}');
-            Reference userProfilePictureRef = userImagesRef.child('${generatedUUID}.${userProfilePictureFileExtension}');
+            Reference userImagesRef = storageRef.child('user_images/$userUid');
+            Reference userProfilePictureRef = userImagesRef.child('$generatedUUID.$userProfilePictureFileExtension');
 
             await userProfilePictureRef.putFile(userProfilePictureFile);
             devtools.log('EventCreateProfile: profile picture uploaded');
@@ -48,7 +45,6 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
             userProfileData[UserModelFields.avatarImage] = await userProfilePictureRef.getDownloadURL();
             devtools.log('EventCreateProfile: profile picture link brought in');
           }
-
 
           await UserModel().updateWithUid(
             uid: user.uid,
@@ -61,6 +57,9 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
             StateSuccessfulCreateUserProfile(),
           );
         } catch (exception) {
+          emit(
+            StateFailedCreateUserProfile(),
+          );
           devtools.log('EventCreateProfile: user profile not created (unhandled exception)');
           devtools.log(exception.toString());
         }
