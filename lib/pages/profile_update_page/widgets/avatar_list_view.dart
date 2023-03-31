@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
-import 'package:flutter_auth/constants/image_path_constants.dart';
 import 'package:flutter_auth/mixins/image_storage_mixin.dart';
 import 'package:flutter_auth/pages/create_profile_page/widgets/select_button.dart';
 import 'package:flutter_svg/flutter_svg.dart';

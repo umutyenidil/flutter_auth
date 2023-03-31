@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/common_widgets/horizontal_space.dart';
-import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
