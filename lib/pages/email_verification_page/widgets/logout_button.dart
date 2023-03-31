@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_auth/constants/border_radius_constants.dart';
 
 class LogoutButton extends StatelessWidget {
   const LogoutButton({

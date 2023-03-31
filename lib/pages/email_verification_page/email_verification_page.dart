@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_auth/app/app.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_acceptable.dart';
