@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_auth/constants/border_radius_constants.dart';
 
 class SaveButton extends StatelessWidget {
   const SaveButton({
@@ -17,12 +16,9 @@ class SaveButton extends StatelessWidget {
         minWidth: 0,
         height: 0,
         padding: const EdgeInsets.symmetric(
-          horizontal: 0,
           vertical: 12,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusConstants.allCorners10,
-        ),
+        shape: const StadiumBorder(),
         onPressed: () {
           onPressed();
         },

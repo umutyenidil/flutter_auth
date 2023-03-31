@@ -8,12 +8,16 @@ class TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SizedBox(
+      width: double.infinity,
+      height: 60,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.blue,
         ),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: 90,
+          ),
           child: FittedBox(
             fit: BoxFit.contain,
             child: Text(
