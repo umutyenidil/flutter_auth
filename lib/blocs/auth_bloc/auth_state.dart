@@ -9,9 +9,9 @@ class StateInitial extends AuthState {}
 class StateSuccessfulSignUpWithEmailAndPassword extends AuthState {}
 
 class StateFailedSignUpWithEmailAndPassword extends AuthState {
-  final UserModelException exception;
+  final String error;
 
-  StateFailedSignUpWithEmailAndPassword({required this.exception});
+  StateFailedSignUpWithEmailAndPassword({required this.error});
 }
 
 class StateLoadingSignUpWithEmailAndPassword extends AuthState {}
@@ -20,9 +20,9 @@ class StateLoadingSignUpWithEmailAndPassword extends AuthState {}
 class StateSuccessfulSignInWithEmailAndPassword extends AuthState {}
 
 class StateFailedSignInWithEmailAndPassword extends AuthState {
-  final UserModelException exception;
+  final String error;
 
-  StateFailedSignInWithEmailAndPassword({required this.exception});
+  StateFailedSignInWithEmailAndPassword({required this.error});
 }
 
 class StateLoadingSignInWithEmailAndPassword extends AuthState {}
@@ -37,9 +37,9 @@ class StateFalseUserVerified extends AuthState {}
 class StateTrueUserVerified extends AuthState {}
 
 class StateFailedIsUserVerified extends AuthState {
-  final UserModelException exception;
+  final String error;
 
-  StateFailedIsUserVerified({required this.exception});
+  StateFailedIsUserVerified({required this.error});
 }
 
 // SendEmailVerification Event States

@@ -254,7 +254,7 @@ class _SignInPageState extends State<SignInPage> {
       await context.delayedPop();
       if (context.mounted) {
         Exception exception = state.exception;
-        if (exception is UserInvalidEmailException) {
+        if (exception is InvalidEmailException) {
           await PopUpMessage.danger(
             title: 'Email address error',
             message: 'Please enter a valid email address',

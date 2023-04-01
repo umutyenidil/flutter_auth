@@ -30,8 +30,8 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
           devtools.log('EventCreateProfile: current user brought in');
           String userUid = user.uid;
 
-          if (userProfileData[UserModelFields.avatarImage] is File) {
-            File userProfilePictureFile = userProfileData[UserModelFields.avatarImage];
+          if (userProfileData[UserModelFieldsEnum.avatarImage.value] is File) {
+            File userProfilePictureFile = userProfileData[UserModelFieldsEnum.avatarImage.value];
             String generatedUUID = (const Uuid()).v4();
             String userProfilePictureFileExtension = userProfilePictureFile.path.split('.').last;
 
@@ -42,14 +42,14 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
             await userProfilePictureRef.putFile(userProfilePictureFile);
             devtools.log('EventCreateProfile: profile picture uploaded');
 
-            userProfileData[UserModelFields.avatarImage] = await userProfilePictureRef.getDownloadURL();
+            userProfileData[UserModelFieldsEnum.avatarImage.value] = await userProfilePictureRef.getDownloadURL();
             devtools.log('EventCreateProfile: profile picture link brought in');
           }
 
           await UserModel().updateWithUid(
             uid: user.uid,
-            avatarImage: userProfileData[UserModelFields.avatarImage],
-            username: userProfileData[UserModelFields.username],
+            avatarImage: userProfileData[UserModelFieldsEnum.avatarImage.value],
+            username: userProfileData[UserModelFieldsEnum.username.value],
           );
 
           devtools.log('EventCreateProfile: user profile created');
@@ -120,8 +120,8 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
           devtools.log('EventGetUserProfile: user data was read from cloud');
 
           Map<String, dynamic> userProfileData = {
-            UserModelFields.avatarImage: userData![UserModelFields.avatarImage],
-            UserModelFields.username: userData[UserModelFields.username],
+            UserModelFieldsEnum.avatarImage.value: userData![UserModelFieldsEnum.avatarImage.value],
+            UserModelFieldsEnum.username.value: userData[UserModelFieldsEnum.username.value],
           };
 
           emit(

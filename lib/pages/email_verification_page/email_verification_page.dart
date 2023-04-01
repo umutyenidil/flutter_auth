@@ -63,11 +63,13 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> with Widg
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
+    if (state != AppLifecycleState.paused) {
       if (_isUserVerified) {
-        BlocProvider.of<RemoteStorageBloc>(context).add(
-          EventIsUserProfileCreated(),
-        );
+        Future.delayed(const Duration(milliseconds: 500)).then((value) {
+          BlocProvider.of<RemoteStorageBloc>(context).add(
+            EventIsUserProfileCreated(),
+          );
+        });
       }
     }
   }

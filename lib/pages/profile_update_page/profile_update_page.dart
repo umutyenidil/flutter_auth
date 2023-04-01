@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
@@ -12,7 +11,6 @@ import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
-import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_auth/pages/profile_page/profile_page.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/avatar_list_view.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/save_button.dart';
@@ -66,7 +64,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                               padding: 4,
                               onPressed: () {
                                 context.pageTransitionFade(
-                                  page: ProfilePage(),
+                                  page: const ProfilePage(),
                                 );
                               },
                             ),

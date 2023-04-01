@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:developer' as devtools show log;
 
+import 'package:flutter_auth/exceptions/auth_model_exceptions.dart';
+import 'package:flutter_auth/services/auth_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +14,8 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  final AuthService _provider = AuthService();
+
   AuthBloc() : super(StateInitial()) {
     on<EventSignUpWithEmailAndPassword>(
       (event, emit) async {
@@ -20,39 +24,53 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(
             StateLoadingSignUpWithEmailAndPassword(),
           );
-          await UserModel().signUpWithEmailAndPassword(
+          await _provider.signUpWithEmailAndPassword(
             emailAddress: event.emailAddress,
             password: event.password,
           );
-
           devtools.log('EventSignUpWithEmailAndPassword: user signed up');
           emit(
             StateSuccessfulSignUpWithEmailAndPassword(),
           );
-        } on UserEmailAlreadyInUseException catch (exception) {
-          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (UserEmailAlreadyInUseException)');
+        } on UserNotSignedUpException {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (UserNotSignedUpException)');
           emit(
-            StateFailedSignUpWithEmailAndPassword(exception: exception),
+            StateFailedSignUpWithEmailAndPassword(error: 'Kullanici olusturulamadi'),
           );
-        } on UserInvalidEmailException catch (exception) {
-          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (UserInvalidEmailException)');
+        } on CurrentUserNotFoundException {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (CurrentUserNotFoundException)');
           emit(
-            StateFailedSignUpWithEmailAndPassword(exception: exception),
+            StateFailedSignUpWithEmailAndPassword(error: 'kullanici olusturulamadi'),
           );
-        } on UserOperationNotAllowedException catch (exception) {
-          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (UserOperationNotAllowedException)');
+        } on EmailAlreadyInUseException {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (EmailAlreadyInUseException)');
           emit(
-            StateFailedSignUpWithEmailAndPassword(exception: exception),
+            StateFailedSignUpWithEmailAndPassword(error: 'email adresi kullanimda'),
           );
-        } on UserWeakPasswordException catch (exception) {
-          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (UserWeakPasswordException)');
+        } on InvalidEmailException {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (InvalidEmailException)');
           emit(
-            StateFailedSignUpWithEmailAndPassword(exception: exception),
+            StateFailedSignUpWithEmailAndPassword(error: 'gecersiz email adresi'),
           );
-        } catch (exception) {
-          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (unhandled exception)');
+        } on OperationNotAllowedException {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (OperationNotAllowedException)');
           emit(
-            StateFailedSignUpWithEmailAndPassword(exception: UserGenericException()),
+            StateFailedSignUpWithEmailAndPassword(error: 'operasyona izin verilmedi'),
+          );
+        } on WeakPasswordException {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (WeakPasswordException)');
+          emit(
+            StateFailedSignUpWithEmailAndPassword(error: 'daha guclu bir sifre deneyiniz'),
+          );
+        } on GenericAuthModelException {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (GenericAuthModelException)');
+          emit(
+            StateFailedSignUpWithEmailAndPassword(error: 'bir hata olustu'),
+          );
+        } on GenericUserModelException {
+          devtools.log('EventSignUpWithEmailAndPassword: user not signed up (GenericUserModelException)');
+          emit(
+            StateFailedSignUpWithEmailAndPassword(error: 'bir hata olustu'),
           );
         }
         devtools.log('EventSignUpWithEmailAndPassword finished');
@@ -67,7 +85,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(
             StateLoadingSignInWithEmailAndPassword(),
           );
-          await UserModel().signInWithEmailAndPassword(
+
+          await _provider.signInWithEmailAndPassword(
             emailAddress: event.emailAddress,
             password: event.password,
           );
@@ -76,39 +95,40 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(
             StateSuccessfulSignInWithEmailAndPassword(),
           );
-        } on UserInvalidEmailException catch (exception) {
-          devtools.log('EventSignInWithEmailAndPassword: user not signed in (UserInvalidEmailException)');
+        } on InvalidEmailException {
+          devtools.log('EventSignInWithEmailAndPassword: user not signed in (InvalidEmailException)');
           emit(
-            StateFailedSignInWithEmailAndPassword(exception: exception),
+            StateFailedSignInWithEmailAndPassword(error: 'gecersiz email'),
           );
-        } on UserDisabledException catch (exception) {
+        } on UserDisabledException {
           devtools.log('EventSignInWithEmailAndPassword: user not signed in (UserDisabledException)');
-
           emit(
-            StateFailedSignInWithEmailAndPassword(exception: exception),
+            StateFailedSignInWithEmailAndPassword(error: 'kullanici devredisi'),
           );
-        } on UserNotFoundException catch (exception) {
+        } on UserNotFoundException {
           devtools.log('EventSignInWithEmailAndPassword: user not signed in (UserNotFoundException)');
-
           emit(
-            StateFailedSignInWithEmailAndPassword(exception: exception),
+            StateFailedSignInWithEmailAndPassword(error: 'kullanici bulunamadi'),
           );
-        } on UserWrongPasswordException catch (exception) {
-          devtools.log('EventSignInWithEmailAndPassword: user not signed in (UserWrongPasswordException)');
-
+        } on WrongPasswordException {
+          devtools.log('EventSignInWithEmailAndPassword: user not signed in (WrongPasswordException)');
           emit(
-            StateFailedSignInWithEmailAndPassword(exception: exception),
+            StateFailedSignInWithEmailAndPassword(error: 'parola yanlis'),
           );
-        } on UserDidntSignInException catch (exception) {
-          devtools.log('EventSignInWithEmailAndPassword: user not signed in (UserDidntSignInException)');
-
+        } on CurrentUserNotFoundException {
+          devtools.log('EventSignInWithEmailAndPassword: user not signed in (CurrentUserNotFoundException)');
           emit(
-            StateFailedSignInWithEmailAndPassword(exception: exception),
+            StateFailedSignInWithEmailAndPassword(error: 'gecerli kullanici bulunamadi'),
           );
-        } catch (exception) {
-          devtools.log('EventSignInWithEmailAndPassword: user not signed in (unhandled exception)');
+        } on GenericUserModelException {
+          devtools.log('EventSignInWithEmailAndPassword: user not signed in (GenericUserModelException)');
           emit(
-            StateFailedSignInWithEmailAndPassword(exception: UserGenericException()),
+            StateFailedSignInWithEmailAndPassword(error: 'bir hata olustu'),
+          );
+        } on GenericAuthModelException {
+          devtools.log('EventSignInWithEmailAndPassword: user not signed in (GenericAuthModelException)');
+          emit(
+            StateFailedSignInWithEmailAndPassword(error: 'bir hata olustu'),
           );
         }
         devtools.log('EventSignInWithEmailAndPassword: finished');
@@ -122,10 +142,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(
             StateLoadingIsUserVerified(),
           );
-
-          User currentUser = await UserModel().getCurrentUser();
-
-          if (currentUser.emailVerified) {
+          bool isCurrentUserVerified = await _provider.isCurrentUserVerified();
+          if (isCurrentUserVerified) {
             devtools.log('EventIsUserVerified: user verified');
             emit(
               StateTrueUserVerified(),
@@ -136,11 +154,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               StateFalseUserVerified(),
             );
           }
-        } catch (exception) {
+        } on CurrentUserNotFoundException {
           devtools.log('EventIsUserVerified: user not verified (unhandled exception)');
           emit(
             StateFailedIsUserVerified(
-              exception: UserGenericException(),
+              error: 'gecerli kullanici bulunamadi',
+            ),
+          );
+        } on GenericAuthModelException {
+          devtools.log('EventIsUserVerified: user not verified (unhandled exception)');
+          emit(
+            StateFailedIsUserVerified(
+              error: 'bir hata olustu',
             ),
           );
         }

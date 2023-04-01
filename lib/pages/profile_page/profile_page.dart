@@ -9,9 +9,7 @@ import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
-import 'package:flutter_auth/constants/route_constants.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
-import 'package:flutter_auth/extensions/bool_extensions.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/models/user_model.dart';
@@ -65,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               padding: 4,
                               onPressed: () {
                                 context.pageTransitionSlide(
-                                  page: HomePage(),
+                                  page: const HomePage(),
                                   direction: PageTransitionDirection.leftToRight,
                                 );
                               },
@@ -74,7 +72,9 @@ class _ProfilePageState extends State<ProfilePage> {
                               size: 40,
                               padding: 20,
                               onPressed: () {
-                                context.pageTransitionFade(page: ProfileUpdatePage());
+                                context.pageTransitionFade(
+                                  page: const ProfileUpdatePage(),
+                                );
                               },
                             ),
                           ],
@@ -85,12 +85,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: CircleAvatar(
                           backgroundColor: Colors.transparent,
                           foregroundImage: MemoryImage(
-                            (userProfileData[UserModelFields.avatarImage] as Blob).bytes,
+                            (userProfileData[UserModelFieldsEnum.avatarImage.value] as Blob).bytes,
                           ),
                         ),
                       ),
                       const VerticalSpace(32),
-                      Text(userProfileData[UserModelFields.username]),
+                      Text(userProfileData[UserModelFieldsEnum.username.value]),
                       const Spacer(),
                       Padding(
                         padding: const EdgeInsets.all(8.0),

@@ -1,199 +1,62 @@
+import 'dart:async';
+import 'dart:core';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/map_extensions.dart';
-import 'package:flutter_auth/models/base_models/firebase_model.dart';
 import 'package:uuid/uuid.dart';
 
-typedef UserModelMap = Map<String, dynamic>;
-
-class UserModel implements FirebaseModel {
+class UserModel {
   static final UserModel _shared = UserModel._sharedInstance();
 
   UserModel._sharedInstance();
 
   factory UserModel() => _shared;
 
-  Future<bool> signUpWithEmailAndPassword({
+
+  Future<bool?> create({
+    required String uid,
     required String emailAddress,
-    required String password,
   }) async {
-    // create an user with email and password
-    UserCredential? userCredential;
     try {
-      userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailAddress,
-        password: password,
-      );
-    } on FirebaseAuthException catch (exception) {
-      switch (exception.code) {
-        case 'email-already-in-use':
-          throw UserEmailAlreadyInUseException();
-        case 'invalid-email':
-          throw UserInvalidEmailException();
-        case 'operation-not-allowed':
-          throw UserOperationNotAllowedException();
-        case 'weak-password':
-          throw UserWeakPasswordException();
-      }
+      // get users and user_details collection reference
+      CollectionReference usersColRef = FirebaseFirestore.instance.collection(UserModelTables.users);
+      CollectionReference userDetailsColRef = FirebaseFirestore.instance.collection(UserModelTables.userDetails);
+
+      String generatedUuid = (const Uuid()).v4();
+
+      // set data for the users collection
+      Map<String, dynamic> userDocData = {
+        UserModelFieldsEnum.uuid.value: generatedUuid,
+        UserModelFieldsEnum.createdAt.value: FieldValue.serverTimestamp(),
+        UserModelFieldsEnum.updatedAt.value: FieldValue.serverTimestamp(),
+        UserModelFieldsEnum.deletedAt.value: null,
+        UserModelFieldsEnum.isDeleted.value: false,
+        UserModelFieldsEnum.lastLogin.value: null,
+        UserModelFieldsEnum.lastLogout.value: null,
+      };
+
+      // set data for the user_details collection
+      Map<String, dynamic> userDetailDocData = {
+        UserModelFieldsEnum.uuid.value: generatedUuid,
+        UserModelFieldsEnum.emailAddress.value: emailAddress,
+        UserModelFieldsEnum.avatarImage.value: null,
+        UserModelFieldsEnum.username.value: null,
+      };
+
+      // create new named document for users collection with user uid
+      DocumentReference newUserDocRef = usersColRef.doc(uid);
+      await newUserDocRef.set(userDocData);
+
+      // create new named document for user_details collection with user uid
+      DocumentReference newUserDetailDocRef = userDetailsColRef.doc(uid);
+      await newUserDetailDocRef.set(userDetailDocData);
+
+      return true;
     } catch (exception) {
-      rethrow;
+      throw GenericUserModelException(exception: exception.toString());
     }
-
-    // throw exception when the user is empty
-    if (userCredential!.user == null) {
-      throw UserHasNotBeenCreatedException();
-    }
-
-    create(
-      data: {
-        UserModelFields.emailAddress: emailAddress,
-        UserModelFields.password: password,
-        'createdUser': userCredential.user,
-      },
-    );
-
-    return true;
-  }
-
-  Future<User> getCurrentUser() async {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      throw CurrentUserNotFoundException();
-    }
-
-    await user.reload();
-
-    return user;
-  }
-
-  Future<void> signInWithEmailAndPassword({
-    required String emailAddress,
-    required String password,
-  }) async {
-    UserCredential? userCredential;
-    try {
-      userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailAddress,
-        password: password,
-      );
-    } on FirebaseAuthException catch (exception) {
-      switch (exception.code) {
-        case 'invalid-email':
-          throw UserInvalidEmailException();
-        case 'user-disabled':
-          throw UserDisabledException();
-        case 'user-not-found':
-          throw UserNotFoundException();
-        case 'wrong-password':
-          throw UserWrongPasswordException();
-      }
-    } catch (exception) {
-      rethrow;
-    }
-    if (userCredential!.user == null) {
-      throw UserDidntSignInException();
-    }
-
-    await updateLastLoginValueWithUid(userCredential.user!.uid);
-  }
-
-  Future<void> updateLastLoginValueWithUid(String uid) async {
-    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
-    DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
-    await userDocumentReference.update(
-      {
-        UserModelFields.lastLogin: FieldValue.serverTimestamp(),
-      },
-    );
-  }
-
-  Future<void> updateLastLogoutValueWithUid(String uid) async {
-    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
-    DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
-    await userDocumentReference.update(
-      {
-        UserModelFields.lastLogout: FieldValue.serverTimestamp(),
-      },
-    );
-  }
-
-  Future<bool> isUserProfileCreatedOnFirebase({required String uid}) async {
-    List<String> profileFields = <String>[
-      UserModelFields.avatarImage,
-      UserModelFields.username,
-    ];
-
-    Map<String, dynamic>? userData = await readWithUid(uid: uid);
-    if (userData == null) {
-      throw UserCannotReadFromCloudException();
-    }
-
-    int nullFieldCount = 0;
-    for (var profileField in profileFields) {
-      if (userData[profileField] == null) {
-        nullFieldCount++;
-      }
-    }
-
-    bool isUserProfileCreated = nullFieldCount != profileFields.length;
-
-    return isUserProfileCreated;
-  }
-
-  Future<void> logout() async {
-    try {
-      User user = await getCurrentUser();
-      await updateLastLogoutValueWithUid(user.uid);
-      await FirebaseAuth.instance.signOut();
-    } catch (exception) {
-      // print(exception);
-      throw UserGenericException();
-    }
-  }
-
-  @override
-  Future<bool> create({
-    required Map<String, dynamic> data,
-  }) async {
-    // get the uid of created user
-    String userUid = (data['createdUser'] as User).uid;
-
-    // get users and user_details collection reference
-    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
-    CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.userDetails);
-
-    String generatedUuid = (const Uuid()).v4();
-
-    // set data for the users collection
-    Map<String, dynamic> userDocumentData = {
-      UserModelFields.uuid: generatedUuid,
-      UserModelFields.createdAt: FieldValue.serverTimestamp(),
-      UserModelFields.updatedAt: FieldValue.serverTimestamp(),
-      UserModelFields.deletedAt: null,
-      UserModelFields.isDeleted: false,
-      UserModelFields.lastLogin: null,
-      UserModelFields.lastLogout: null,
-    };
-
-    // set data for the user_details collection
-    Map<String, dynamic> userDetailDocumentData = {
-      UserModelFields.uuid: generatedUuid,
-      UserModelFields.emailAddress: data[UserModelFields.emailAddress],
-      UserModelFields.avatarImage: null,
-      UserModelFields.username: null,
-    };
-
-    // create new named document for users collection with user uid
-    DocumentReference newUserDocumentReference = usersCollectionReference.doc(userUid);
-    await newUserDocumentReference.set(userDocumentData);
-
-    // create new named document for user_details collection with user uid
-    DocumentReference newUserDetailDocumentReference = userDetailsCollectionReference.doc(userUid);
-    await newUserDetailDocumentReference.set(userDetailDocumentData);
-
-    return true;
   }
 
   @override
@@ -248,7 +111,7 @@ class UserModel implements FirebaseModel {
     CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.userDetails);
 
     // users tablosundaki alanlarin documentsnapshot listesini getir
-    QuerySnapshot usersCollectionQuerySnapshot = await usersCollectionReference.where(UserModelFields.isDeleted, isEqualTo: false).get();
+    QuerySnapshot usersCollectionQuerySnapshot = await usersCollectionReference.where(UserModelFieldsEnum.isDeleted.value, isEqualTo: false).get();
     List<DocumentSnapshot> userDocumentSnapshots = usersCollectionQuerySnapshot.docs;
 
     // dondurmek icin bos users list'i olustur
@@ -279,61 +142,60 @@ class UserModel implements FirebaseModel {
     return users;
   }
 
-  @override
-  Future<bool> updateWithUid({
+  Future<bool?> updateWithUid({
     required String uid,
-    String? emailAddress,
-    String? avatarImage,
-    String? username,
+    required UserModelMap data,
   }) async {
-    // hicbir arguman gonderilmezse false dondur
-    if (emailAddress == null && avatarImage == null && username == null) {
-      return false;
-    }
+    try {
+      // hicbir arguman gonderilmezse false dondur
+      if (data.isEmpty) {
+        return false;
+      }
 
-    // dokumanlarin guncellenip guncellenmedigini kontrol degiskenler
-    bool isUserDocumentUpdated = false;
-    bool isUserDetailDocumentUpdated = false;
+      // dokumanlarin guncellenip guncellenmedigini kontrol degiskenler
+      bool isUserDocUpdated = false;
+      bool isUserDetailDocUpdated = false;
 
-    // degistirilecek alanlari birlestirmek icin liste olustur
-    Map<String, dynamic> userDocumentData = {};
-    Map<String, dynamic> userDetailDocumentData = {};
+      // degistirilecek alanlari birlestirmek icin liste olustur
+      Map<String, dynamic> userDocData = {};
+      Map<String, dynamic> userDetailDocData = {};
 
-    // null olmayan alanlari map'lere ekle
-    if (emailAddress != null) {
-      userDetailDocumentData[UserModelFields.emailAddress] = emailAddress;
-    }
-    if (avatarImage != null) {
-      userDetailDocumentData[UserModelFields.avatarImage] = avatarImage;
-    }
-    if (username != null) {
-      userDetailDocumentData[UserModelFields.username] = username;
-    }
+      for (UserModelFieldsEnum field in data.keys.toList()) {
+        if (UsersTable.fields.contains(field)) {
+          userDocData[field.value] = data[field];
+        }
+        if (UserDetailsTable.fields.contains(field)) {
+          userDetailDocData[field.value] = data[field];
+        }
+      }
 
-    // users collection'daki dokuman'a gidecek veri varsa dokumani guncelle ve kontrol degiskenini true yap
-    if (userDocumentData.isNotEmpty) {
-      CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
-      DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
-      userDocumentData.addAll({
-        UserModelFields.updatedAt: FieldValue.serverTimestamp(),
-      });
-      await userDocumentReference.update(userDocumentData);
-      isUserDocumentUpdated = true;
-    }
+      // users collection'daki dokuman'a gidecek veri varsa dokumani guncelle ve kontrol degiskenini true yap
+      if (userDocData.isNotEmpty) {
+        CollectionReference usersColRef = FirebaseFirestore.instance.collection(UsersTable.name);
+        DocumentReference userDocRef = usersColRef.doc(uid);
+        userDocData.addAll({
+          UserModelFieldsEnum.updatedAt.value: FieldValue.serverTimestamp(),
+        });
+        await userDocRef.update(userDocData);
+        isUserDocUpdated = true;
+      }
 
-    // user_details collection'daki dokuman'a gidecek veri varsa dokumani guncelle ve kontrol degiskenini true yap
-    if (userDetailDocumentData.isNotEmpty) {
-      CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.userDetails);
-      DocumentReference userDetailDocumentReference = userDetailsCollectionReference.doc(uid);
-      userDetailDocumentData.addAll({
-        UserModelFields.updatedAt: FieldValue.serverTimestamp(),
-      });
-      await userDetailDocumentReference.update(userDetailDocumentData);
-      isUserDetailDocumentUpdated = true;
-    }
+      // user_details collection'daki dokuman'a gidecek veri varsa dokumani guncelle ve kontrol degiskenini true yap
+      if (userDetailDocData.isNotEmpty) {
+        CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserDetailsTable.name);
+        DocumentReference userDetailDocumentReference = userDetailsCollectionReference.doc(uid);
+        userDetailDocData.addAll({
+          UserModelFieldsEnum.updatedAt.value: FieldValue.serverTimestamp(),
+        });
+        await userDetailDocumentReference.update(userDetailDocData);
+        isUserDetailDocUpdated = true;
+      }
 
-    // alanlarin degistirilip degistirilmedigini dondur
-    return isUserDocumentUpdated && isUserDetailDocumentUpdated;
+      // alanlarin degistirilip degistirilmedigini dondur
+      return isUserDocUpdated && isUserDetailDocUpdated;
+    } catch (exception) {
+      throw GenericUserModelException(exception: exception.toString());
+    }
   }
 
   @override
@@ -343,8 +205,8 @@ class UserModel implements FirebaseModel {
     DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
 
     userDocumentReference.update({
-      UserModelFields.isDeleted: true,
-      UserModelFields.deletedAt: FieldValue.serverTimestamp(),
+      UserModelFieldsEnum.isDeleted.value: true,
+      UserModelFieldsEnum.deletedAt.value: FieldValue.serverTimestamp(),
     });
 
     return true;
@@ -369,24 +231,93 @@ class UserModel implements FirebaseModel {
   @override
   Future<bool> update({required String uuid}) {
     throw UnimplementedError();
+    UserModelFieldsEnum.avatarImage.toString();
   }
 }
 
-class UserModelFields {
-  static const String uuid = 'uuid';
-  static const String emailAddress = 'email_address';
-  static const String username = 'username';
-  static const String avatarImage = 'avatar_image';
-  static const String password = 'password';
-  static const String createdAt = 'created_at';
-  static const String updatedAt = 'updated_at';
-  static const String deletedAt = 'deleted_at';
-  static const String isDeleted = 'is_deleted';
-  static const String lastLogin = 'last_login';
-  static const String lastLogout = 'last_logout';
+enum UserModelFieldsEnum {
+  uuid,
+  emailAddress,
+  username,
+  avatarImage,
+  password,
+  createdAt,
+  updatedAt,
+  deletedAt,
+  isDeleted,
+  lastLogin,
+  lastLogout,
 }
 
-class UserModelTables {
-  static const String users = 'users';
-  static const String userDetails = 'user_details';
+extension GetValue on UserModelFieldsEnum {
+  String get value {
+    switch (this) {
+      case UserModelFieldsEnum.uuid:
+        return 'uuid';
+      case UserModelFieldsEnum.emailAddress:
+        return 'email_address';
+      case UserModelFieldsEnum.username:
+        return 'username';
+      case UserModelFieldsEnum.avatarImage:
+        return 'avatar_image';
+      case UserModelFieldsEnum.password:
+        return 'password';
+      case UserModelFieldsEnum.createdAt:
+        return 'created_at';
+      case UserModelFieldsEnum.updatedAt:
+        return 'updated_at';
+      case UserModelFieldsEnum.deletedAt:
+        return 'deleted_at';
+      case UserModelFieldsEnum.isDeleted:
+        return 'is_deleted';
+      case UserModelFieldsEnum.lastLogin:
+        return 'last_login';
+      case UserModelFieldsEnum.lastLogout:
+        return 'last_logout';
+    }
+  }
+}
+
+typedef UserModelMap = Map<UserModelFieldsEnum, dynamic>;
+
+//
+// class UserModelFields {
+//   static const String uuid = 'uuid';
+//   static const String emailAddress = 'email_address';
+//   static const String username = 'username';
+//   static const String avatarImage = 'avatar_image';
+//   static const String password = 'password';
+//   static const String createdAt = 'created_at';
+//   static const String updatedAt = 'updated_at';
+//   static const String deletedAt = 'deleted_at';
+//   static const String isDeleted = 'is_deleted';
+//   static const String lastLogin = 'last_login';
+//   static const String lastLogout = 'last_logout';
+// }
+
+class UsersTable {
+  UsersTable._();
+
+  static const String name = 'users';
+  static const List<UserModelFieldsEnum> fields = [
+    UserModelFieldsEnum.uuid,
+    UserModelFieldsEnum.createdAt,
+    UserModelFieldsEnum.updatedAt,
+    UserModelFieldsEnum.deletedAt,
+    UserModelFieldsEnum.isDeleted,
+    UserModelFieldsEnum.lastLogin,
+    UserModelFieldsEnum.lastLogout,
+  ];
+}
+
+class UserDetailsTable {
+  UserDetailsTable._();
+
+  static const String name = 'user_details';
+  static const List<UserModelFieldsEnum> fields = [
+    UserModelFieldsEnum.uuid,
+    UserModelFieldsEnum.emailAddress,
+    UserModelFieldsEnum.username,
+    UserModelFieldsEnum.avatarImage,
+  ];
 }
