@@ -6,6 +6,10 @@ import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_auth/models/auth_model.dart';
 
 class AuthService {
+  AuthService._privateConstructor();
+
+  static final AuthService instance = AuthService._privateConstructor();
+
   Future<bool> signUpWithEmailAndPassword({
     required String emailAddress,
     required String password,

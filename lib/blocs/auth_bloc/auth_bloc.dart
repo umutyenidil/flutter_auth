@@ -15,7 +15,7 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthService _provider = AuthService();
+  final AuthService _provider = AuthService.instance;
 
   AuthBloc() : super(StateInitial()) {
     on<EventSignUpWithEmailAndPassword>((event, emit) async {
