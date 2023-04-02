@@ -55,83 +55,88 @@ class UserModel {
     }
   }
 
-  @override
-  Future<Map<String, dynamic>?> readWithUid({
+  Future<UserModelMap?> readWithUid({
     required String uid,
-    bool readUuid = false,
-    bool readEmailAddress = false,
-    bool readUsername = false,
-    bool readAvatarImage = false,
-    bool readPassword = false,
-    bool readCreatedAt = false,
-    bool readUpdatedAt = false,
-    bool readDeletedAt = false,
-    bool readIsDeleted = false,
-    bool readLastLogin = false,
-    bool readLastLogout = false,
+    List<UserModelFieldsEnum> fields = const [
+      ...UsersTable.fields,
+      ...UserDetailsTable.fields,
+    ],
   }) async {
-    // get users and user_details collection reference
-    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UsersTable.name);
-    CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserDetailsTable.name);
+    UserModelMap userData = {};
+    try {
+      // get users and user_details collection reference
+      CollectionReference usersColRef = FirebaseFirestore.instance.collection(UsersTable.name);
+      CollectionReference userDetailsColRef = FirebaseFirestore.instance.collection(UserDetailsTable.name);
 
-    // read the document which in users collection
-    DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
-    DocumentSnapshot userDocumentSnapshot = await userDocumentReference.get();
-    Map<String, dynamic>? userDocumentData = userDocumentSnapshot.data() as Map<String, dynamic>?;
+      // read the document which in users collection
+      DocumentReference userDocRef = usersColRef.doc(uid);
+      DocumentSnapshot userDocSnapshot = await userDocRef.get();
 
-    if (userDocumentData == null) {
-      throw UserDocumentNotFoundException();
+      UserModelMap userDocData = {};
+      for (UserModelFieldsEnum field in fields) {
+        if (UsersTable.fields.contains(field)) {
+          userDocData[field] = userDocSnapshot.get(field.value);
+        }
+      }
+
+      // read the document which in user_details collection
+      // read the document which in users collection
+      DocumentReference userDetailDocRef = userDetailsColRef.doc(uid);
+      DocumentSnapshot userDetailDocSnapshot = await userDetailDocRef.get();
+
+      UserModelMap userDetailDocData = {};
+      for (UserModelFieldsEnum field in fields) {
+        if (UserDetailsTable.fields.contains(field)) {
+          userDetailDocData[field] = userDetailDocSnapshot.get(field.value);
+        }
+      }
+
+      // merge datas of user document and user_detail document
+      if (userDocData.isNotEmpty) {
+        userData.addAll(userDocData);
+      }
+
+      if (userDetailDocData.isNotEmpty) {
+        userData.addAll(userDetailDocData);
+      }
+    } catch (exception) {
+      throw GenericUserModelException(exception: exception.toString());
     }
 
-    // read the document which in user_details collection
-    DocumentReference userDetailDocumentReference = userDetailsCollectionReference.doc(uid);
-    DocumentSnapshot userDetailDocumentSnapshot = await userDetailDocumentReference.get();
-    Map<String, dynamic>? userDetailDocumentData = userDetailDocumentSnapshot.data() as Map<String, dynamic>?;
-
-    if (userDetailDocumentData == null) {
-      throw UserDetailDocumentNotFoundException();
+    if (userData.isEmpty) {
+      return null;
     }
-
-    // merge datas of user document and user_detail document
-    Map<String, dynamic>? user = {};
-    user.addAll(userDocumentData);
-    user.addAll(userDetailDocumentData);
-
-    return user;
+    return userData;
   }
 
-  @override
-  Future<List<Map<String, dynamic>?>?> readAll() async {
+  Future<List<UserModelMap?>?> readAll({
+    List<UserModelFieldsEnum> fields = const [
+      ...UsersTable.fields,
+      ...UserDetailsTable.fields,
+    ],
+  }) async {
     // users ve user_details koleksiyonlarinin referanslarini getir
-    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UsersTable.name);
-    CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserDetailsTable.name);
+    CollectionReference usersColRef = FirebaseFirestore.instance.collection(UsersTable.name);
+    CollectionReference userDetailsColRef = FirebaseFirestore.instance.collection(UserDetailsTable.name);
 
     // users tablosundaki alanlarin documentsnapshot listesini getir
-    QuerySnapshot usersCollectionQuerySnapshot = await usersCollectionReference.where(UserModelFieldsEnum.isDeleted.value, isEqualTo: false).get();
-    List<DocumentSnapshot> userDocumentSnapshots = usersCollectionQuerySnapshot.docs;
+    QuerySnapshot usersColQuerySnapshot = await usersColRef.where(UserModelFieldsEnum.isDeleted.value, isEqualTo: false).get();
+    List<DocumentSnapshot> userDocSnapshots = usersColQuerySnapshot.docs;
 
     // dondurmek icin bos users list'i olustur
-    List<Map<String, dynamic>?> users = [];
+    List<UserModelMap?> users = [];
 
-    for (DocumentSnapshot userDocumentSnapshot in userDocumentSnapshots) {
+    for (DocumentSnapshot userDocSnapshot in userDocSnapshots) {
       // current user'in uid'sini al
-      String userUid = userDocumentSnapshot.id;
+      String userUid = userDocSnapshot.id;
 
-      // current user'in users koleksiyonundaki dokumaninda bulunan alanlari getir
-      Map<String, dynamic> userData = userDocumentSnapshot.data() as Map<String, dynamic>;
+      UserModelMap? userData = await readWithUid(uid: userUid, fields: fields);
 
-      // current user'in user_details koleksiyonundaki dokumaninda bulunan alanlari getir
-      DocumentReference userDetailDocumentReference = userDetailsCollectionReference.doc(userUid);
-      DocumentSnapshot userDetailDocumentSnapshot = await userDetailDocumentReference.get();
-      Map<String, dynamic> userDetailData = userDetailDocumentSnapshot.data() as Map<String, dynamic>;
+      if (userData == null) {
+        continue;
+      }
 
-      // users ve user_details koleksiyonlarindaki dokumanlarin alanlarini birlestir
-      Map<String, dynamic>? user = {};
-      user.addAll(userData);
-      user.addAll(userDetailData);
-
-      // birlestirilen alanlari users listesine ekle
-      users.add(user);
+      users.add(userData);
     }
 
     // users listesini dondur
@@ -194,16 +199,15 @@ class UserModel {
     }
   }
 
-  @override
   Future<bool> deleteWithUid({required String uid}) async {
     // silinecek dokumanin uid'si ile dokumani bul ve is_deleted alanini 1 yap
-    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UsersTable.name);
-    DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
-
-    userDocumentReference.update({
-      UserModelFieldsEnum.isDeleted.value: true,
-      UserModelFieldsEnum.deletedAt.value: FieldValue.serverTimestamp(),
-    });
+    updateWithUid(
+      uid: uid,
+      data: {
+        UserModelFieldsEnum.isDeleted: true,
+        UserModelFieldsEnum.deletedAt: FieldValue.serverTimestamp(),
+      },
+    );
 
     return true;
   }

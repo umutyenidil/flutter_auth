@@ -7,16 +7,3 @@ class GenericUserModelException implements UserModelException {
 
   String get exception => _exception;
 }
-
-class UserHasNotBeenCreatedException implements UserModelException {}
-
-class UserDidntSignInException implements UserModelException {}
-
-class UserDocumentNotFoundException implements UserModelException {}
-
-class UserDetailDocumentNotFoundException implements UserModelException {}
-
-
-
-
-class UserCannotReadFromCloudException implements UserModelException {}

@@ -2,6 +2,7 @@ import 'dart:developer' as devtools show log;
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_auth/services/remote_storage_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,6 +16,8 @@ part 'remote_storage_event.dart';
 part 'remote_storage_state.dart';
 
 class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
+  final RemoteStorageService _provider = RemoteStorageService.instance;
+
   RemoteStorageBloc() : super(StateInitial()) {
     on<EventCreateUserProfile>(
       (event, emit) async {
@@ -75,10 +78,7 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
             StateLoadingIsUserProfileCreated(),
           );
 
-          User user = await UserModel().getCurrentUser();
-          devtools.log('EventIsUserProfileCreated: current user brought in');
-
-          bool isUserProfileCreated = await UserModel().isUserProfileCreatedOnFirebase(uid: user.uid);
+          bool isUserProfileCreated = await _provider.isCurrentUserProfileCreated;
 
           if (isUserProfileCreated == true) {
             devtools.log('EventIsUserProfileCreated: user profile created');
@@ -91,13 +91,11 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
               StateFalseUserProfileCreated(),
             );
           }
-        } on UserModelException {
-          devtools.log('EventIsUserProfileCreated: user profile not created (UserModelException)');
+        } on GenericUserModelException {
+          devtools.log('EventIsUserProfileCreated: user profile not created (GenericUserModelException)');
           emit(
             StateFailedIsUserProfileCreated(),
           );
-        } catch (exception) {
-          devtools.log('EventIsUserProfileCreated: user profile not created (unhandled exception)');
         }
         devtools.log('EventIsUserProfileCreated: finished');
       },
