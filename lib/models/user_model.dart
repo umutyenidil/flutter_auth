@@ -1,10 +1,7 @@
-import 'dart:async';
 import 'dart:core';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
-import 'package:flutter_auth/extensions/map_extensions.dart';
 import 'package:uuid/uuid.dart';
 
 class UserModel {
@@ -14,15 +11,14 @@ class UserModel {
 
   factory UserModel() => _shared;
 
-
   Future<bool?> create({
     required String uid,
     required String emailAddress,
   }) async {
     try {
       // get users and user_details collection reference
-      CollectionReference usersColRef = FirebaseFirestore.instance.collection(UserModelTables.users);
-      CollectionReference userDetailsColRef = FirebaseFirestore.instance.collection(UserModelTables.userDetails);
+      CollectionReference usersColRef = FirebaseFirestore.instance.collection(UsersTable.name);
+      CollectionReference userDetailsColRef = FirebaseFirestore.instance.collection(UserDetailsTable.name);
 
       String generatedUuid = (const Uuid()).v4();
 
@@ -75,8 +71,8 @@ class UserModel {
     bool readLastLogout = false,
   }) async {
     // get users and user_details collection reference
-    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
-    CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.userDetails);
+    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UsersTable.name);
+    CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserDetailsTable.name);
 
     // read the document which in users collection
     DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
@@ -107,8 +103,8 @@ class UserModel {
   @override
   Future<List<Map<String, dynamic>?>?> readAll() async {
     // users ve user_details koleksiyonlarinin referanslarini getir
-    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
-    CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.userDetails);
+    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UsersTable.name);
+    CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserDetailsTable.name);
 
     // users tablosundaki alanlarin documentsnapshot listesini getir
     QuerySnapshot usersCollectionQuerySnapshot = await usersCollectionReference.where(UserModelFieldsEnum.isDeleted.value, isEqualTo: false).get();
@@ -201,7 +197,7 @@ class UserModel {
   @override
   Future<bool> deleteWithUid({required String uid}) async {
     // silinecek dokumanin uid'si ile dokumani bul ve is_deleted alanini 1 yap
-    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
+    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UsersTable.name);
     DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
 
     userDocumentReference.update({
@@ -210,28 +206,6 @@ class UserModel {
     });
 
     return true;
-  }
-
-  Future<String> toJson({required String uid}) async {
-    Map<String, dynamic>? user = await readWithUid(uid: uid);
-
-    return user!.toPrettyJson();
-  }
-
-  @override
-  Future<bool> delete({required String uuid}) async {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Map<String, dynamic>?> read({required String uuid}) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<bool> update({required String uuid}) {
-    throw UnimplementedError();
-    UserModelFieldsEnum.avatarImage.toString();
   }
 }
 
@@ -279,21 +253,6 @@ extension GetValue on UserModelFieldsEnum {
 }
 
 typedef UserModelMap = Map<UserModelFieldsEnum, dynamic>;
-
-//
-// class UserModelFields {
-//   static const String uuid = 'uuid';
-//   static const String emailAddress = 'email_address';
-//   static const String username = 'username';
-//   static const String avatarImage = 'avatar_image';
-//   static const String password = 'password';
-//   static const String createdAt = 'created_at';
-//   static const String updatedAt = 'updated_at';
-//   static const String deletedAt = 'deleted_at';
-//   static const String isDeleted = 'is_deleted';
-//   static const String lastLogin = 'last_login';
-//   static const String lastLogout = 'last_logout';
-// }
 
 class UsersTable {
   UsersTable._();

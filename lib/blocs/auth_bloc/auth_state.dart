@@ -48,9 +48,9 @@ class StateLoadingSendEmailVerification extends AuthState {}
 class StateSuccessfulSendEmailVerification extends AuthState {}
 
 class StateFailedSendEmailVerification extends AuthState {
-  final UserModelException exception;
+  final String error;
 
-  StateFailedSendEmailVerification({required this.exception});
+  StateFailedSendEmailVerification({required this.error});
 }
 
 // Logout Event States
@@ -60,9 +60,9 @@ class StateLoadingLogout extends AuthState {}
 class StateSuccessfulLogout extends AuthState {}
 
 class StateFailedLogout extends AuthState {
-  final UserModelException exception;
+  final String error;
 
-  StateFailedLogout({required this.exception});
+  StateFailedLogout({required this.error});
 }
 
 // EventIsUserSignedIn states

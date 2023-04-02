@@ -82,12 +82,51 @@ class AuthService {
     }
   }
 
-  Future<bool> isCurrentUserVerified() async {
+  Future<bool> get isCurrentUserVerified async {
     try {
-      bool isVerified = await AuthModel().isCurrentUserVerified();
+      bool isVerified = await AuthModel().isCurrentUserVerified;
       return isVerified;
     } on CurrentUserNotFoundException {
       rethrow;
+    } on GenericAuthModelException {
+      rethrow;
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      User currentUser = await AuthModel().getCurrentUser();
+      String uid = currentUser.uid;
+      await AuthModel().logout();
+      await UserModel().updateWithUid(
+        uid: uid,
+        data: {
+          UserModelFieldsEnum.lastLogout: FieldValue.serverTimestamp(),
+        },
+      );
+    } on CurrentUserNotFoundException {
+      rethrow;
+    } on GenericUserModelException {
+      rethrow;
+    } on GenericAuthModelException {
+      rethrow;
+    }
+  }
+
+  Future<void> sendVerificationEmail() async {
+    try {
+      await AuthModel().sendVerificationEmail();
+    } on CurrentUserNotFoundException {
+      rethrow;
+    } on GenericAuthModelException {
+      rethrow;
+    }
+  }
+
+  Future<bool> get isAnyUserSignedIn async {
+    try {
+      bool result = await AuthModel().isAnyUserSignedIn;
+      return result;
     } on GenericAuthModelException {
       rethrow;
     }

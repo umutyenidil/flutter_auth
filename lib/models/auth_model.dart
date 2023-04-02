@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_auth/exceptions/auth_model_exceptions.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
+import 'package:flutter_auth/models/user_model.dart';
 
 class AuthModel {
   static final AuthModel _shared = AuthModel._sharedInstance();
@@ -81,7 +83,7 @@ class AuthModel {
     }
   }
 
-  Future<bool> isCurrentUserVerified() async {
+  Future<bool> get isCurrentUserVerified async {
     try {
       User currentUser = await getCurrentUser();
 
@@ -96,34 +98,37 @@ class AuthModel {
     return false;
   }
 
-  Future<void> updateLastLoginValueWithUid(String uid) async {
-    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
-    DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
-    await userDocumentReference.update(
-      {
-        UserModelFieldsEnum.lastLogin.value: FieldValue.serverTimestamp(),
-      },
-    );
-  }
-
-  Future<void> updateLastLogoutValueWithUid(String uid) async {
-    CollectionReference usersCollectionReference = FirebaseFirestore.instance.collection(UserModelTables.users);
-    DocumentReference userDocumentReference = usersCollectionReference.doc(uid);
-    await userDocumentReference.update(
-      {
-        UserModelFieldsEnum.lastLogout.value: FieldValue.serverTimestamp(),
-      },
-    );
+  Future<bool> get isAnyUserSignedIn async {
+    try {
+      await getCurrentUser();
+      return true;
+    } on CurrentUserNotFoundException {
+      return false;
+    } catch (exception) {
+      throw GenericAuthModelException(
+        exception: exception.toString(),
+      );
+    }
   }
 
   Future<void> logout() async {
     try {
-      User user = await getCurrentUser();
-      await updateLastLogoutValueWithUid(user.uid);
       await FirebaseAuth.instance.signOut();
     } catch (exception) {
-      // print(exception);
-      throw UserGenericException();
+      throw GenericAuthModelException(
+        exception: exception.toString(),
+      );
+    }
+  }
+
+  Future<void> sendVerificationEmail() async {
+    try {
+      User currentUser = await getCurrentUser();
+      await currentUser.sendEmailVerification();
+    } on CurrentUserNotFoundException {
+      rethrow;
+    } catch (exception) {
+      throw GenericAuthModelException(exception: exception.toString());
     }
   }
 }
