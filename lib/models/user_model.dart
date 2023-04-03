@@ -172,7 +172,19 @@ class UserModel {
 
       // users collection'daki dokuman'a gidecek veri varsa dokumani guncelle ve kontrol degiskenini true yap
       if (userDocData.isNotEmpty) {
+        // guncellenecek alanin unique olup olmadigini
+        for (UserModelFieldsEnum uniqueField in UsersTable.uniqueFields) {
+          if (userDocData.keys.toList().contains(uniqueField)) {
+            _isFieldUnique(
+              field: uniqueField,
+              value: userDocData[uniqueField],
+              collectionName: UsersTable.name,
+            );
+          }
+        }
+
         CollectionReference usersColRef = FirebaseFirestore.instance.collection(UsersTable.name);
+
         DocumentReference userDocRef = usersColRef.doc(uid);
         userDocData.addAll({
           UserModelFieldsEnum.updatedAt.value: FieldValue.serverTimestamp(),
@@ -183,6 +195,17 @@ class UserModel {
 
       // user_details collection'daki dokuman'a gidecek veri varsa dokumani guncelle ve kontrol degiskenini true yap
       if (userDetailDocData.isNotEmpty) {
+        // unique field kontrolu
+        for (UserModelFieldsEnum uniqueField in UserDetailsTable.uniqueFields) {
+          if (userDetailDocData.keys.toList().contains(uniqueField)) {
+            _isFieldUnique(
+              field: uniqueField,
+              value: userDetailDocData[uniqueField],
+              collectionName: UserDetailsTable.name,
+            );
+          }
+        }
+
         CollectionReference userDetailsCollectionReference = FirebaseFirestore.instance.collection(UserDetailsTable.name);
         DocumentReference userDetailDocumentReference = userDetailsCollectionReference.doc(uid);
         userDetailDocData.addAll({
@@ -194,9 +217,27 @@ class UserModel {
 
       // alanlarin degistirilip degistirilmedigini dondur
       return isUserDocUpdated && isUserDetailDocUpdated;
+    } on UniqueFieldException {
+      rethrow;
     } catch (exception) {
       throw GenericUserModelException(exception: exception.toString());
     }
+  }
+
+  Future<bool> _isFieldUnique({
+    required UserModelFieldsEnum field,
+    required dynamic value,
+    required String collectionName,
+  }) async {
+    CollectionReference usersColRef = FirebaseFirestore.instance.collection(collectionName);
+
+    Query uniqueFieldQuery = usersColRef.where(field.value, isEqualTo: value);
+    QuerySnapshot uniqueQuerySnapshot = await uniqueFieldQuery.get();
+    if (uniqueQuerySnapshot.size >= 1) {
+      throw UniqueFieldException(fieldName: field.value);
+    }
+
+    return true;
   }
 
   Future<bool> deleteWithUid({required String uid}) async {
@@ -262,6 +303,10 @@ class UsersTable {
   UsersTable._();
 
   static const String name = 'users';
+
+  static const List<UserModelFieldsEnum> uniqueFields = [
+    UserModelFieldsEnum.uuid,
+  ];
   static const List<UserModelFieldsEnum> fields = [
     UserModelFieldsEnum.uuid,
     UserModelFieldsEnum.createdAt,
@@ -277,6 +322,12 @@ class UserDetailsTable {
   UserDetailsTable._();
 
   static const String name = 'user_details';
+
+  static const List<UserModelFieldsEnum> uniqueFields = [
+    UserModelFieldsEnum.uuid,
+    UserModelFieldsEnum.username,
+  ];
+
   static const List<UserModelFieldsEnum> fields = [
     UserModelFieldsEnum.uuid,
     UserModelFieldsEnum.emailAddress,

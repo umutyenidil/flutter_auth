@@ -253,49 +253,46 @@ class _SignInPageState extends State<SignInPage> {
     if (state is StateFailedSignInWithEmailAndPassword) {
       await context.delayedPop();
       if (context.mounted) {
-        Exception exception = state.exception;
-        if (exception is InvalidEmailException) {
-          await PopUpMessage.danger(
-            title: 'Email address error',
-            message: 'Please enter a valid email address',
-          ).show(context);
-          return;
-        }
-        if (exception is UserDisabledException) {
-          await PopUpMessage.danger(
-            title: 'User error',
-            message: 'Your account is disabled. Please contact your manager',
-          ).show(context);
-          return;
-        }
-        if (exception is UserNotFoundException) {
-          await PopUpMessage.danger(
-            title: 'User error',
-            message: 'The user could not be found',
-          ).show(context);
-          return;
-        }
-        if (exception is UserWrongPasswordException) {
-          await PopUpMessage.danger(
-            title: 'User error',
-            message: 'Email address or password is incorrect',
-          ).show(context);
-          return;
-        }
-        if (exception is UserDidntSignInException) {
-          await PopUpMessage.danger(
-            title: 'Sign in error',
-            message: 'An error occurred while logging in',
-          ).show(context);
-          return;
-        }
-        if (exception is UserGenericException) {
-          await PopUpMessage.danger(
-            title: 'Unexpected error',
-            message: 'An unexpected error has occurred',
-          ).show(context);
-          return;
-        }
+        await PopUpMessage.danger(
+          title: 'bir seyler ters gitt',
+          message: state.error,
+        ).show(context);
+        // Exception exception = state.exception;
+        // if (exception is InvalidEmailException) {
+        //   await PopUpMessage.danger(
+        //     title: 'Email address error',
+        //     message: 'Please enter a valid email address',
+        //   ).show(context);
+        //   return;
+        // }
+        // if (exception is UserDisabledException) {
+        //   await PopUpMessage.danger(
+        //     title: 'User error',
+        //     message: 'Your account is disabled. Please contact your manager',
+        //   ).show(context);
+        //   return;
+        // }
+        // if (exception is UserNotFoundException) {
+        //   await PopUpMessage.danger(
+        //     title: 'User error',
+        //     message: 'The user could not be found',
+        //   ).show(context);
+        //   return;
+        // }
+        // if (exception is UserWrongPasswordException) {
+        //   await PopUpMessage.danger(
+        //     title: 'User error',
+        //     message: 'Email address or password is incorrect',
+        //   ).show(context);
+        //   return;
+        // }
+        // if (exception is UserGenericException) {
+        //   await PopUpMessage.danger(
+        //     title: 'Unexpected error',
+        //     message: 'An unexpected error has occurred',
+        //   ).show(context);
+        //   return;
+        // }
       }
       return;
     }

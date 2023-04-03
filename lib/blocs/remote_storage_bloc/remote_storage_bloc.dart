@@ -2,6 +2,8 @@ import 'dart:developer' as devtools show log;
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_auth/exceptions/auth_model_exceptions.dart';
+import 'package:flutter_auth/exceptions/remote_storage_exceptions.dart';
 import 'package:flutter_auth/services/remote_storage_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,43 +30,34 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
             StateLoadingCreateUserProfile(),
           );
 
-          Map<String, dynamic> userProfileData = event.userData;
-          User user = await UserModel().getCurrentUser();
-          devtools.log('EventCreateProfile: current user brought in');
-          String userUid = user.uid;
-
-          if (userProfileData[UserModelFieldsEnum.avatarImage.value] is File) {
-            File userProfilePictureFile = userProfileData[UserModelFieldsEnum.avatarImage.value];
-            String generatedUUID = (const Uuid()).v4();
-            String userProfilePictureFileExtension = userProfilePictureFile.path.split('.').last;
-
-            Reference storageRef = FirebaseStorage.instance.ref();
-            Reference userImagesRef = storageRef.child('user_images/$userUid');
-            Reference userProfilePictureRef = userImagesRef.child('$generatedUUID.$userProfilePictureFileExtension');
-
-            await userProfilePictureRef.putFile(userProfilePictureFile);
-            devtools.log('EventCreateProfile: profile picture uploaded');
-
-            userProfileData[UserModelFieldsEnum.avatarImage.value] = await userProfilePictureRef.getDownloadURL();
-            devtools.log('EventCreateProfile: profile picture link brought in');
-          }
-
-          await UserModel().updateWithUid(
-            uid: user.uid,
-            avatarImage: userProfileData[UserModelFieldsEnum.avatarImage.value],
-            username: userProfileData[UserModelFieldsEnum.username.value],
+          await _provider.createUserProfile(
+            userData: event.userData,
           );
 
           devtools.log('EventCreateProfile: user profile created');
           emit(
             StateSuccessfulCreateUserProfile(),
           );
-        } catch (exception) {
+        } on UniqueFieldException catch (exception) {
+          devtools.log('EventCreateProfile: user profile not created (UniqueFieldException)');
           emit(
-            StateFailedCreateUserProfile(),
+            StateFailedCreateUserProfile(error: '${exception.fieldName} baskasi tarafindan kullaniliyor'),
           );
-          devtools.log('EventCreateProfile: user profile not created (unhandled exception)');
-          devtools.log(exception.toString());
+        } on CurrentUserNotFoundException {
+          devtools.log('EventCreateProfile: user profile not created (CurrentUserNotFoundException)');
+          emit(
+            StateFailedCreateUserProfile(error: 'Gecerli kullanici bulunamadi!'),
+          );
+        } on GenericUserModelException {
+          devtools.log('EventCreateProfile: user profile not created (GenericUserModelException)');
+          emit(
+            StateFailedCreateUserProfile(error: 'Bir hata olustu'),
+          );
+        } on GenericRemoteStorageException {
+          devtools.log('EventCreateProfile: user profile not created (GenericRemoteStorageException)');
+          emit(
+            StateFailedCreateUserProfile(error: 'Bir hata olustu'),
+          );
         }
         devtools.log('EventCreateProfile finished');
       },
@@ -109,29 +102,21 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
             StateLoadingGetUserProfile(),
           );
 
-          User user = await UserModel().getCurrentUser();
-          devtools.log('EventGetUserProfile: current user brought in');
-
-          Map<String, dynamic>? userData = await UserModel().readWithUid(
-            uid: user.uid,
-          );
-          devtools.log('EventGetUserProfile: user data was read from cloud');
-
-          Map<String, dynamic> userProfileData = {
-            UserModelFieldsEnum.avatarImage.value: userData![UserModelFieldsEnum.avatarImage.value],
-            UserModelFieldsEnum.username.value: userData[UserModelFieldsEnum.username.value],
-          };
+          UserModelMap userProfileData = await _provider.userProfile;
 
           emit(
             StateSuccessfulGetUserProfile(userProfileData: userProfileData),
           );
-        } on UserModelException {
-          devtools.log('EventGetUserProfile: user data wasn\'t read from cloud (unhandled exception)');
+        } on CurrentUserNotFoundException {
+          devtools.log('EventGetUserProfile: user data wasn\'t read from cloud (CurrentUserNotFoundException)');
           emit(
-            StateFailedGetUserProfile(),
+            StateFailedGetUserProfile(error: 'kullanici bulunamadi'),
           );
-        } catch (exception) {
-          devtools.log('EventGetUserProfile: user data wasn\'t read from cloud (unhandled exception)');
+        } on GenericUserModelException {
+          devtools.log('EventGetUserProfile: user data wasn\'t read from cloud (GenericUserModelException)');
+          emit(
+            StateFailedGetUserProfile(error: 'bir hata olustu'),
+          );
         }
         devtools.log('EventGetUserProfile: finished');
       },
@@ -145,24 +130,18 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
             StateLoadingGetAvatarImageUrlList(),
           );
 
-          CollectionReference assetsCollectionReference = FirebaseFirestore.instance.collection('assets');
-          DocumentReference avatarImagesDocumentReference = assetsCollectionReference.doc('avatar_images');
-          DocumentSnapshot avatarImagesDocumentSnapshot = await avatarImagesDocumentReference.get();
-          devtools.log('EventGetAvatarImageURlList: image links brought in');
-
-          Map<String, dynamic> avatarImagesMap = avatarImagesDocumentSnapshot.data() as Map<String, dynamic>;
+          List<String> avatarImageUrlList = await _provider.avatarImageUrlList;
 
           emit(
-            StateSuccessfulGetAvatarImageUrlList(avatarImageUrlMap: avatarImagesMap),
+            StateSuccessfulGetAvatarImageUrlList(
+              avatarImageUrlList: avatarImageUrlList,
+            ),
           );
-        } on UserModelException {
-          devtools.log('EventGetAvatarImageURlList: image links not brought in (unhandled exception)');
-
+        } on GenericRemoteStorageException {
+          devtools.log('EventGetAvatarImageURlList: image links not brought in (GenericRemoteStorageException)');
           emit(
-            StateFailedGetAvatarImageUrlList(),
+            StateFailedGetAvatarImageUrlList(error: 'bir hata olustu'),
           );
-        } catch (exception) {
-          devtools.log('EventGetAvatarImageURlList: image links not brought in (unhandled exception)');
         }
         devtools.log('EventGetAvatarImageURlList: finished');
       },

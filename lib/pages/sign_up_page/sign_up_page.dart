@@ -292,42 +292,44 @@ class _SignUpPageState extends State<SignUpPage> {
     if (state is StateFailedSignUpWithEmailAndPassword) {
       await context.delayedPop();
       if (context.mounted) {
-        Exception exception = state.exception;
-        if (exception is EmailAlreadyInUseException) {
-          await PopUpMessage.danger(
-            title: 'Email address error',
-            message: 'the email address has already been taken by someone else',
-          ).show(context);
-          return;
-        }
-        if (exception is InvalidEmailException) {
-          await PopUpMessage.danger(
-            title: 'Email address error',
-            message: 'Please enter a valid email address',
-          ).show(context);
-          return;
-        }
-        if (exception is OperationNotAllowedException) {
-          await PopUpMessage.danger(
-            title: 'User error',
-            message: 'Something went wrong, get in touch with your managers',
-          ).show(context);
-          return;
-        }
-        if (exception is WeakPasswordException) {
-          await PopUpMessage.danger(
-            title: 'Password error',
-            message: 'Please use a stronger password',
-          ).show(context);
-          return;
-        }
-        if (exception is UserGenericException) {
-          await PopUpMessage.danger(
-            title: 'Unexpected error',
-            message: 'An unexpected error has occurred',
-          ).show(context);
-          return;
-        }
+        await PopUpMessage.danger(title: 'Bir seyler ters gitti', message: state.error).show(context);
+        return;
+        // Exception exception = state.exception;
+        // if (exception is EmailAlreadyInUseException) {
+        //   await PopUpMessage.danger(
+        //     title: 'Email address error',
+        //     message: 'the email address has already been taken by someone else',
+        //   ).show(context);
+        //   return;
+        // }
+        // if (exception is InvalidEmailException) {
+        //   await PopUpMessage.danger(
+        //     title: 'Email address error',
+        //     message: 'Please enter a valid email address',
+        //   ).show(context);
+        //   return;
+        // }
+        // if (exception is OperationNotAllowedException) {
+        //   await PopUpMessage.danger(
+        //     title: 'User error',
+        //     message: 'Something went wrong, get in touch with your managers',
+        //   ).show(context);
+        //   return;
+        // }
+        // if (exception is WeakPasswordException) {
+        //   await PopUpMessage.danger(
+        //     title: 'Password error',
+        //     message: 'Please use a stronger password',
+        //   ).show(context);
+        //   return;
+        // }
+        // if (exception is UserGenericException) {
+        //   await PopUpMessage.danger(
+        //     title: 'Unexpected error',
+        //     message: 'An unexpected error has occurred',
+        //   ).show(context);
+        //   return;
+        // }
       }
     }
   }

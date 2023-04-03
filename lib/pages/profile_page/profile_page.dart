@@ -43,7 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
       listenWhen: listenWhenRemoteStorageBloc,
       builder: (context, state) {
         if (state is StateSuccessfulGetUserProfile) {
-          Map<String, dynamic> userProfileData = state.userProfileData;
+          UserModelMap userProfileData = state.userProfileData;
 
           return BlocConsumer<AuthBloc, AuthState>(
             listener: listenerAuthBloc,
@@ -151,13 +151,17 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     if (state is StateFailedLogout) {
-      UserModelException exception = state.exception;
-      if (exception is UserGenericException) {
-        PopUpMessage.danger(
-          title: 'Bir hata olustu',
-          message: 'Beklenmedik bir hata olustu',
-        ).show(context);
-      }
+      await PopUpMessage.danger(
+        title: 'bir seyler ters gitti',
+        message: state.error,
+      ).show(context);
+      // UserModelException exception = state.exception;
+      // if (exception is UserGenericException) {
+      //   PopUpMessage.danger(
+      //     title: 'Bir hata olustu',
+      //     message: 'Beklenmedik bir hata olustu',
+      //   ).show(context);
+      // }
     }
   }
 

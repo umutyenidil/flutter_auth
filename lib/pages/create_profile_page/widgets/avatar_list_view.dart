@@ -29,7 +29,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
   late PageController _pageController;
   late int selectedIndex;
   late AvatarImageValue avatarImage;
-  late Map<String, dynamic> avatarImageUrlMap;
+  late List<String> avatarImageUrlList;
 
   @override
   void initState() {
@@ -53,7 +53,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
     return BlocBuilder<RemoteStorageBloc, RemoteStorageState>(
       builder: (context, state) {
         if (state is StateSuccessfulGetAvatarImageUrlList) {
-          avatarImageUrlMap = state.avatarImageUrlMap;
+          avatarImageUrlList = state.avatarImageUrlList;
           return SizedBox(
             width: double.infinity,
             height: 128 + 8 + 35 + 4 + 4,
@@ -68,7 +68,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
                         selectedIndex = index;
                       });
                     },
-                    itemCount: avatarImageUrlMap.length + 2,
+                    itemCount: avatarImageUrlList.length + 2,
                     controller: _pageController,
                     itemBuilder: (BuildContext context, int index) {
                       Widget? listItem;
@@ -80,7 +80,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
                         listItem = selectedImage();
                       } else {
                         listItem = avatarImageFromUrl(
-                          url: (avatarImageUrlMap.values.toList())[index - 2],
+                          url: avatarImageUrlList[index - 2],
                         );
                       }
 
@@ -202,7 +202,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
           onPressed: () async {
             setState(() {
               avatarImage = AvatarImageValue(
-                value: avatarImageUrlMap.values.toList()[selectedIndex - 2],
+                value: avatarImageUrlList[selectedIndex - 2],
                 status: AvatarImageStatus.fromAvatars,
               );
             });

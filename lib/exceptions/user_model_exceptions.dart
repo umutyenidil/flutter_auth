@@ -7,3 +7,9 @@ class GenericUserModelException implements UserModelException {
 
   String get exception => _exception;
 }
+
+class UniqueFieldException implements UserModelException {
+  final String fieldName;
+
+  UniqueFieldException({required this.fieldName});
+}

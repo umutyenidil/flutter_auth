@@ -4,7 +4,7 @@ part of 'remote_storage_bloc.dart';
 abstract class RemoteStorageEvent {}
 
 class EventCreateUserProfile extends RemoteStorageEvent {
-  final Map<String, dynamic> userData;
+  final UserModelMap userData;
 
   EventCreateUserProfile({
     required this.userData,

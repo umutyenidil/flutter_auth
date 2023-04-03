@@ -11,6 +11,7 @@ import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
+import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_auth/pages/profile_page/profile_page.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/avatar_list_view.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/save_button.dart';
@@ -42,7 +43,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
       listenWhen: listenWhenRemoteStorageBloc,
       builder: (context, state) {
         if (state is StateSuccessfulGetUserProfile) {
-          Map<String, dynamic> userProfileData = state.userProfileData;
+          UserModelMap userProfileData = state.userProfileData;
           return BlocConsumer<AuthBloc, AuthState>(
             listener: listenerAuthBloc,
             listenWhen: listenWhenAuthBloc,
@@ -143,13 +144,17 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     }
 
     if (state is StateFailedLogout) {
-      UserModelException exception = state.exception;
-      if (exception is UserGenericException) {
-        PopUpMessage.danger(
-          title: 'Bir hata olustu',
-          message: 'Beklenmedik bir hata olustu',
-        ).show(context);
-      }
+      await PopUpMessage.danger(
+        title: 'bir seyler ters gitt',
+        message: state.error,
+      );
+      // UserModelException exception = state.exception;
+      // if (exception is UserGenericException) {
+      //   PopUpMessage.danger(
+      //     title: 'Bir hata olustu',
+      //     message: 'Beklenmedik bir hata olustu',
+      //   ).show(context);
+      // }
     }
   }
 
