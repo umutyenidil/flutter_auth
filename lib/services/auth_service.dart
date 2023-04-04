@@ -15,16 +15,16 @@ class AuthService {
     required String password,
   }) async {
     try {
-      bool? isUserSignedUp = await AuthModel().signUpWithEmailAndPassword(
+      bool isUserSignedUp = await AuthModel.instance.signUpWithEmailAndPassword(
         emailAddress: emailAddress,
         password: password,
       );
 
-      if (!(isUserSignedUp!)) {
+      if (!isUserSignedUp) {
         throw UserNotSignedUpException();
       }
 
-      User currentUser = await AuthModel().getCurrentUser();
+      User currentUser = await AuthModel.instance.getCurrentUser();
 
       bool? isUserCreated = await UserModel().create(
         uid: currentUser.uid,
@@ -66,7 +66,7 @@ class AuthService {
       await UserModel().updateWithUid(
         uid: currentUser.uid,
         data: {
-          UserModelFieldsEnum.lastLogin: FieldValue.serverTimestamp(),
+          UserModelField.lastLogin: FieldValue.serverTimestamp(),
         },
       );
     } on InvalidEmailException {
@@ -105,7 +105,7 @@ class AuthService {
       await UserModel().updateWithUid(
         uid: uid,
         data: {
-          UserModelFieldsEnum.lastLogout: FieldValue.serverTimestamp(),
+          UserModelField.lastLogout: FieldValue.serverTimestamp(),
         },
       );
     } on CurrentUserNotFoundException {

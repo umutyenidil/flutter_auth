@@ -1,33 +1,23 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_auth/exceptions/auth_model_exceptions.dart';
-import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
-import 'package:flutter_auth/models/user_model.dart';
 
 class AuthModel {
-  static final AuthModel _shared = AuthModel._sharedInstance();
+  AuthModel._privateConstructor();
 
-  AuthModel._sharedInstance();
+  static final AuthModel instance = AuthModel._privateConstructor();
 
-  factory AuthModel() => _shared;
-
-  Future<bool?> signUpWithEmailAndPassword({
+  Future<bool> signUpWithEmailAndPassword({
     required String emailAddress,
     required String password,
   }) async {
+    late UserCredential userCredential;
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailAddress,
         password: password,
       );
-
-      if (userCredential.user != null) {
-        return true;
-      } else {
-        return false;
-      }
-    } on FirebaseAuthException catch (exception) {
-      switch (exception.code) {
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
         case 'email-already-in-use':
           throw EmailAlreadyInUseException();
         case 'invalid-email':
@@ -37,12 +27,16 @@ class AuthModel {
         case 'weak-password':
           throw WeakPasswordException();
       }
-    } catch (exception) {
+    } on Exception catch (e) {
       throw GenericAuthModelException(
-        exception: exception.toString(),
+        exception: e,
       );
     }
-    return null;
+
+    if (userCredential.user == null) {
+      return false;
+    }
+    return true;
   }
 
   Future<User> getCurrentUser() async {
@@ -61,14 +55,13 @@ class AuthModel {
     required String emailAddress,
     required String password,
   }) async {
-    UserCredential? userCredential;
     try {
-      userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailAddress,
         password: password,
       );
-    } on FirebaseAuthException catch (exception) {
-      switch (exception.code) {
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
         case 'invalid-email':
           throw InvalidEmailException();
         case 'user-disabled':
@@ -78,24 +71,19 @@ class AuthModel {
         case 'wrong-password':
           throw WrongPasswordException();
       }
-    } catch (exception) {
-      throw GenericAuthModelException(exception: exception.toString());
+    } on Exception catch (e) {
+      throw GenericAuthModelException(
+        exception: e,
+      );
     }
   }
 
   Future<bool> get isCurrentUserVerified async {
-    try {
-      User currentUser = await getCurrentUser();
+    User currentUser = await getCurrentUser();
 
-      bool isVerified = currentUser.emailVerified;
+    bool isCurrentUserVerified = currentUser.emailVerified;
 
-      return isVerified;
-    } on CurrentUserNotFoundException {
-      rethrow;
-    } catch (exception) {
-      GenericAuthModelException(exception: exception.toString());
-    }
-    return false;
+    return isCurrentUserVerified;
   }
 
   Future<bool> get isAnyUserSignedIn async {
@@ -104,9 +92,9 @@ class AuthModel {
       return true;
     } on CurrentUserNotFoundException {
       return false;
-    } catch (exception) {
+    } on Exception catch (e) {
       throw GenericAuthModelException(
-        exception: exception.toString(),
+        exception: e,
       );
     }
   }
@@ -114,9 +102,9 @@ class AuthModel {
   Future<void> logout() async {
     try {
       await FirebaseAuth.instance.signOut();
-    } catch (exception) {
+    } on Exception catch (e) {
       throw GenericAuthModelException(
-        exception: exception.toString(),
+        exception: e,
       );
     }
   }
@@ -127,8 +115,10 @@ class AuthModel {
       await currentUser.sendEmailVerification();
     } on CurrentUserNotFoundException {
       rethrow;
-    } catch (exception) {
-      throw GenericAuthModelException(exception: exception.toString());
+    } on Exception catch (e) {
+      throw GenericAuthModelException(
+        exception: e,
+      );
     }
   }
 }

@@ -130,8 +130,8 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
 
     BlocProvider.of<RemoteStorageBloc>(context).add(EventCreateUserProfile(
       userData: {
-        UserModelFieldsEnum.avatarImage: _avatarImageValue.value,
-        UserModelFieldsEnum.username: _usernameInputValue.value,
+        UserModelField.avatarImage: _avatarImageValue.value,
+        UserModelField.username: _usernameInputValue.value,
       },
     ));
   }

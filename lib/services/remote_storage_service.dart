@@ -19,8 +19,8 @@ class RemoteStorageService {
     User currentUser = await AuthModel().getCurrentUser();
 
     UserModelMap? userData = await UserModel().readWithUid(uid: currentUser.uid, fields: [
-      UserModelFieldsEnum.avatarImage,
-      UserModelFieldsEnum.username,
+      UserModelField.avatarImage,
+      UserModelField.username,
     ]);
 
     if (userData == null) {
@@ -41,18 +41,18 @@ class RemoteStorageService {
       User user = await AuthModel().getCurrentUser();
       String userUid = user.uid;
 
-      if (userData[UserModelFieldsEnum.avatarImage] is File) {
+      if (userData[UserModelField.avatarImage] is File) {
         String imageUrl = await _uploadFile(
-          file: userData[UserModelFieldsEnum.avatarImage.value],
+          file: userData[UserModelField.avatarImage.value],
           path: 'user_images/$userUid',
         );
 
-        userData[UserModelFieldsEnum.avatarImage] = imageUrl;
+        userData[UserModelField.avatarImage] = imageUrl;
       }
 
       await UserModel().updateWithUid(uid: userUid, data: {
-        UserModelFieldsEnum.username: userData[UserModelFieldsEnum.username],
-        UserModelFieldsEnum.avatarImage: userData[UserModelFieldsEnum.avatarImage],
+        UserModelField.username: userData[UserModelField.username],
+        UserModelField.avatarImage: userData[UserModelField.avatarImage],
       });
     } on UniqueFieldException {
       rethrow;
@@ -90,8 +90,8 @@ class RemoteStorageService {
       String userUid = user.uid;
 
       UserModelMap? userProfileData = await UserModel().readWithUid(uid: userUid, fields: [
-        UserModelFieldsEnum.username,
-        UserModelFieldsEnum.avatarImage,
+        UserModelField.username,
+        UserModelField.avatarImage,
       ]);
 
       return userProfileData!;

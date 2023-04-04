@@ -148,13 +148,6 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
         title: 'bir seyler ters gitt',
         message: state.error,
       );
-      // UserModelException exception = state.exception;
-      // if (exception is UserGenericException) {
-      //   PopUpMessage.danger(
-      //     title: 'Bir hata olustu',
-      //     message: 'Beklenmedik bir hata olustu',
-      //   ).show(context);
-      // }
     }
   }
 

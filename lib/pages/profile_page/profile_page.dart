@@ -85,12 +85,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: CircleAvatar(
                           backgroundColor: Colors.transparent,
                           foregroundImage: MemoryImage(
-                            (userProfileData[UserModelFieldsEnum.avatarImage.value] as Blob).bytes,
+                            (userProfileData[UserModelField.avatarImage.value] as Blob).bytes,
                           ),
                         ),
                       ),
                       const VerticalSpace(32),
-                      Text(userProfileData[UserModelFieldsEnum.username.value]),
+                      Text(userProfileData[UserModelField.username.value]),
                       const Spacer(),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
