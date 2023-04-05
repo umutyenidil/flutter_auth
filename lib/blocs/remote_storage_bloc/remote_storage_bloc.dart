@@ -1,17 +1,12 @@
 import 'dart:developer' as devtools show log;
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_auth/exceptions/auth_model_exceptions.dart';
 import 'package:flutter_auth/exceptions/remote_storage_exceptions.dart';
 import 'package:flutter_auth/services/remote_storage_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/models/user_model.dart';
-import 'package:uuid/uuid.dart';
 
 part 'remote_storage_event.dart';
 
@@ -41,22 +36,22 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
         } on UniqueFieldException catch (exception) {
           devtools.log('EventCreateProfile: user profile not created (UniqueFieldException)');
           emit(
-            StateFailedCreateUserProfile(error: '${exception.fieldName} baskasi tarafindan kullaniliyor'),
+            StateFailedCreateUserProfile(error: '${exception.fieldName} is being used by someone else'),
           );
         } on CurrentUserNotFoundException {
           devtools.log('EventCreateProfile: user profile not created (CurrentUserNotFoundException)');
           emit(
-            StateFailedCreateUserProfile(error: 'Gecerli kullanici bulunamadi!'),
+            StateFailedCreateUserProfile(error: 'The profile could not be created. try again'),
           );
         } on GenericUserModelException {
           devtools.log('EventCreateProfile: user profile not created (GenericUserModelException)');
           emit(
-            StateFailedCreateUserProfile(error: 'Bir hata olustu'),
+            StateFailedCreateUserProfile(error: 'The profile could not be created. try again'),
           );
         } on GenericRemoteStorageException {
           devtools.log('EventCreateProfile: user profile not created (GenericRemoteStorageException)');
           emit(
-            StateFailedCreateUserProfile(error: 'Bir hata olustu'),
+            StateFailedCreateUserProfile(error: 'The profile could not be created. try again'),
           );
         }
         devtools.log('EventCreateProfile finished');
@@ -87,7 +82,9 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
         } on GenericUserModelException {
           devtools.log('EventIsUserProfileCreated: user profile not created (GenericUserModelException)');
           emit(
-            StateFailedIsUserProfileCreated(),
+            StateFailedIsUserProfileCreated(
+              error: 'You need to create a profile.',
+            ),
           );
         }
         devtools.log('EventIsUserProfileCreated: finished');
@@ -110,12 +107,12 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
         } on CurrentUserNotFoundException {
           devtools.log('EventGetUserProfile: user data wasn\'t read from cloud (CurrentUserNotFoundException)');
           emit(
-            StateFailedGetUserProfile(error: 'kullanici bulunamadi'),
+            StateFailedGetUserProfile(error: 'The user could not be found'),
           );
         } on GenericUserModelException {
           devtools.log('EventGetUserProfile: user data wasn\'t read from cloud (GenericUserModelException)');
           emit(
-            StateFailedGetUserProfile(error: 'bir hata olustu'),
+            StateFailedGetUserProfile(error: 'Something went wrong'),
           );
         }
         devtools.log('EventGetUserProfile: finished');

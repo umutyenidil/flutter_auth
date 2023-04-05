@@ -177,19 +177,21 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> with Widg
     if (state is StateFailedSendEmailVerification) {
       await context.delayedPop();
       if (context.mounted) {
-        await PopUpMessage.danger(title: 'bir seyelr ters gtit', message: state.error);
-        // Exception exception = state.exception;
-        // await PopUpMessage.danger(
-        //   title: 'Something went wrong',
-        //   message: 'We can\'t send you verification email. Please try again',
-        // ).show(context);
+        await PopUpMessage.danger(
+          title: 'bir seyelr ters gtit',
+          message: state.error,
+        ).show(context);
+
       }
       return;
     }
     if (state is StateFailedLogout) {
       await context.delayedPop();
       if (context.mounted) {
-        await PopUpMessage.danger(title: 'bir seyelr ters gtit', message: state.error);
+        await PopUpMessage.danger(
+          title: 'bir seyelr ters gtit',
+          message: state.error,
+        ).show(context);
 
         // Exception exception = state.exception;
         // await PopUpMessage.danger(
@@ -262,7 +264,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> with Widg
       if (context.mounted) {
         await PopUpMessage.success(
           title: 'Something went wrong',
-          message: 'You are being redirected to the sign in page',
+          message: state.error,
         ).show(context);
       }
       if (context.mounted) {

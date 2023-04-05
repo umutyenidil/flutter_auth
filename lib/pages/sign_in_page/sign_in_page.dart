@@ -9,7 +9,6 @@ import 'package:flutter_auth/constants/error_text_constants.dart';
 import 'package:flutter_auth/constants/hint_text_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/constants/regular_expression_constants.dart';
-import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/common_widgets/horizontal_space.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';

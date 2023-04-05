@@ -157,7 +157,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
       if (context.mounted) {
         await PopUpMessage.danger(
           title: 'Profile create error',
-          message: 'Something went wrong. Please try again',
+          message: state.error,
         ).show(context);
       }
       return;

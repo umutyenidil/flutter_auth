@@ -8,7 +8,6 @@ import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
-import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/models/user_model.dart';
@@ -147,7 +146,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
       await PopUpMessage.danger(
         title: 'bir seyler ters gitt',
         message: state.error,
-      );
+      ).show(context);
     }
   }
 

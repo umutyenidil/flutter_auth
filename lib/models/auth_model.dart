@@ -46,7 +46,13 @@ class AuthModel {
       throw CurrentUserNotFoundException();
     }
 
-    await user.reload();
+    try {
+      await user.reload();
+    } on Exception catch (e) {
+      throw GenericAuthModelException(
+        exception: e,
+      );
+    }
 
     return user;
   }
@@ -79,7 +85,14 @@ class AuthModel {
   }
 
   Future<bool> get isCurrentUserVerified async {
-    User currentUser = await getCurrentUser();
+    late User currentUser;
+    try {
+      currentUser = await getCurrentUser();
+    } on CurrentUserNotFoundException {
+      rethrow;
+    } on GenericAuthModelException {
+      rethrow;
+    }
 
     bool isCurrentUserVerified = currentUser.emailVerified;
 
@@ -92,10 +105,8 @@ class AuthModel {
       return true;
     } on CurrentUserNotFoundException {
       return false;
-    } on Exception catch (e) {
-      throw GenericAuthModelException(
-        exception: e,
-      );
+    } on GenericAuthModelException {
+      rethrow;
     }
   }
 
@@ -114,6 +125,8 @@ class AuthModel {
       User currentUser = await getCurrentUser();
       await currentUser.sendEmailVerification();
     } on CurrentUserNotFoundException {
+      rethrow;
+    } on GenericAuthModelException {
       rethrow;
     } on Exception catch (e) {
       throw GenericAuthModelException(

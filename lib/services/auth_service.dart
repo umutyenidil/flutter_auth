@@ -26,12 +26,12 @@ class AuthService {
 
       User currentUser = await AuthModel.instance.getCurrentUser();
 
-      bool? isUserCreated = await UserModel().create(
+      bool isUserCreated = await UserModel.instance.create(
         uid: currentUser.uid,
         emailAddress: emailAddress,
       );
 
-      return isUserCreated!;
+      return isUserCreated;
     } on UserNotSignedUpException {
       rethrow;
     } on CurrentUserNotFoundException {
@@ -56,14 +56,14 @@ class AuthService {
     required String password,
   }) async {
     try {
-      await AuthModel().signInWithEmailAndPassword(
+      await AuthModel.instance.signInWithEmailAndPassword(
         emailAddress: emailAddress,
         password: password,
       );
 
-      User currentUser = await AuthModel().getCurrentUser();
+      User currentUser = await AuthModel.instance.getCurrentUser();
 
-      await UserModel().updateWithUid(
+      await UserModel.instance.updateWithUid(
         uid: currentUser.uid,
         data: {
           UserModelField.lastLogin: FieldValue.serverTimestamp(),
@@ -88,7 +88,7 @@ class AuthService {
 
   Future<bool> get isCurrentUserVerified async {
     try {
-      bool isVerified = await AuthModel().isCurrentUserVerified;
+      bool isVerified = await AuthModel.instance.isCurrentUserVerified;
       return isVerified;
     } on CurrentUserNotFoundException {
       rethrow;
@@ -99,10 +99,10 @@ class AuthService {
 
   Future<void> logout() async {
     try {
-      User currentUser = await AuthModel().getCurrentUser();
+      User currentUser = await AuthModel.instance.getCurrentUser();
       String uid = currentUser.uid;
-      await AuthModel().logout();
-      await UserModel().updateWithUid(
+      await AuthModel.instance.logout();
+      await UserModel.instance.updateWithUid(
         uid: uid,
         data: {
           UserModelField.lastLogout: FieldValue.serverTimestamp(),
@@ -119,7 +119,7 @@ class AuthService {
 
   Future<void> sendVerificationEmail() async {
     try {
-      await AuthModel().sendVerificationEmail();
+      await AuthModel.instance.sendVerificationEmail();
     } on CurrentUserNotFoundException {
       rethrow;
     } on GenericAuthModelException {
@@ -129,7 +129,7 @@ class AuthService {
 
   Future<bool> get isAnyUserSignedIn async {
     try {
-      bool result = await AuthModel().isAnyUserSignedIn;
+      bool result = await AuthModel.instance.isAnyUserSignedIn;
       return result;
     } on GenericAuthModelException {
       rethrow;

@@ -16,9 +16,9 @@ class RemoteStorageService {
   static final RemoteStorageService instance = RemoteStorageService._privateConstructor();
 
   Future<bool> get isCurrentUserProfileCreated async {
-    User currentUser = await AuthModel().getCurrentUser();
+    User currentUser = await AuthModel.instance.getCurrentUser();
 
-    UserModelMap? userData = await UserModel().readWithUid(uid: currentUser.uid, fields: [
+    UserModelMap? userData = await UserModel.instance.readWithUid(uid: currentUser.uid, fields: [
       UserModelField.avatarImage,
       UserModelField.username,
     ]);
@@ -38,7 +38,7 @@ class RemoteStorageService {
 
   Future<void> createUserProfile({required UserModelMap userData}) async {
     try {
-      User user = await AuthModel().getCurrentUser();
+      User user = await AuthModel.instance.getCurrentUser();
       String userUid = user.uid;
 
       if (userData[UserModelField.avatarImage] is File) {
@@ -50,7 +50,7 @@ class RemoteStorageService {
         userData[UserModelField.avatarImage] = imageUrl;
       }
 
-      await UserModel().updateWithUid(uid: userUid, data: {
+      await UserModel.instance.updateWithUid(uid: userUid, data: {
         UserModelField.username: userData[UserModelField.username],
         UserModelField.avatarImage: userData[UserModelField.avatarImage],
       });
@@ -86,10 +86,10 @@ class RemoteStorageService {
 
   Future<UserModelMap> get userProfile async {
     try {
-      User user = await AuthModel().getCurrentUser();
+      User user = await AuthModel.instance.getCurrentUser();
       String userUid = user.uid;
 
-      UserModelMap? userProfileData = await UserModel().readWithUid(uid: userUid, fields: [
+      UserModelMap? userProfileData = await UserModel.instance.readWithUid(uid: userUid, fields: [
         UserModelField.username,
         UserModelField.avatarImage,
       ]);
@@ -110,7 +110,7 @@ class RemoteStorageService {
       Map<String, dynamic> avatarImagesMap = avatarImagesDocSnapshot.data() as Map<String, dynamic>;
 
       List<String> avatarImageList = [];
-      for (String url in avatarImagesMap.values.toList()) {
+      for (String? url in avatarImagesMap.values.toList()) {
         if (url != null) {
           avatarImageList.add(url);
         }

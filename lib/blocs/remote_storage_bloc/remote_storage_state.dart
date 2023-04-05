@@ -8,7 +8,11 @@ class StateInitial extends RemoteStorageState {}
 // EventIsUserProfileCreatedOnCloud
 class StateLoadingIsUserProfileCreated extends RemoteStorageState {}
 
-class StateFailedIsUserProfileCreated extends RemoteStorageState {}
+class StateFailedIsUserProfileCreated extends RemoteStorageState {
+  final String error;
+
+  StateFailedIsUserProfileCreated({required this.error});
+}
 
 class StateTrueUserProfileCreated extends RemoteStorageState {}
 
@@ -53,5 +57,6 @@ class StateSuccessfulGetAvatarImageUrlList extends RemoteStorageState {
 
 class StateFailedGetAvatarImageUrlList extends RemoteStorageState {
   final String error;
+
   StateFailedGetAvatarImageUrlList({required this.error});
 }
