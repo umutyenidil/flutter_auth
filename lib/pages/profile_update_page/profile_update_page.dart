@@ -13,8 +13,10 @@ import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_auth/pages/profile_page/profile_page.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/avatar_list_view.dart';
+import 'package:flutter_auth/pages/profile_update_page/widgets/page_container.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/save_button.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/delete_account_button.dart';
+import 'package:flutter_auth/pages/profile_update_page/widgets/top_bar.dart';
 import 'package:flutter_auth/pages/sign_in_page/sign_in_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -48,36 +50,17 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
             listenWhen: listenWhenAuthBloc,
             builder: (context, state) {
               return Scaffold(
-                body: SafeArea(
-                  child: Column(
+                body: PageContainer(
+                  content: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            BackSvgButton(
-                              size: 40,
-                              padding: 4,
-                              onPressed: () {
-                                context.pageTransitionFade(
-                                  page: const ProfilePage(),
-                                );
-                              },
-                            ),
-                            SaveButton(
-                              padding: 16,
-                              size: 40,
-                              onPressed: () {},
-                            ),
-                          ],
-                        ),
-                      ),
+                      const TopBar(),
+                      const VerticalSpace(16),
                       AvatarListView(
-                        getImageAsByteList: (list) {},
+                        getAvatarImage: (AvatarImageValue value) {},
+                        initialAvatarImage: AvatarImageValue(
+                          status: AvatarImageStatus.initial,
+                          value: userProfileData[UserModelField.avatarImage],
+                        ),
                       ),
                       const VerticalSpace(32),
                       InputField(

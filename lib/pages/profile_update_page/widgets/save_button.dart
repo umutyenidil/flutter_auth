@@ -8,7 +8,7 @@ class SaveButton extends StatelessWidget {
     Key? key,
     required this.onPressed,
     this.size = 32.0,
-    this.padding = 0.0,
+    this.padding = 8.0,
   }) : super(key: key);
   final Function onPressed;
   final double size;

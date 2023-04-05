@@ -1,19 +1,27 @@
-import 'package:flutter/foundation.dart';
+import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
+import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
+import 'package:flutter_auth/constants/color_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
+import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/mixins/image_storage_mixin.dart';
-import 'package:flutter_auth/pages/create_profile_page/widgets/select_button.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+typedef Fonksiyon = void Function(AvatarImageValue value);
 
 class AvatarListView extends StatefulWidget {
   const AvatarListView({
     super.key,
-    required this.getImageAsByteList,
+    required this.getAvatarImage,
+    required this.initialAvatarImage,
   });
 
-  final Function getImageAsByteList;
+  final Fonksiyon getAvatarImage;
+  final AvatarImageValue initialAvatarImage;
 
   @override
   State<AvatarListView> createState() => _AvatarListViewState();
@@ -21,21 +29,20 @@ class AvatarListView extends StatefulWidget {
 
 class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
   late PageController _pageController;
-  late final List<String> avatarImages;
   late int selectedIndex;
-  Uint8List? currentPhoto;
+  late AvatarImageValue avatarImage;
+  late List<String> avatarImageUrlList;
 
   @override
   void initState() {
     super.initState();
-    widget.getImageAsByteList(null);
+    avatarImage = AvatarImageValue(
+      value: null,
+      status: AvatarImageStatus.initial,
+    );
 
-    avatarImages = [
-      IconPathConstants.cameraIcon,
-      IconPathConstants.galleryIcon,
-      IconPathConstants.circleUserIcon,
+    widget.getAvatarImage(avatarImage);
 
-    ];
     selectedIndex = 2;
     _pageController = PageController(
       viewportFraction: 0.5,
@@ -45,102 +52,343 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 128 + 8 + 32,
-      child: Column(
-        children: [
-          SizedBox(
+    return BlocBuilder<RemoteStorageBloc, RemoteStorageState>(
+      builder: (context, state) {
+        if (state is StateSuccessfulGetAvatarImageUrlList) {
+          avatarImageUrlList = state.avatarImageUrlList;
+          return SizedBox(
             width: double.infinity,
-            height: 128,
-            child: PageView.builder(
-              onPageChanged: (int index) {
-                setState(() {
-                  selectedIndex = index;
-                });
-              },
-              itemCount: avatarImages.length,
-              controller: _pageController,
-              itemBuilder: (BuildContext context, int index) {
-                Widget? listItem;
-                if ([0, 1].contains(index)) {
-                  listItem = Container(
-                    width: 100,
-                    height: 100,
-                    padding: const EdgeInsets.all(32),
-                    decoration: const BoxDecoration(
-                      color: Colors.grey,
-                      shape: BoxShape.circle,
-                    ),
-                    child: SvgPicture.asset(avatarImages[index]),
-                  );
-                } else if (index == 2) {
-                  listItem = (currentPhoto == null)
-                      ? SvgPicture.asset(avatarImages[2])
-                      : SizedBox.square(
-                          dimension: 120,
-                          child: CircleAvatar(
-                            backgroundColor: Colors.transparent,
-                            foregroundImage: MemoryImage(currentPhoto!),
-                          ),
+            height: 128 + 8 + 35 + 4 + 4,
+            child: Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: 136,
+                  child: PageView.builder(
+                    onPageChanged: (int index) {
+                      setState(() {
+                        selectedIndex = index;
+                      });
+                    },
+                    itemCount: avatarImageUrlList.length + 2,
+                    controller: _pageController,
+                    itemBuilder: (BuildContext context, int index) {
+                      Widget? listItem;
+                      if (index == 0) {
+                        listItem = openGalleryButton();
+                      } else if (index == 1) {
+                        listItem = openCameraButton();
+                      } else if (index == 2) {
+                        listItem = selectedImage();
+                      } else {
+                        listItem = avatarImageFromUrl(
+                          url: avatarImageUrlList[index - 2],
                         );
-                } else {
-                  listItem = SizedBox.square(
-                    dimension: 120,
-                    child: Image.asset(
-                      avatarImages[index],
-                    ),
-                  );
-                }
+                      }
 
-                double scale = selectedIndex == index ? 1.0 : 0.7;
-                return TweenAnimationBuilder(
-                  duration: const Duration(milliseconds: 200),
-                  tween: Tween(begin: scale, end: scale),
-                  curve: Curves.ease,
-                  builder: (BuildContext context, double value, Widget? child) {
-                    return Transform.scale(
-                      scale: value,
-                      child: listItem,
+                      double scale = selectedIndex == index ? 1.0 : 0.7;
+                      return Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: TweenAnimationBuilder(
+                          duration: const Duration(milliseconds: 200),
+                          tween: Tween(begin: scale, end: scale),
+                          curve: Curves.ease,
+                          builder: (BuildContext context, double value, Widget? child) {
+                            return Transform.scale(
+                              scale: value,
+                              child: listItem,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const VerticalSpace(8),
+                SizedBox(
+                  child: selectButton(),
+                ),
+              ],
+            ),
+          );
+        }
+        return SizedBox(
+          width: double.infinity,
+          height: 128 + 8 + 35 + 4 + 4,
+          child: Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height: 136,
+                child: PageView.builder(
+                  onPageChanged: (int index) {
+                    setState(() {
+                      selectedIndex = index;
+                    });
+                  },
+                  itemCount: 3,
+                  controller: _pageController,
+                  itemBuilder: (BuildContext context, int index) {
+                    Widget? listItem;
+                    if (index == 0) {
+                      listItem = openGalleryButton();
+                    } else if (index == 1) {
+                      listItem = openCameraButton();
+                    } else if (index == 2) {
+                      listItem = selectedImage();
+                    }
+
+                    double scale = selectedIndex == index ? 1.0 : 0.7;
+                    return Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: TweenAnimationBuilder(
+                        duration: const Duration(milliseconds: 200),
+                        tween: Tween(begin: scale, end: scale),
+                        curve: Curves.ease,
+                        builder: (BuildContext context, double value, Widget? child) {
+                          return Transform.scale(
+                            scale: value,
+                            child: listItem,
+                          );
+                        },
+                      ),
                     );
                   },
-                );
-              },
+                ),
+              ),
+              const VerticalSpace(8),
+              SizedBox(
+                child: selectButton(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget selectButton() {
+    if (selectedIndex > 2) {
+      return SizedBox(
+        height: 35,
+        width: 80, 
+        child: MaterialButton(
+          onPressed: () async {
+            setState(() {
+              avatarImage = AvatarImageValue(
+                value: avatarImageUrlList[selectedIndex - 2],
+                status: AvatarImageStatus.fromAvatars,
+              );
+            });
+
+            widget.getAvatarImage(avatarImage);
+            _pageController.animateToPage(2, duration: Duration(milliseconds: 300 * (selectedIndex - 2)), curve: Curves.ease);
+          },
+          color: Colors.grey.shade300,
+          minWidth: 0,
+          height: 0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 0,
+            vertical: 0,
+          ),
+          shape: const StadiumBorder(),
+          child: const FittedBox(
+            fit: BoxFit.contain,
+            child: Text(
+              'Select',
+              style: TextStyle(
+                color: Colors.white,
+              ),
             ),
           ),
-          const VerticalSpace(8),
-          SizedBox(
-            height: 32,
-            child: selectedIndex != 2
-                ? SelectButton(
-                    onPressed: () async {
-                      if (_pageController.page == 0) {
-                        Uint8List photoBytes = await getPhotoBytesFromCamera();
-                        _pageController.jumpToPage(2);
-                        setState(() {
-                          currentPhoto = photoBytes;
-                        });
-                      } else if (selectedIndex == 1) {
-                        Uint8List imageBytes = await getImageBytesFromGallery();
-                        _pageController.jumpToPage(2);
-                        setState(() {
-                          currentPhoto = imageBytes;
-                        });
-                      } else {
-                        String assetPath = avatarImages[_pageController.page!.toInt()];
-                        Uint8List imageBytes = await getImageBytesFromAssets(assetPath: assetPath);
-                        _pageController.jumpToPage(2);
-                        setState(() {
-                          currentPhoto = imageBytes;
-                        });
-                      }
-                      widget.getImageAsByteList(currentPhoto);
-                    },
-                  )
-                : const SizedBox(),
+        ),
+      );
+    }
+    return const SizedBox(
+      height: 35,
+      width: 80,
+    );
+  }
+
+  Widget selectedImage() {
+    if ([
+      AvatarImageStatus.fromCamera,
+      AvatarImageStatus.fromGallery,
+    ].contains(avatarImage.status)) {
+      return SizedBox.square(
+        dimension: 120,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: ColorConstants.randomColor(),
+            image: DecorationImage(
+              fit: BoxFit.fitWidth,
+              alignment: Alignment.center,
+              image: FileImage(
+                avatarImage.value,
+              ),
+            ),
           ),
-        ],
+        ),
+      );
+    }
+    if (avatarImage.status == AvatarImageStatus.fromAvatars) {
+      return SizedBox.square(
+        dimension: 120,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: ColorConstants.randomColor(),
+            image: DecorationImage(
+              fit: BoxFit.contain,
+              alignment: Alignment.center,
+              image: CachedNetworkImageProvider(
+                avatarImage.value,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return avatarImageFromUrl(
+      url: widget.initialAvatarImage.value,
+    );
+  }
+
+  Widget avatarImageFromUrl({required String url}) {
+    return SizedBox.square(
+      dimension: 120,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: ColorConstants.randomColor(),
+        ),
+        child: CachedNetworkImage(
+          imageUrl: url,
+          placeholder: (BuildContext context, String url) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 1,
+              ),
+            );
+          },
+          errorWidget: (context, url, error) {
+            return SvgPicture.asset(
+              IconPathConstants.cancelIcon,
+              color: Colors.red,
+            );
+          },
+        ),
       ),
     );
   }
+
+  Widget openCameraButton() {
+    return SizedBox.square(
+      dimension: 120,
+      child: MaterialButton(
+        hoverElevation: 4,
+        disabledElevation: 2,
+        highlightElevation: 1,
+        focusElevation: 1,
+        onPressed: () async {
+          File? photoFile = await getPhotoFileFromCamera();
+          if (photoFile == null) {
+            if (context.mounted) {
+              await PopUpMessage.danger(
+                title: 'Camera error',
+                message: 'There was a camera error. Please try again',
+              ).show(context);
+              return;
+            }
+          }
+          setState(() {
+            avatarImage = AvatarImageValue(
+              value: photoFile,
+              status: AvatarImageStatus.fromCamera,
+            );
+          });
+          widget.getAvatarImage(avatarImage);
+          _pageController.animateToPage(
+            2,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.ease,
+          );
+        },
+        shape: const CircleBorder(),
+        color: ColorConstants.randomColor(),
+        child: Padding(
+          padding: const EdgeInsets.all(40.0),
+          child: SvgPicture.asset(
+            IconPathConstants.cameraIcon,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget openGalleryButton() {
+    return SizedBox.square(
+      dimension: 120,
+      child: MaterialButton(
+        hoverElevation: 4,
+        disabledElevation: 2,
+        highlightElevation: 1,
+        focusElevation: 1,
+        onPressed: () async {
+          File? imageFile = await getPhotoFileFromGallery();
+          if (imageFile == null) {
+            if (context.mounted) {
+              await PopUpMessage.danger(
+                title: 'Gallery error',
+                message: 'There was a gallery error. Please try again',
+              ).show(context);
+              return;
+            }
+          }
+          setState(() {
+            avatarImage = AvatarImageValue(
+              value: imageFile,
+              status: AvatarImageStatus.fromGallery,
+            );
+          });
+          widget.getAvatarImage(avatarImage);
+          _pageController.animateToPage(
+            2,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.ease,
+          );
+        },
+        shape: const CircleBorder(),
+        color: ColorConstants.randomColor(),
+        child: Padding(
+          padding: const EdgeInsets.all(40.0),
+          child: SvgPicture.asset(
+            IconPathConstants.galleryIcon,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AvatarImageValue {
+  final value;
+  final AvatarImageStatus status;
+
+  AvatarImageValue({
+    required this.value,
+    required this.status,
+  });
+}
+
+enum AvatarImageStatus {
+  initial,
+  fromAvatars,
+  fromCamera,
+  fromGallery,
 }
