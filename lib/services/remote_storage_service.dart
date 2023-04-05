@@ -89,11 +89,13 @@ class RemoteStorageService {
       User user = await AuthModel.instance.getCurrentUser();
       String userUid = user.uid;
 
-      UserModelMap? userProfileData = await UserModel.instance.readWithUid(uid: userUid, fields: [
-        UserModelField.username,
-        UserModelField.avatarImage,
-      ]);
-
+      UserModelMap? userProfileData = await UserModel.instance.readWithUid(
+        uid: userUid,
+        fields: [
+          UserModelField.username,
+          UserModelField.avatarImage,
+        ],
+      );
       return userProfileData!;
     } on CurrentUserNotFoundException {
       rethrow;

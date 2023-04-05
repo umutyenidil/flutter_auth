@@ -14,10 +14,8 @@ class TopBar extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.blue,
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 90,
-          ),
+        child: SizedBox(
+          height: 22,
           child: FittedBox(
             fit: BoxFit.contain,
             child: Text(

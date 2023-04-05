@@ -63,7 +63,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> with Widg
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.paused) {
+    if (state == AppLifecycleState.resumed) {
       if (_isUserVerified) {
         Future.delayed(const Duration(milliseconds: 500)).then((value) {
           BlocProvider.of<RemoteStorageBloc>(context).add(
@@ -181,7 +181,6 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> with Widg
           title: 'bir seyelr ters gtit',
           message: state.error,
         ).show(context);
-
       }
       return;
     }

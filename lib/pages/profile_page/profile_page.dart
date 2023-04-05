@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
@@ -8,15 +9,20 @@ import 'package:flutter_auth/common_widgets/pop_ups/pop_up_acceptable.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
+import 'package:flutter_auth/constants/color_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_auth/pages/home_page/home_page.dart';
 import 'package:flutter_auth/pages/profile_page/widgets/logout_button.dart';
+import 'package:flutter_auth/pages/profile_page/widgets/page_container.dart';
+import 'package:flutter_auth/pages/profile_page/widgets/profile_picture.dart';
+import 'package:flutter_auth/pages/profile_page/widgets/top_bar.dart';
 import 'package:flutter_auth/pages/profile_update_page/profile_update_page.dart';
 import 'package:flutter_auth/pages/sign_in_page/sign_in_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -43,53 +49,23 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context, state) {
         if (state is StateSuccessfulGetUserProfile) {
           UserModelMap userProfileData = state.userProfileData;
-
           return BlocConsumer<AuthBloc, AuthState>(
             listener: listenerAuthBloc,
             listenWhen: listenWhenAuthBloc,
             builder: (context, state) {
               return Scaffold(
-                body: SafeArea(
-                  child: Column(
+                body: PageContainer(
+                  content: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            BackSvgButton(
-                              size: 40,
-                              padding: 4,
-                              onPressed: () {
-                                context.pageTransitionSlide(
-                                  page: const HomePage(),
-                                  direction: PageTransitionDirection.leftToRight,
-                                );
-                              },
-                            ),
-                            EditButton(
-                              size: 40,
-                              padding: 20,
-                              onPressed: () {
-                                context.pageTransitionFade(
-                                  page: const ProfileUpdatePage(),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox.square(
-                        dimension: 120,
-                        child: CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          foregroundImage: MemoryImage(
-                            (userProfileData[UserModelField.avatarImage.value] as Blob).bytes,
-                          ),
-                        ),
+                      const TopBar(),
+                      const VerticalSpace(16),
+                      ProfilePicture(
+                        url: userProfileData[UserModelField.avatarImage],
                       ),
                       const VerticalSpace(32),
-                      Text(userProfileData[UserModelField.username.value]),
+                      Text(
+                        userProfileData[UserModelField.username],
+                      ),
                       const Spacer(),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -97,20 +73,20 @@ class _ProfilePageState extends State<ProfilePage> {
                           onPressed: () async {
                             await PopUpAcceptable(
                               color: Colors.red,
-                              rightButtonOnPressed: () {
-                                BlocProvider.of<AuthBloc>(context).add(
-                                  EventLogout(),
-                                );
-                                Navigator.of(context).pop();
-                              },
                               svgIcon: IconPathConstants.logoutIcon,
-                              description: 'Emin misiniz?',
-                              title: 'Cikis yapiyorsunuz',
+                              title: 'You are logging out',
+                              description: 'Are you sure?',
+                              leftButtonText: 'Cancel',
                               leftButtonOnPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              leftButtonText: 'Cancel',
-                              rightButtonText: 'Devam et',
+                              rightButtonText: 'Logout',
+                              rightButtonOnPressed: () {
+                                Navigator.of(context).pop();
+                                BlocProvider.of<AuthBloc>(context).add(
+                                  EventLogout(),
+                                );
+                              },
                             ).show(context);
                           },
                         ),
@@ -154,13 +130,6 @@ class _ProfilePageState extends State<ProfilePage> {
         title: 'bir seyler ters gitti',
         message: state.error,
       ).show(context);
-      // UserModelException exception = state.exception;
-      // if (exception is UserGenericException) {
-      //   PopUpMessage.danger(
-      //     title: 'Bir hata olustu',
-      //     message: 'Beklenmedik bir hata olustu',
-      //   ).show(context);
-      // }
     }
   }
 
