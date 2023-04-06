@@ -17,6 +17,7 @@ class InputField extends StatefulWidget {
     required this.errorMessage,
     this.svgIcon,
     required this.getValue,
+    this.initialValue,
   }) : super(key: key);
 
   final FocusNode node;
@@ -28,6 +29,7 @@ class InputField extends StatefulWidget {
   final String errorMessage;
   final String? svgIcon;
   final InputFieldController getValue;
+  final String? initialValue;
 
   @override
   State<InputField> createState() => _InputFieldState();
@@ -94,7 +96,8 @@ class _InputFieldState extends State<InputField> {
                           _hasFocus = hasFocus;
                         });
                       },
-                      child: TextField(
+                      child: TextFormField(
+                        initialValue: widget.initialValue,
                         key: widget.key,
                         style: const TextStyle(
                           fontSize: 13,
@@ -127,7 +130,7 @@ class _InputFieldState extends State<InputField> {
                             );
                           }
                         },
-                        onSubmitted: (value) {
+                        onFieldSubmitted: (value) {
                           widget.node.unfocus();
                           widget.nextNode?.requestFocus();
                         },

@@ -52,7 +52,7 @@ class TopBar extends StatelessWidget {
                 size: 40,
                 padding: 20,
                 onPressed: () {
-                  context.pageTransitionFade(
+                  context.pageTransitionScale(
                     page: const ProfileUpdatePage(),
                   );
                 },

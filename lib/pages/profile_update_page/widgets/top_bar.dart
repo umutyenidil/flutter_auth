@@ -3,6 +3,7 @@ import 'package:flutter_auth/common_widgets/back_svg_button.dart';
 import 'package:flutter_auth/common_widgets/edit_button.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/pages/home_page/home_page.dart';
+import 'package:flutter_auth/pages/profile_page/profile_page.dart';
 import 'package:flutter_auth/pages/profile_update_page/profile_update_page.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/save_button.dart';
 
@@ -28,9 +29,8 @@ class TopBar extends StatelessWidget {
                 size: 40,
                 padding: 4,
                 onPressed: () {
-                  context.pageTransitionSlide(
-                    page: const HomePage(),
-                    direction: PageTransitionDirection.leftToRight,
+                  context.pageTransitionScale(
+                    page: const ProfilePage(),
                   );
                 },
               ),
@@ -50,6 +50,8 @@ class TopBar extends StatelessWidget {
               ),
               const Spacer(),
               SaveButton(
+                size: 40,
+                padding: 12,
                 onPressed: () {},
               )
             ],

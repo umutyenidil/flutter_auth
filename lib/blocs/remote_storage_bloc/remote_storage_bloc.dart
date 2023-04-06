@@ -128,7 +128,7 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
           );
 
           List<String> avatarImageUrlList = await _provider.avatarImageUrlList;
-
+          devtools.log('avatar resimleri getirildi');
           emit(
             StateSuccessfulGetAvatarImageUrlList(
               avatarImageUrlList: avatarImageUrlList,

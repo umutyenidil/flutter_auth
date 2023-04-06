@@ -7,7 +7,10 @@ import 'package:flutter_auth/common_widgets/pop_ups/pop_up_acceptable.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
+import 'package:flutter_auth/constants/error_text_constants.dart';
+import 'package:flutter_auth/constants/hint_text_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
+import 'package:flutter_auth/constants/regular_expression_constants.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/models/user_model.dart';
@@ -42,6 +45,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     return BlocConsumer<RemoteStorageBloc, RemoteStorageState>(
       listener: listenerRemoteStorageBloc,
       listenWhen: listenWhenRemoteStorageBloc,
+      buildWhen: buildWhenRemoteStorageBloc,
       builder: (context, state) {
         if (state is StateSuccessfulGetUserProfile) {
           UserModelMap userProfileData = state.userProfileData;
@@ -57,19 +61,25 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                       const VerticalSpace(16),
                       AvatarListView(
                         getAvatarImage: (AvatarImageValue value) {},
-                        initialAvatarImage: AvatarImageValue(
+                        initialAvatarImageValue: AvatarImageValue(
                           status: AvatarImageStatus.initial,
                           value: userProfileData[UserModelField.avatarImage],
                         ),
                       ),
-                      const VerticalSpace(32),
-                      InputField(
-                        node: FocusNode(),
-                        hintText: 'Kullanici adi giriniz',
-                        inputType: TextInputType.text,
-                        regularExpression: '',
-                        errorMessage: 'test',
-                        getValue: (value) {},
+                      // const VerticalSpace(32),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: InputField(
+                          initialValue: userProfileData[UserModelField.username],
+                          node: FocusNode(),
+                          hintText: HintTextConstants.usernameInputFieldHintText,
+                          inputType: TextInputType.text,
+                          regularExpression: RegularExpressionConstants.min8CharacterWithJustLettersAndNumbers,
+                          errorMessage: ErrorTextConstants.usernameInputFieldErrorText,
+                          getValue: (InputFieldValue value) {
+                            print('test');
+                          },
+                        ),
                       ),
                       const Spacer(),
                       Padding(
@@ -98,7 +108,6 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
             },
           );
         }
-
         return const Scaffold(
           body: Center(
             child: PopUpLoading(),
@@ -111,7 +120,23 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
   void listenerRemoteStorageBloc(BuildContext context, RemoteStorageState state) async {}
 
   bool listenWhenRemoteStorageBloc(RemoteStorageState previous, RemoteStorageState current) {
+    if (previous is StateLoadingGetUserProfile && current is StateSuccessfulGetUserProfile) {
+      BlocProvider.of<RemoteStorageBloc>(context).add(
+        EventGetAvatarImageURlList(),
+      );
+      return false;
+    }
     return true;
+  }
+
+  bool buildWhenRemoteStorageBloc(RemoteStorageState previous, RemoteStorageState current) {
+    if (current is StateLoadingGetUserProfile) {
+      return true;
+    }
+    if (current is StateSuccessfulGetUserProfile) {
+      return true;
+    }
+    return false;
   }
 
   void listenerAuthBloc(BuildContext context, AuthState state) async {

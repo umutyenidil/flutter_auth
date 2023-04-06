@@ -17,11 +17,11 @@ class AvatarListView extends StatefulWidget {
   const AvatarListView({
     super.key,
     required this.getAvatarImage,
-    required this.initialAvatarImage,
+    required this.initialAvatarImageValue,
   });
 
   final Fonksiyon getAvatarImage;
-  final AvatarImageValue initialAvatarImage;
+  final AvatarImageValue initialAvatarImageValue;
 
   @override
   State<AvatarListView> createState() => _AvatarListViewState();
@@ -52,7 +52,10 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RemoteStorageBloc, RemoteStorageState>(
+    return BlocConsumer<RemoteStorageBloc, RemoteStorageState>(
+      listener: listenerRemoteStorageBloc,
+      listenWhen: listenWhenRemoteStorageBloc,
+      buildWhen: buildWhenRemoteStorageBloc,
       builder: (context, state) {
         if (state is StateSuccessfulGetAvatarImageUrlList) {
           avatarImageUrlList = state.avatarImageUrlList;
@@ -171,7 +174,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
     if (selectedIndex > 2) {
       return SizedBox(
         height: 35,
-        width: 80, 
+        width: 80,
         child: MaterialButton(
           onPressed: () async {
             setState(() {
@@ -252,7 +255,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
     }
 
     return avatarImageFromUrl(
-      url: widget.initialAvatarImage.value,
+      url: widget.initialAvatarImageValue.value,
     );
   }
 
@@ -373,6 +376,22 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
         ),
       ),
     );
+  }
+
+  bool buildWhenRemoteStorageBloc(RemoteStorageState previous, RemoteStorageState current) {
+    if (previous is StateLoadingGetUserProfile || current is StateSuccessfulGetUserProfile) {
+      return true;
+    }
+    if (previous is StateLoadingGetAvatarImageUrlList || current is StateSuccessfulGetAvatarImageUrlList) {
+      return true;
+    }
+    return false;
+  }
+
+  void listenerRemoteStorageBloc(BuildContext context, RemoteStorageState state) {}
+
+  bool listenWhenRemoteStorageBloc(RemoteStorageState previous, RemoteStorageState current) {
+    return true;
   }
 }
 
