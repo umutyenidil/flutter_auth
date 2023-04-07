@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
 import 'package:flutter_auth/constants/route_constants.dart';
+import 'package:flutter_auth/cubits/profile_update_page_cubit/profile_update_page_cubit.dart';
 import 'package:flutter_auth/pages/create_profile_page/create_profile_page.dart';
 import 'package:flutter_auth/pages/email_verification_page/email_verification_page.dart';
 import 'package:flutter_auth/pages/error_page/error_page.dart';
@@ -24,6 +25,9 @@ class App extends StatelessWidget {
         ),
         BlocProvider<RemoteStorageBloc>(
           create: (BuildContext context) => RemoteStorageBloc(),
+        ),
+        BlocProvider<ProfileUpdatePageCubit>(
+          create: (BuildContext context) => ProfileUpdatePageCubit(),
         ),
       ],
       child: MaterialApp(

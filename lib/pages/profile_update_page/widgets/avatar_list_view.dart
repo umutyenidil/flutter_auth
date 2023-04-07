@@ -7,6 +7,7 @@ import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/color_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
+import 'package:flutter_auth/input_values/avatar_image_value.dart';
 import 'package:flutter_auth/mixins/image_storage_mixin.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -171,7 +172,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
   }
 
   Widget selectButton() {
-    if (selectedIndex > 2) {
+    if (selectedIndex != 2) {
       return SizedBox(
         height: 35,
         width: 80,
@@ -185,7 +186,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
             });
 
             widget.getAvatarImage(avatarImage);
-            _pageController.animateToPage(2, duration: Duration(milliseconds: 300 * (selectedIndex - 2)), curve: Curves.ease);
+            _pageController.animateToPage(2, duration: Duration(milliseconds: 300 * (selectedIndex - 2)), curve: Curves.easeIn);
           },
           color: Colors.grey.shade300,
           minWidth: 0,
@@ -206,6 +207,35 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
           ),
         ),
       );
+    }
+    if(selectedIndex == 2){
+      if(avatarImage.status != AvatarImageStatus.initial){
+        return SizedBox(
+          height: 35,
+          width: 80,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.circular(35 / 2),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: Text(
+                  'Selected',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
     }
     return const SizedBox(
       height: 35,
@@ -393,21 +423,4 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
   bool listenWhenRemoteStorageBloc(RemoteStorageState previous, RemoteStorageState current) {
     return true;
   }
-}
-
-class AvatarImageValue {
-  final value;
-  final AvatarImageStatus status;
-
-  AvatarImageValue({
-    required this.value,
-    required this.status,
-  });
-}
-
-enum AvatarImageStatus {
-  initial,
-  fromAvatars,
-  fromCamera,
-  fromGallery,
 }

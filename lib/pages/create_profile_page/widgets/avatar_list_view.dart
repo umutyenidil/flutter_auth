@@ -7,6 +7,7 @@ import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/color_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
+import 'package:flutter_auth/input_values/avatar_image_value.dart';
 import 'package:flutter_auth/mixins/image_storage_mixin.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -409,21 +410,4 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
       ),
     );
   }
-}
-
-class AvatarImageValue {
-  final value;
-  final AvatarImageStatus status;
-
-  AvatarImageValue({
-    required this.value,
-    required this.status,
-  });
-}
-
-enum AvatarImageStatus {
-  empty,
-  fromAvatars,
-  fromCamera,
-  fromGallery,
 }

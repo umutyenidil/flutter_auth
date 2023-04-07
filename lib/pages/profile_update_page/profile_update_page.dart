@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
-import 'package:flutter_auth/common_widgets/back_svg_button.dart';
 import 'package:flutter_auth/common_widgets/input_field.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_acceptable.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
@@ -11,13 +10,14 @@ import 'package:flutter_auth/constants/error_text_constants.dart';
 import 'package:flutter_auth/constants/hint_text_constants.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/constants/regular_expression_constants.dart';
+import 'package:flutter_auth/cubits/profile_update_page_cubit/profile_update_page_cubit.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
+import 'package:flutter_auth/input_values/avatar_image_value.dart';
+import 'package:flutter_auth/input_values/input_field_value.dart';
 import 'package:flutter_auth/models/user_model.dart';
-import 'package:flutter_auth/pages/profile_page/profile_page.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/avatar_list_view.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/page_container.dart';
-import 'package:flutter_auth/pages/profile_update_page/widgets/save_button.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/delete_account_button.dart';
 import 'package:flutter_auth/pages/profile_update_page/widgets/top_bar.dart';
 import 'package:flutter_auth/pages/sign_in_page/sign_in_page.dart';
@@ -60,13 +60,18 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                       const TopBar(),
                       const VerticalSpace(16),
                       AvatarListView(
-                        getAvatarImage: (AvatarImageValue value) {},
+                        getAvatarImage: (AvatarImageValue value) {
+                          AvatarImageValue val = value;
+                          BlocProvider.of<ProfileUpdatePageCubit>(context).getAvatarImageValue(
+                            value: value,
+                          );
+                        },
                         initialAvatarImageValue: AvatarImageValue(
                           status: AvatarImageStatus.initial,
                           value: userProfileData[UserModelField.avatarImage],
                         ),
                       ),
-                      // const VerticalSpace(32),
+                      const VerticalSpace(32),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: InputField(
@@ -76,8 +81,14 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                           inputType: TextInputType.text,
                           regularExpression: RegularExpressionConstants.min8CharacterWithJustLettersAndNumbers,
                           errorMessage: ErrorTextConstants.usernameInputFieldErrorText,
-                          getValue: (InputFieldValue value) {
-                            print('test');
+                          getValue: (InputFieldValue? value) {
+                            InputFieldValue val = InputFieldValue(
+                              status: InputFieldStatusEnum.initial,
+                              value: userProfileData[UserModelField.username],
+                            );
+                            BlocProvider.of<ProfileUpdatePageCubit>(context).getUsernameInputValue(
+                              value: value ?? val,
+                            );
                           },
                         ),
                       ),

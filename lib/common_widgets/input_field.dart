@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/common_widgets/horizontal_space.dart';
 import 'package:flutter_auth/common_widgets/vertical_space.dart';
+import 'package:flutter_auth/input_values/input_field_value.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-typedef InputFieldController = void Function(InputFieldValue value);
+typedef InputFieldController = void Function(InputFieldValue? value);
 
 class InputField extends StatefulWidget {
   const InputField({
@@ -162,20 +163,4 @@ class _InputFieldState extends State<InputField> {
       ],
     );
   }
-}
-
-class InputFieldValue {
-  final String value;
-  final InputFieldStatusEnum status;
-
-  InputFieldValue({
-    required this.value,
-    required this.status,
-  });
-}
-
-enum InputFieldStatusEnum {
-  empty,
-  matched,
-  notMatched,
 }

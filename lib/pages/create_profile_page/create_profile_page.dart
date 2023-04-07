@@ -8,6 +8,8 @@ import 'package:flutter_auth/constants/hint_text_constants.dart';
 import 'package:flutter_auth/constants/regular_expression_constants.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
+import 'package:flutter_auth/input_values/avatar_image_value.dart';
+import 'package:flutter_auth/input_values/input_field_value.dart';
 import 'package:flutter_auth/models/user_model.dart';
 import 'package:flutter_auth/pages/create_profile_page/widgets/avatar_list_view.dart';
 import 'package:flutter_auth/pages/create_profile_page/widgets/page_container.dart';
@@ -25,24 +27,14 @@ class CreateProfilePage extends StatefulWidget {
 
 class _CreateProfilePageState extends State<CreateProfilePage> {
   late FocusNode _usernameInputNode;
-  late InputFieldValue _usernameInputValue;
-  late AvatarImageValue _avatarImageValue;
+  InputFieldValue? _usernameInputValue;
+  AvatarImageValue? _avatarImageValue;
 
   @override
   void initState() {
     super.initState();
 
-    _avatarImageValue = AvatarImageValue(
-      value: null,
-      status: AvatarImageStatus.empty,
-    );
-
     _usernameInputNode = FocusNode();
-
-    _usernameInputValue = InputFieldValue(
-      value: '',
-      status: InputFieldStatusEnum.empty,
-    );
 
     BlocProvider.of<RemoteStorageBloc>(context).add(
       EventGetAvatarImageURlList(),
@@ -84,7 +76,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                     regularExpression: RegularExpressionConstants.min8CharacterWithJustLettersAndNumbers,
                     errorMessage: ErrorTextConstants.usernameInputFieldErrorText,
                     hintText: HintTextConstants.usernameInputFieldHintText,
-                    getValue: (InputFieldValue value) {
+                    getValue: (InputFieldValue? value) {
                       _usernameInputValue = value;
                     },
                   ),
@@ -106,21 +98,21 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
 
   Future<void> _saveButtonFunction() async {
     context.dismissKeyboard();
-    if (_avatarImageValue.status == AvatarImageStatus.empty) {
+    if (_avatarImageValue == null) {
       await PopUpMessage.warning(
         title: 'Avatar error',
         message: 'You must choose an avatar',
       ).show(context);
       return;
     }
-    if (_usernameInputValue.status == InputFieldStatusEnum.empty) {
+    if (_usernameInputValue == null) {
       await PopUpMessage.warning(
         title: 'Username error',
         message: 'The user name cannot be left empty',
       ).show(context);
       return;
     }
-    if (_usernameInputValue.status == InputFieldStatusEnum.notMatched) {
+    if (_usernameInputValue!.status == InputFieldStatusEnum.notMatched) {
       await PopUpMessage.warning(
         title: 'Username error',
         message: 'Please correct the errors in the username',
@@ -128,12 +120,14 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
       return;
     }
 
-    BlocProvider.of<RemoteStorageBloc>(context).add(EventCreateUserProfile(
-      userData: {
-        UserModelField.avatarImage: _avatarImageValue.value,
-        UserModelField.username: _usernameInputValue.value,
-      },
-    ));
+    BlocProvider.of<RemoteStorageBloc>(context).add(
+      EventCreateUserProfile(
+        userData: {
+          UserModelField.avatarImage: _avatarImageValue!.value,
+          UserModelField.username: _usernameInputValue!.value,
+        },
+      ),
+    );
   }
 
   void listenerRemoteStorageBloc(BuildContext context, RemoteStorageState state) async {

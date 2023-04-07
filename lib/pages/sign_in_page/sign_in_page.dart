@@ -16,6 +16,7 @@ import 'package:flutter_auth/common_widgets/input_field.dart';
 import 'package:flutter_auth/common_widgets/secure_input_field.dart';
 import 'package:flutter_auth/common_widgets/social_media_svg_button.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
+import 'package:flutter_auth/input_values/input_field_value.dart';
 import 'package:flutter_auth/pages/create_profile_page/create_profile_page.dart';
 import 'package:flutter_auth/pages/email_verification_page/email_verification_page.dart';
 import 'package:flutter_auth/pages/home_page/home_page.dart';
@@ -34,7 +35,7 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
-  late InputFieldValue _emailAddressInputValue;
+  InputFieldValue? _emailAddressInputValue;
   late SecureInputFieldValue _passwordInputValue;
 
   late final FocusNode _emailAddressInputNode;
@@ -43,11 +44,6 @@ class _SignInPageState extends State<SignInPage> {
   @override
   void initState() {
     super.initState();
-
-    _emailAddressInputValue = InputFieldValue(
-      value: '',
-      status: InputFieldStatusEnum.empty,
-    );
 
     _passwordInputValue = SecureInputFieldValue(
       value: '',
@@ -145,7 +141,7 @@ class _SignInPageState extends State<SignInPage> {
                               hintText: HintTextConstants.emailAddressInputFieldHintText,
                               errorMessage: ErrorTextConstants.emailAddressInputFieldErrorText,
                               svgIcon: IconPathConstants.mailIcon,
-                              getValue: (InputFieldValue value) {
+                              getValue: (InputFieldValue? value) {
                                 _emailAddressInputValue = value;
                               },
                             ),
@@ -211,14 +207,14 @@ class _SignInPageState extends State<SignInPage> {
 
   Future<void> _signInButtonFunction() async {
     context.dismissKeyboard();
-    if (_emailAddressInputValue.status == InputFieldStatusEnum.empty) {
+    if (_emailAddressInputValue == null) {
       await PopUpMessage.warning(
         title: 'Email address error',
         message: 'Email address field cannot be left empty',
       ).show(context);
       return;
     }
-    if (_emailAddressInputValue.status == InputFieldStatusEnum.notMatched) {
+    if (_emailAddressInputValue!.status == InputFieldStatusEnum.notMatched) {
       await PopUpMessage.warning(
         title: 'Email address error',
         message: 'There is an error in the email address field',
@@ -242,7 +238,7 @@ class _SignInPageState extends State<SignInPage> {
 
     BlocProvider.of<AuthBloc>(context).add(
       EventSignInWithEmailAndPassword(
-        emailAddress: _emailAddressInputValue.value,
+        emailAddress: _emailAddressInputValue!.value,
         password: _passwordInputValue.value,
       ),
     );
