@@ -125,4 +125,29 @@ class RemoteStorageService {
       );
     }
   }
+
+  Future<void> updateCurrentUserProfile({required UserModelMap data}) async {
+    try {
+      User currentUser = await AuthModel.instance.getCurrentUser();
+      String userUid = currentUser.uid;
+      UserModel.instance.updateWithUid(
+        uid: userUid,
+        data: data,
+      );
+    } on CurrentUserNotFoundException {
+      rethrow;
+    } on GenericAuthModelException {
+      rethrow;
+    } on UserNotUpdatedException {
+      rethrow;
+    } on UniqueFieldException {
+      rethrow;
+    } on GenericUserModelException {
+      rethrow;
+    } catch (e) {
+      throw GenericRemoteStorageException(
+        exception: e.toString(),
+      );
+    }
+  }
 }

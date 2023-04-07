@@ -37,9 +37,9 @@ class StateFalseUserVerified extends AuthState {}
 class StateTrueUserVerified extends AuthState {}
 
 class StateFailedIsUserVerified extends AuthState {
-  final String error;
+  final String errorMessage;
 
-  StateFailedIsUserVerified({required this.error});
+  StateFailedIsUserVerified({required this.errorMessage});
 }
 
 // SendEmailVerification Event States
@@ -48,9 +48,9 @@ class StateLoadingSendEmailVerification extends AuthState {}
 class StateSuccessfulSendEmailVerification extends AuthState {}
 
 class StateFailedSendEmailVerification extends AuthState {
-  final String error;
+  final String errorMessage;
 
-  StateFailedSendEmailVerification({required this.error});
+  StateFailedSendEmailVerification({required this.errorMessage});
 }
 
 // Logout Event States
@@ -60,9 +60,9 @@ class StateLoadingLogout extends AuthState {}
 class StateSuccessfulLogout extends AuthState {}
 
 class StateFailedLogout extends AuthState {
-  final String error;
+  final String errorMessage;
 
-  StateFailedLogout({required this.error});
+  StateFailedLogout({required this.errorMessage});
 }
 
 // EventIsUserSignedIn states

@@ -128,7 +128,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (state is StateFailedLogout) {
       await PopUpMessage.danger(
         title: 'bir seyler ters gitti',
-        message: state.error,
+        message: state.errorMessage,
       ).show(context);
     }
   }

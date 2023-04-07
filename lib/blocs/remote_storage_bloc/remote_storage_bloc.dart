@@ -36,22 +36,22 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
         } on UniqueFieldException catch (exception) {
           devtools.log('EventCreateProfile: user profile not created (UniqueFieldException)');
           emit(
-            StateFailedCreateUserProfile(error: '${exception.fieldName} is being used by someone else'),
+            StateFailedCreateUserProfile(errorMessage: '${exception.fieldName} is being used by someone else'),
           );
         } on CurrentUserNotFoundException {
           devtools.log('EventCreateProfile: user profile not created (CurrentUserNotFoundException)');
           emit(
-            StateFailedCreateUserProfile(error: 'The profile could not be created. try again'),
+            StateFailedCreateUserProfile(errorMessage: 'The profile could not be created. try again'),
           );
         } on GenericUserModelException {
           devtools.log('EventCreateProfile: user profile not created (GenericUserModelException)');
           emit(
-            StateFailedCreateUserProfile(error: 'The profile could not be created. try again'),
+            StateFailedCreateUserProfile(errorMessage: 'The profile could not be created. try again'),
           );
         } on GenericRemoteStorageException {
           devtools.log('EventCreateProfile: user profile not created (GenericRemoteStorageException)');
           emit(
-            StateFailedCreateUserProfile(error: 'The profile could not be created. try again'),
+            StateFailedCreateUserProfile(errorMessage: 'The profile could not be created. try again'),
           );
         }
         devtools.log('EventCreateProfile finished');
@@ -83,7 +83,7 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
           devtools.log('EventIsUserProfileCreated: user profile not created (GenericUserModelException)');
           emit(
             StateFailedIsUserProfileCreated(
-              error: 'You need to create a profile.',
+              errorMessage: 'You need to create a profile.',
             ),
           );
         }
@@ -107,12 +107,12 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
         } on CurrentUserNotFoundException {
           devtools.log('EventGetUserProfile: user data wasn\'t read from cloud (CurrentUserNotFoundException)');
           emit(
-            StateFailedGetUserProfile(error: 'The user could not be found'),
+            StateFailedGetUserProfile(errorMessage: 'The user could not be found'),
           );
         } on GenericUserModelException {
           devtools.log('EventGetUserProfile: user data wasn\'t read from cloud (GenericUserModelException)');
           emit(
-            StateFailedGetUserProfile(error: 'Something went wrong'),
+            StateFailedGetUserProfile(errorMessage: 'Something went wrong'),
           );
         }
         devtools.log('EventGetUserProfile: finished');
@@ -137,11 +137,58 @@ class RemoteStorageBloc extends Bloc<RemoteStorageEvent, RemoteStorageState> {
         } on GenericRemoteStorageException {
           devtools.log('EventGetAvatarImageURlList: image links not brought in (GenericRemoteStorageException)');
           emit(
-            StateFailedGetAvatarImageUrlList(error: 'bir hata olustu'),
+            StateFailedGetAvatarImageUrlList(errorMessage: 'bir hata olustu'),
           );
         }
         devtools.log('EventGetAvatarImageURlList: finished');
       },
     );
+
+    on<EventUpdateUserProfile>((event, emit) async {
+      devtools.log('EventUpdateUserProfile: started');
+      try {
+        emit(
+          StateLoadingUpdateUserProfile(),
+        );
+        print('update event');
+
+        await _provider.updateCurrentUserProfile(data: event.data);
+
+        emit(
+          StateSuccessfulUpdateUserProfile(),
+        );
+      } on CurrentUserNotFoundException {
+        devtools.log('EventUpdateUserProfile: CurrentUserNotFoundException');
+        emit(
+          StateFailedUpdateUserProfile(errorMessage: 'kullanici bulunamadi'),
+        );
+      } on GenericAuthModelException {
+        devtools.log('EventUpdateUserProfile: GenericAuthModelException');
+        emit(
+          StateFailedUpdateUserProfile(errorMessage: 'beklenmedik bir hata olustu'),
+        );
+      } on UserNotUpdatedException {
+        devtools.log('EventUpdateUserProfile: UserNotUpdatedException');
+        emit(
+          StateFailedUpdateUserProfile(errorMessage: 'kullanici guncellenmedi'),
+        );
+      } on UniqueFieldException catch (e) {
+        devtools.log('EventUpdateUserProfile: UniqueFieldException');
+        emit(
+          StateFailedUpdateUserProfile(errorMessage: '${e.fieldName} degeri kullanimda'),
+        );
+      } on GenericUserModelException {
+        devtools.log('EventUpdateUserProfile: GenericUserModelException');
+        emit(
+          StateFailedUpdateUserProfile(errorMessage: 'beklenmedik bir hata olustu'),
+        );
+      } on GenericRemoteStorageException {
+        devtools.log('EventUpdateUserProfile: GenericRemoteStorageException');
+        emit(
+          StateFailedUpdateUserProfile(errorMessage: 'beklenmedik bir hata olustu'),
+        );
+      }
+      devtools.log('EventUpdateUserProfile: finished');
+    });
   }
 }

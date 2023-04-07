@@ -54,8 +54,8 @@ class TopBar extends StatelessWidget {
               SaveButton(
                 size: 40,
                 padding: 12,
-                onPressed: () {
-                  BlocProvider.of<ProfileUpdatePageCubit>(context).updateUserProfile();
+                onPressed: () async {
+                  await BlocProvider.of<ProfileUpdatePageCubit>(context).updateUserProfile(context);
                 },
               )
             ],

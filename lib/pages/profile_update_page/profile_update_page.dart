@@ -49,6 +49,16 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
       builder: (context, state) {
         if (state is StateSuccessfulGetUserProfile) {
           UserModelMap userProfileData = state.userProfileData;
+          InputFieldValue usernameInitialValue = InputFieldValue(
+            value: userProfileData[UserModelField.username],
+            status: InputFieldStatusEnum.initial,
+          );
+
+          AvatarImageValue avatarImageInitivalValue = AvatarImageValue(
+            value: userProfileData[UserModelField.avatarImage],
+            status: AvatarImageStatus.initial,
+          );
+
           return BlocConsumer<AuthBloc, AuthState>(
             listener: listenerAuthBloc,
             listenWhen: listenWhenAuthBloc,
@@ -61,33 +71,25 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                       const VerticalSpace(16),
                       AvatarListView(
                         getAvatarImage: (AvatarImageValue value) {
-                          AvatarImageValue val = value;
                           BlocProvider.of<ProfileUpdatePageCubit>(context).getAvatarImageValue(
                             value: value,
                           );
                         },
-                        initialAvatarImageValue: AvatarImageValue(
-                          status: AvatarImageStatus.initial,
-                          value: userProfileData[UserModelField.avatarImage],
-                        ),
+                        initialAvatarImageValue: avatarImageInitivalValue,
                       ),
                       const VerticalSpace(32),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: InputField(
-                          initialValue: userProfileData[UserModelField.username],
+                          initialValue: usernameInitialValue,
                           node: FocusNode(),
                           hintText: HintTextConstants.usernameInputFieldHintText,
                           inputType: TextInputType.text,
                           regularExpression: RegularExpressionConstants.min8CharacterWithJustLettersAndNumbers,
                           errorMessage: ErrorTextConstants.usernameInputFieldErrorText,
                           getValue: (InputFieldValue? value) {
-                            InputFieldValue val = InputFieldValue(
-                              status: InputFieldStatusEnum.initial,
-                              value: userProfileData[UserModelField.username],
-                            );
                             BlocProvider.of<ProfileUpdatePageCubit>(context).getUsernameInputValue(
-                              value: value ?? val,
+                              value: value!,
                             );
                           },
                         ),
@@ -128,51 +130,49 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     );
   }
 
-  void listenerRemoteStorageBloc(BuildContext context, RemoteStorageState state) async {}
+  void listenerRemoteStorageBloc(BuildContext context, RemoteStorageState state) async {
+    BlocProvider.of<ProfileUpdatePageCubit>(context).listenerRemoteStorageBloc(
+      context,
+      currentState: state,
+    );
+  }
 
   bool listenWhenRemoteStorageBloc(RemoteStorageState previous, RemoteStorageState current) {
-    if (previous is StateLoadingGetUserProfile && current is StateSuccessfulGetUserProfile) {
-      BlocProvider.of<RemoteStorageBloc>(context).add(
-        EventGetAvatarImageURlList(),
-      );
-      return false;
-    }
-    return true;
+    return BlocProvider.of<ProfileUpdatePageCubit>(context).listenWhenRemoteStorageBloc(
+      context,
+      previousState: previous,
+      currentState: current,
+    );
   }
 
   bool buildWhenRemoteStorageBloc(RemoteStorageState previous, RemoteStorageState current) {
-    if (current is StateLoadingGetUserProfile) {
-      return true;
-    }
-    if (current is StateSuccessfulGetUserProfile) {
-      return true;
-    }
-    return false;
+    return BlocProvider.of<ProfileUpdatePageCubit>(context).buildWhenRemoteStorageBloc(
+      context,
+      previousState: previous,
+      currentState: current,
+    );
   }
 
   void listenerAuthBloc(BuildContext context, AuthState state) async {
-    if (state is StateLoadingLogout) {
-      const PopUpLoading().show(context);
-    }
-
-    if (state is StateSuccessfulLogout) {
-      context.pageTransitionFade(
-        page: const SignInPage(),
-      );
-    }
-
-    if (state is StateFailedLogout) {
-      await PopUpMessage.danger(
-        title: 'bir seyler ters gitt',
-        message: state.error,
-      ).show(context);
-    }
+    BlocProvider.of<ProfileUpdatePageCubit>(context).listenerAuthBloc(
+      context,
+      currentState: state,
+    );
   }
 
   bool listenWhenAuthBloc(AuthState previous, AuthState current) {
-    if (previous is StateLoadingLogout && current is! StateLoadingLogout) {
-      Navigator.of(context).pop();
-    }
-    return true;
+    return BlocProvider.of<ProfileUpdatePageCubit>(context).buildWhenAuthBloc(
+      context,
+      previousState: previous,
+      currentState: current,
+    );
+  }
+
+  bool buildWhenAuthBloc(AuthState previous, AuthState current){
+    return BlocProvider.of<ProfileUpdatePageCubit>(context).buildWhenAuthBloc(
+      context,
+      previousState: previous,
+      currentState: current,
+    );
   }
 }

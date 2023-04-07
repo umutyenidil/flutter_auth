@@ -30,7 +30,7 @@ class InputField extends StatefulWidget {
   final String errorMessage;
   final String? svgIcon;
   final InputFieldController getValue;
-  final String? initialValue;
+  final InputFieldValue? initialValue;
 
   @override
   State<InputField> createState() => _InputFieldState();
@@ -45,9 +45,11 @@ class _InputFieldState extends State<InputField> {
   void initState() {
     super.initState();
 
+    widget.getValue(widget.initialValue);
+
     _hasFocus = false;
     _hasError = false;
-    _activeColor = Colors.red;
+    _activeColor = (widget.initialValue == null) ? Colors.red : Colors.green;
   }
 
   @override
@@ -98,7 +100,7 @@ class _InputFieldState extends State<InputField> {
                         });
                       },
                       child: TextFormField(
-                        initialValue: widget.initialValue,
+                        initialValue: widget.initialValue?.value,
                         key: widget.key,
                         style: const TextStyle(
                           fontSize: 13,
@@ -115,20 +117,36 @@ class _InputFieldState extends State<InputField> {
                           setState(() {
                             _activeColor = _hasError ? Colors.red : Colors.green;
                           });
-                          if (_hasError) {
+
+                          if (_hasError == true) {
                             widget.getValue(
                               InputFieldValue(
                                 value: value,
                                 status: InputFieldStatusEnum.notMatched,
                               ),
                             );
-                          } else {
+                            return;
+                          }
+                          if (_hasError == false) {
+                            if (widget.initialValue != null) {
+                              if (value != widget.initialValue!.value) {
+                                widget.getValue(
+                                  InputFieldValue(
+                                    value: value,
+                                    status: InputFieldStatusEnum.updated,
+                                  ),
+                                );
+                                return;
+                              }
+                            }
+
                             widget.getValue(
                               InputFieldValue(
                                 value: value,
                                 status: InputFieldStatusEnum.matched,
                               ),
                             );
+                            return;
                           }
                         },
                         onFieldSubmitted: (value) {

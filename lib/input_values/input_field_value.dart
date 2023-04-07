@@ -9,6 +9,7 @@ class InputFieldValue {
 }
 
 enum InputFieldStatusEnum {
+  updated,
   initial,
   matched,
   notMatched,

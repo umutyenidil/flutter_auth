@@ -16,3 +16,9 @@ class EventIsUserProfileCreated extends RemoteStorageEvent {}
 class EventGetUserProfile extends RemoteStorageEvent {}
 
 class EventGetAvatarImageURlList extends RemoteStorageEvent {}
+
+class EventUpdateUserProfile extends RemoteStorageEvent {
+  final UserModelMap data;
+
+  EventUpdateUserProfile({required this.data});
+}

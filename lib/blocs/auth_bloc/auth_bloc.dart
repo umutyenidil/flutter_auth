@@ -151,14 +151,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         devtools.log('EventIsUserVerified: user not verified (unhandled exception)');
         emit(
           StateFailedIsUserVerified(
-            error: 'Your email address has not been verified',
+            errorMessage: 'Your email address has not been verified',
           ),
         );
       } on GenericAuthModelException {
         devtools.log('EventIsUserVerified: user not verified (unhandled exception)');
         emit(
           StateFailedIsUserVerified(
-            error: 'Something went wrong',
+            errorMessage: 'Something went wrong',
           ),
         );
       }
@@ -181,12 +181,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } on CurrentUserNotFoundException {
         devtools.log('EventSendEmailVerification: email hasn\'t been sent (CurrentUserNotFoundException)');
         emit(
-          StateFailedSendEmailVerification(error: 'Verification mail could not be sent. Try again'),
+          StateFailedSendEmailVerification(errorMessage: 'Verification mail could not be sent. Try again'),
         );
       } on GenericAuthModelException {
         devtools.log('EventSendEmailVerification: email hasn\'t been sent (GenericAuthModelException)');
         emit(
-          StateFailedSendEmailVerification(error: 'Verification mail could not be sent. Try again'),
+          StateFailedSendEmailVerification(errorMessage: 'Verification mail could not be sent. Try again'),
         );
       }
 
@@ -209,17 +209,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } on CurrentUserNotFoundException {
         devtools.log('EventLogout: not logged out (CurrentUserNotFoundException)');
         emit(
-          StateFailedLogout(error: 'The user could not be found'),
+          StateFailedLogout(errorMessage: 'The user could not be found'),
         );
       } on GenericAuthModelException {
         devtools.log('EventLogout: not logged out (GenericAuthModelException)');
         emit(
-          StateFailedLogout(error: 'Something went wrong. Please try again'),
+          StateFailedLogout(errorMessage: 'Something went wrong. Please try again'),
         );
       } on GenericUserModelException {
         devtools.log('EventLogout: not logged out (GenericUserModelException)');
         emit(
-          StateFailedLogout(error: 'Something went wrong. Please try again'),
+          StateFailedLogout(errorMessage: 'Something went wrong. Please try again'),
         );
       }
       devtools.log('EventLogout: finished');

@@ -9,9 +9,9 @@ class StateInitial extends RemoteStorageState {}
 class StateLoadingIsUserProfileCreated extends RemoteStorageState {}
 
 class StateFailedIsUserProfileCreated extends RemoteStorageState {
-  final String error;
+  final String errorMessage;
 
-  StateFailedIsUserProfileCreated({required this.error});
+  StateFailedIsUserProfileCreated({required this.errorMessage});
 }
 
 class StateTrueUserProfileCreated extends RemoteStorageState {}
@@ -24,9 +24,9 @@ class StateLoadingCreateUserProfile extends RemoteStorageState {}
 class StateSuccessfulCreateUserProfile extends RemoteStorageState {}
 
 class StateFailedCreateUserProfile extends RemoteStorageState {
-  final String error;
+  final String errorMessage;
 
-  StateFailedCreateUserProfile({required this.error});
+  StateFailedCreateUserProfile({required this.errorMessage});
 }
 
 // EventGetUserProfile
@@ -40,9 +40,9 @@ class StateSuccessfulGetUserProfile extends RemoteStorageState {
 }
 
 class StateFailedGetUserProfile extends RemoteStorageState {
-  final String error;
+  final String errorMessage;
 
-  StateFailedGetUserProfile({required this.error});
+  StateFailedGetUserProfile({required this.errorMessage});
 }
 
 // EventGetAvatarImageUrlList
@@ -56,7 +56,19 @@ class StateSuccessfulGetAvatarImageUrlList extends RemoteStorageState {
 }
 
 class StateFailedGetAvatarImageUrlList extends RemoteStorageState {
-  final String error;
+  final String errorMessage;
 
-  StateFailedGetAvatarImageUrlList({required this.error});
+  StateFailedGetAvatarImageUrlList({required this.errorMessage});
+}
+
+// EventUpdateUserProfile
+
+class StateLoadingUpdateUserProfile extends RemoteStorageState {}
+
+class StateSuccessfulUpdateUserProfile extends RemoteStorageState {}
+
+class StateFailedUpdateUserProfile extends RemoteStorageState {
+  final String errorMessage;
+
+  StateFailedUpdateUserProfile({required this.errorMessage});
 }

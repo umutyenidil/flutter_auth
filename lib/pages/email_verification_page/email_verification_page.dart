@@ -179,7 +179,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> with Widg
       if (context.mounted) {
         await PopUpMessage.danger(
           title: 'bir seyelr ters gtit',
-          message: state.error,
+          message: state.errorMessage,
         ).show(context);
       }
       return;
@@ -189,7 +189,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> with Widg
       if (context.mounted) {
         await PopUpMessage.danger(
           title: 'bir seyelr ters gtit',
-          message: state.error,
+          message: state.errorMessage,
         ).show(context);
 
         // Exception exception = state.exception;
@@ -263,7 +263,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> with Widg
       if (context.mounted) {
         await PopUpMessage.success(
           title: 'Something went wrong',
-          message: state.error,
+          message: state.errorMessage,
         ).show(context);
       }
       if (context.mounted) {
