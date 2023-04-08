@@ -1,11 +1,11 @@
 abstract class UserModelException implements Exception {}
 
 class GenericUserModelException implements UserModelException {
-  final Exception _exception;
+  final String _exception;
 
-  GenericUserModelException({required Exception exception}) : _exception = exception;
+  GenericUserModelException({required String methodName}) : _exception = methodName;
 
-  Exception get exception => _exception;
+  String get methodName => _exception;
 }
 
 class UsersNotFetchedException implements UserModelException {}

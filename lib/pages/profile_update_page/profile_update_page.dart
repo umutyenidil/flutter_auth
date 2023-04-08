@@ -101,7 +101,12 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                           onPressed: () async {
                             await PopUpAcceptable(
                               color: Colors.red,
-                              rightButtonOnPressed: () {},
+                              rightButtonOnPressed: () {
+                                BlocProvider.of<AuthBloc>(context).add(
+                                  EventDeleteUser(),
+                                );
+                                Navigator.of(context).pop();
+                              },
                               svgIcon: IconPathConstants.deleteIcon,
                               description: 'Emin misiniz?',
                               title: 'Hesabiniz silinecek',
@@ -168,7 +173,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     );
   }
 
-  bool buildWhenAuthBloc(AuthState previous, AuthState current){
+  bool buildWhenAuthBloc(AuthState previous, AuthState current) {
     return BlocProvider.of<ProfileUpdatePageCubit>(context).buildWhenAuthBloc(
       context,
       previousState: previous,

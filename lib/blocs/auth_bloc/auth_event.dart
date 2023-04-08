@@ -31,3 +31,4 @@ class EventLogout extends AuthEvent {}
 
 class EventIsUserSignedIn extends AuthEvent {}
 
+class EventDeleteUser extends AuthEvent {}

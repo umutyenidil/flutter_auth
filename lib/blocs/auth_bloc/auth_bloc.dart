@@ -253,5 +253,47 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
       devtools.log('EventIsUserSignedIn: finished');
     });
+
+    on<EventDeleteUser>((event, emit) async {
+      devtools.log('EventDeleteUser: started');
+      try {
+        emit(
+          StateLoadingDeleteUser(),
+        );
+
+        await _provider.deleteCurrentUser();
+
+        emit(
+          StateSuccessfulDeleteUser(),
+        );
+      } on RequiresRecentLoginException {
+        devtools.log('EventDeleteUser: RequiresRecentLoginException');
+        emit(
+          StateFailedDeleteUser(
+            errorMessage: 'kullanici giris yapmamis',
+          ),
+        );
+      } on CurrentUserNotFoundException {
+        devtools.log('EventDeleteUser: CurrentUserNotFoundException');
+        emit(
+          StateFailedDeleteUser(
+            errorMessage: 'gecerli kullanici bulunamadi',
+          ),
+        );
+      } on GenericAuthModelException {
+        devtools.log('EventDeleteUser: GenericAuthModelException');
+        emit(
+          StateFailedDeleteUser(errorMessage: 'bir hata olustu'),
+        );
+      } on Exception catch (e) {
+        devtools.log('EventDeleteUser: Exception');
+        emit(
+          StateFailedDeleteUser(
+            errorMessage: e.toString(),
+          ),
+        );
+      }
+      devtools.log('EventDeleteUser: finished');
+    });
   }
 }

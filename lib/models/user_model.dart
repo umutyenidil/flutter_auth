@@ -45,7 +45,7 @@ class UserModel {
       return true;
     } on Exception catch (e) {
       throw GenericUserModelException(
-        exception: e,
+        methodName: 'create()',
       );
     }
   }
@@ -90,7 +90,7 @@ class UserModel {
       }
     } on Exception catch (e) {
       throw GenericUserModelException(
-        exception: e,
+        methodName: 'readWithUid()',
       );
     }
 
@@ -139,7 +139,7 @@ class UserModel {
       rethrow;
     } on Exception catch (e) {
       throw GenericUserModelException(
-        exception: e,
+        methodName: 'readAll()',
       );
     }
 
@@ -160,6 +160,8 @@ class UserModel {
     try {
       UserModelMap userDocData = {};
       UserModelMap userDetailDocData = {};
+      bool isUserDocDataUpdated = false;
+      bool isUserDetailDocDataUpdated = false;
 
       for (UserModelField field in data.keys.toList()) {
         if (UsersTable.fields.contains(field)) {
@@ -190,11 +192,9 @@ class UserModel {
         CollectionReference usersColRef = FirebaseFirestore.instance.collection(UsersTable.name);
 
         DocumentReference userDocRef = usersColRef.doc(uid);
-        userDocData.addAll({
-          UserModelField.updatedAt: FieldValue.serverTimestamp(),
-        });
 
         await userDocRef.update(userDocData.toMapStringDynamic);
+        isUserDocDataUpdated = true;
       }
 
       if (userDetailDocData.isNotEmpty) {
@@ -216,16 +216,20 @@ class UserModel {
 
         CollectionReference userDetailsColRef = FirebaseFirestore.instance.collection(UserDetailsTable.name);
         DocumentReference userDetailDocRef = userDetailsColRef.doc(uid);
-        userDetailDocData.addAll({
-          UserModelField.updatedAt: FieldValue.serverTimestamp(),
-        });
         await userDetailDocRef.update(userDetailDocData.toMapStringDynamic);
+        isUserDetailDocDataUpdated = true;
+      }
+
+      if (isUserDocDataUpdated || isUserDetailDocDataUpdated) {
+        CollectionReference usersColRef = FirebaseFirestore.instance.collection(UsersTable.name);
+        DocumentReference userDocRef = usersColRef.doc(uid);
+        await userDocRef.update({UserModelField.updatedAt: FieldValue.serverTimestamp()}.toMapStringDynamic);
       }
     } on UniqueFieldException {
       rethrow;
     } on Exception catch (e) {
       throw GenericUserModelException(
-        exception: e,
+        methodName: 'updateWithUid()',
       );
     }
   }
@@ -246,6 +250,9 @@ class UserModel {
     return true;
   }
 
+  /// uid'si verilen kullaniciyi veritabaninda is_deleted alanini true yapar
+  ///
+  /// throws GenericUserModelException
   Future<void> deleteWithUid({required String uid}) async {
     try {
       await updateWithUid(
@@ -255,10 +262,10 @@ class UserModel {
           UserModelField.deletedAt: FieldValue.serverTimestamp(),
         },
       );
-    } on GenericUserModelException {
-      rethrow;
     } on Exception {
-      throw UserNotDeletedException();
+      throw GenericUserModelException(
+        methodName: 'deleteWithUid()',
+      );
     }
   }
 }

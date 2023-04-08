@@ -1,11 +1,11 @@
 abstract class AuthModelException implements Exception {}
 
 class GenericAuthModelException implements AuthModelException {
-  final Exception _exception;
+  final String _methodName;
 
-  GenericAuthModelException({required Exception exception}) : _exception = exception;
+  GenericAuthModelException({required String methodName}) : _methodName = methodName;
 
-  Exception get exception => _exception;
+  String get methodName => _methodName;
 }
 
 class UserNotSignedUpException implements AuthModelException {}
@@ -25,3 +25,5 @@ class UserDisabledException implements AuthModelException {}
 class UserNotFoundException implements AuthModelException {}
 
 class WrongPasswordException implements AuthModelException {}
+
+class RequiresRecentLoginException implements AuthModelException {}

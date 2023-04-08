@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart' show FieldValue;
 import 'package:firebase_auth/firebase_auth.dart' show User;
+import 'package:flutter_auth/exceptions/auth_exceptions.dart';
 import 'package:flutter_auth/exceptions/auth_model_exceptions.dart';
 import 'package:flutter_auth/exceptions/user_model_exceptions.dart';
 import 'package:flutter_auth/models/user_model.dart';
@@ -133,6 +134,37 @@ class AuthService {
       return result;
     } on GenericAuthModelException {
       rethrow;
+    }
+  }
+
+  /// gecerli kullaniyi siler
+  ///
+  /// throws RequiresRecentLoginException
+  /// throws CurrentUserNotFoundException
+  /// throws GenericAuthModelException
+  Future<void> deleteCurrentUser() async {
+    try {
+      User currentUser = await AuthModel.instance.getCurrentUser();
+      String userUid = currentUser.uid;
+      await AuthModel.instance.delete();
+
+      await UserModel.instance.deleteWithUid(uid: userUid);
+    } on RequiresRecentLoginException {
+      rethrow;
+    } on CurrentUserNotFoundException {
+      rethrow;
+    } on GenericAuthModelException {
+      throw GenericAuthException(
+        methodName: 'deleteCurrentUser()',
+      );
+    } on GenericUserModelException {
+      throw GenericAuthException(
+        methodName: 'deleteCurrentUser()',
+      );
+    } on Exception {
+      throw GenericAuthException(
+        methodName: 'deleteCurrentUser()',
+      );
     }
   }
 }

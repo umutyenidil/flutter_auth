@@ -130,17 +130,17 @@ class RemoteStorageService {
     try {
       User currentUser = await AuthModel.instance.getCurrentUser();
       String userUid = currentUser.uid;
-      UserModel.instance.updateWithUid(
+      await UserModel.instance.updateWithUid(
         uid: userUid,
         data: data,
       );
+    } on UniqueFieldException {
+      rethrow;
     } on CurrentUserNotFoundException {
       rethrow;
     } on GenericAuthModelException {
       rethrow;
     } on UserNotUpdatedException {
-      rethrow;
-    } on UniqueFieldException {
       rethrow;
     } on GenericUserModelException {
       rethrow;

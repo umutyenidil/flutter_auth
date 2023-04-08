@@ -71,3 +71,14 @@ class StateLoadingIsUserSignedIn extends AuthState {}
 class StateTrueUserSignedIn extends AuthState {}
 
 class StateFalseUserSignedIn extends AuthState {}
+
+// EventDeleteUser
+class StateLoadingDeleteUser extends AuthState {}
+
+class StateSuccessfulDeleteUser extends AuthState {}
+
+class StateFailedDeleteUser extends AuthState {
+  final String errorMessage;
+
+  StateFailedDeleteUser({required this.errorMessage});
+}

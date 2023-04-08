@@ -6,6 +6,17 @@ class AuthModel {
 
   static final AuthModel instance = AuthModel._privateConstructor();
 
+  /// email ve parola ile kullanici olusturur
+  ///
+  /// throws EmailAlreadyInUseException
+  ///
+  /// throws InvalidEmailException
+  ///
+  /// throws OperationNotAllowedException
+  ///
+  /// throws WeakPasswordException
+  ///
+  /// throws GenericAuthModelException
   Future<bool> signUpWithEmailAndPassword({
     required String emailAddress,
     required String password,
@@ -29,7 +40,7 @@ class AuthModel {
       }
     } on Exception catch (e) {
       throw GenericAuthModelException(
-        exception: e,
+        methodName: 'signUpWithEmailAndPassword()',
       );
     }
 
@@ -39,6 +50,11 @@ class AuthModel {
     return true;
   }
 
+  /// Oturum acmis kullanici dondurur
+  ///
+  /// throws GenericAuthModelException
+  ///
+  /// throws CurrentUserNotFoundException
   Future<User> getCurrentUser() async {
     User? user = FirebaseAuth.instance.currentUser;
 
@@ -50,13 +66,24 @@ class AuthModel {
       await user.reload();
     } on Exception catch (e) {
       throw GenericAuthModelException(
-        exception: e,
+        methodName: 'getCurrentUser()',
       );
     }
 
     return user;
   }
 
+  /// email ve parola ile oturum acar
+  ///
+  /// throws InvalidEmailException
+  ///
+  /// throws UserDisabledException
+  ///
+  /// throws UserNotFoundException
+  ///
+  /// throws WrongPasswordException
+  ///
+  /// throws GenericAuthModelException
   Future<void> signInWithEmailAndPassword({
     required String emailAddress,
     required String password,
@@ -79,11 +106,16 @@ class AuthModel {
       }
     } on Exception catch (e) {
       throw GenericAuthModelException(
-        exception: e,
+        methodName: 'signInWithEmailAndPassword()',
       );
     }
   }
 
+  /// oturum acmis kullanicinin dogrulanip dogrulanmadigini gosterir
+  ///
+  /// throws CurrentUserNotFoundException
+  ///
+  /// throws GenericAuthModelException
   Future<bool> get isCurrentUserVerified async {
     late User currentUser;
     try {
@@ -99,6 +131,9 @@ class AuthModel {
     return isCurrentUserVerified;
   }
 
+  /// herhangi bir kullanicinin signed in olup olmadigini kontrol eder
+  ///
+  /// throws GenericAuthModelException
   Future<bool> get isAnyUserSignedIn async {
     try {
       await getCurrentUser();
@@ -110,16 +145,24 @@ class AuthModel {
     }
   }
 
+  /// gecerli kullanici icin cikis yapar
+  ///
+  /// throws GenericAuthModelException
   Future<void> logout() async {
     try {
       await FirebaseAuth.instance.signOut();
     } on Exception catch (e) {
       throw GenericAuthModelException(
-        exception: e,
+        methodName: 'logout()',
       );
     }
   }
 
+  /// gecerli kullaniciya dogrulama maili gonderir
+  ///
+  /// throws CurrentUserNotFoundException
+  ///
+  /// throws GenericAuthModelException
   Future<void> sendVerificationEmail() async {
     try {
       User currentUser = await getCurrentUser();
@@ -130,7 +173,34 @@ class AuthModel {
       rethrow;
     } on Exception catch (e) {
       throw GenericAuthModelException(
-        exception: e,
+        methodName: 'sendVerificationEmail()',
+      );
+    }
+  }
+
+  /// gecerli kullaniciyi siler
+  ///
+  /// throws RequiresRecentLoginException
+  ///
+  /// throws CurrentUserNotFoundException
+  ///
+  /// throws GenericAuthModelException
+  Future<void> delete() async {
+    try {
+      User currentUser = await getCurrentUser();
+      await currentUser.delete();
+    } on CurrentUserNotFoundException {
+      rethrow;
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'requires-recent-login':
+          throw RequiresRecentLoginException();
+      }
+    } on GenericAuthModelException {
+      rethrow;
+    } on Exception {
+      throw GenericAuthModelException(
+        methodName: 'delete()',
       );
     }
   }

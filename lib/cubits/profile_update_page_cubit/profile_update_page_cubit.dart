@@ -127,22 +127,30 @@ class ProfileUpdatePageCubit extends Cubit<ProfileUpdatePageState> {
     BuildContext context, {
     required AuthState currentState,
   }) async {
-    if (currentState is StateLoadingLogout) {
-      const PopUpLoading().show(context);
-    }
-
-    if (currentState is StateSuccessfulLogout) {
-      context.pageTransitionFade(
-        page: const SignInPage(),
-      );
+    if (currentState is StateSuccessfulDeleteUser) {
+      await context.delayedPop();
+      if (context.mounted) {
+        await PopUpMessage.success(
+          title: 'hoscakal',
+          message: 'hesabin silindi :(',
+        ).show(context);
+      }
+      if (context.mounted) {
+        context.pageTransitionFade(
+          page: const SignInPage(),
+        );
+      }
       return;
     }
-
-    if (currentState is StateFailedLogout) {
-      await PopUpMessage.danger(
-        title: 'bir seyler ters gitt',
-        message: currentState.errorMessage,
-      ).show(context);
+    if (currentState is StateFailedDeleteUser) {
+      await context.delayedPop();
+      if (context.mounted) {
+        await PopUpMessage.danger(
+          title: 'Opss!',
+          message: 'hesabini silemedik ):)',
+        ).show(context);
+      }
+      return;
     }
   }
 
@@ -151,9 +159,11 @@ class ProfileUpdatePageCubit extends Cubit<ProfileUpdatePageState> {
     required AuthState previousState,
     required AuthState currentState,
   }) {
-    if (previousState is StateLoadingLogout && currentState is! StateLoadingLogout) {
-      Navigator.of(context).pop();
+    if (currentState is StateLoadingDeleteUser) {
+      const PopUpLoading().show(context);
+      return false;
     }
+
     return true;
   }
 

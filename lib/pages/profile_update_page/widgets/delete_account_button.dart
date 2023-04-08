@@ -21,9 +21,7 @@ class DeleteAccountButton extends StatelessWidget {
           horizontal: 0,
           vertical: 12,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusConstants.allCorners10,
-        ),
+        shape: const StadiumBorder(),
         onPressed: () {
           onPressed();
         },
