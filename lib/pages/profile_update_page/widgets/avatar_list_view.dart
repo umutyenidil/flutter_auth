@@ -172,7 +172,7 @@ class _AvatarListViewState extends State<AvatarListView> with ImageStorage {
   }
 
   Widget selectButton() {
-    if (selectedIndex != 2) {
+    if (selectedIndex > 2) {
       return SizedBox(
         height: 35,
         width: 80,

@@ -130,6 +130,14 @@ class RemoteStorageService {
     try {
       User currentUser = await AuthModel.instance.getCurrentUser();
       String userUid = currentUser.uid;
+
+      if (data[UserModelField.avatarImage] is File) {
+        data[UserModelField.avatarImage] = await _uploadFile(
+          file: data[UserModelField.avatarImage],
+          path: 'user_images/$userUid',
+        );
+      }
+
       await UserModel.instance.updateWithUid(
         uid: userUid,
         data: data,

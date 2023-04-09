@@ -21,22 +21,26 @@ class ProfilePicture extends StatelessWidget {
           shape: BoxShape.circle,
           color: ColorConstants.randomColor(),
         ),
-        child: CachedNetworkImage(
-          placeholder: (BuildContext context, String url) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 1,
-              ),
-            );
-          },
-          errorWidget: (context, url, error) {
-            return SvgPicture.asset(
-              IconPathConstants.cancelIcon,
-              color: Colors.red,
-            );
-          },
-          imageUrl: url,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(60),
+          child: CachedNetworkImage(
+            fit: BoxFit.cover,
+            placeholder: (BuildContext context, String url) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 1,
+                ),
+              );
+            },
+            errorWidget: (context, url, error) {
+              return SvgPicture.asset(
+                IconPathConstants.cancelIcon,
+                color: Colors.red,
+              );
+            },
+            imageUrl: url,
+          ),
         ),
       ),
     );
