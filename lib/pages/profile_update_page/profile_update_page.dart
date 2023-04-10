@@ -99,23 +99,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                         padding: const EdgeInsets.all(8.0),
                         child: DeleteAccountButton(
                           onPressed: () async {
-                            await PopUpAcceptable(
-                              color: Colors.red,
-                              rightButtonOnPressed: () {
-                                BlocProvider.of<AuthBloc>(context).add(
-                                  EventDeleteUser(),
-                                );
-                                Navigator.of(context).pop();
-                              },
-                              svgIcon: IconPathConstants.deleteIcon,
-                              description: 'Emin misiniz?',
-                              title: 'Hesabiniz silinecek',
-                              leftButtonOnPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              leftButtonText: 'Cancel',
-                              rightButtonText: 'Devam et',
-                            ).show(context);
+                            await BlocProvider.of<ProfileUpdatePageCubit>(context).deleteAccountButtonOnPressed(context);
                           },
                         ),
                       ),
@@ -166,7 +150,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
   }
 
   bool listenWhenAuthBloc(AuthState previous, AuthState current) {
-    return BlocProvider.of<ProfileUpdatePageCubit>(context).buildWhenAuthBloc(
+    return BlocProvider.of<ProfileUpdatePageCubit>(context).listenWhenAuthBloc(
       context,
       previousState: previous,
       currentState: current,

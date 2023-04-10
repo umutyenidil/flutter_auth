@@ -142,13 +142,20 @@ class AuthService {
   /// throws RequiresRecentLoginException
   /// throws CurrentUserNotFoundException
   /// throws GenericAuthModelException
-  Future<void> deleteCurrentUser() async {
+  Future<void> deleteCurrentUser({required String password}) async {
     try {
       User currentUser = await AuthModel.instance.getCurrentUser();
       String userUid = currentUser.uid;
-      await AuthModel.instance.delete();
+      String userEmailAddress = currentUser.email!;
+      String userPassword = password;
+
+      await signInWithEmailAndPassword(
+        emailAddress: userEmailAddress,
+        password: userPassword,
+      );
 
       await UserModel.instance.deleteWithUid(uid: userUid);
+      await AuthModel.instance.delete();
     } on RequiresRecentLoginException {
       rethrow;
     } on CurrentUserNotFoundException {

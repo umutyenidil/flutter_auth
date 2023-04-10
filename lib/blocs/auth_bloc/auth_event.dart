@@ -31,4 +31,8 @@ class EventLogout extends AuthEvent {}
 
 class EventIsUserSignedIn extends AuthEvent {}
 
-class EventDeleteUser extends AuthEvent {}
+class EventDeleteUser extends AuthEvent {
+  final String password;
+
+  EventDeleteUser({required this.password});
+}

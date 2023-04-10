@@ -2,8 +2,12 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
+import 'package:flutter_auth/common_widgets/pop_ups/pop_up_acceptable.dart';
+import 'package:flutter_auth/common_widgets/pop_ups/pop_up_input.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_loading.dart';
 import 'package:flutter_auth/common_widgets/pop_ups/pop_up_message.dart';
+import 'package:flutter_auth/common_widgets/secure_input_field.dart';
+import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/input_values/avatar_image_value.dart';
@@ -147,7 +151,7 @@ class ProfileUpdatePageCubit extends Cubit<ProfileUpdatePageState> {
       if (context.mounted) {
         await PopUpMessage.danger(
           title: 'Opss!',
-          message: 'hesabini silemedik ):)',
+          message: currentState.errorMessage,
         ).show(context);
       }
       return;
@@ -163,7 +167,6 @@ class ProfileUpdatePageCubit extends Cubit<ProfileUpdatePageState> {
       const PopUpLoading().show(context);
       return false;
     }
-
     return true;
   }
 
@@ -173,5 +176,26 @@ class ProfileUpdatePageCubit extends Cubit<ProfileUpdatePageState> {
     required AuthState currentState,
   }) {
     return true;
+  }
+
+  Future<void> deleteAccountButtonOnPressed(BuildContext context) async {
+    await PopUpAcceptable(
+      color: Colors.red,
+      rightButtonOnPressed: () async {
+        Navigator.of(context).pop();
+        SecureInputFieldValue value = await showPopUpInput(context);
+        BlocProvider.of<AuthBloc>(context).add(
+          EventDeleteUser(password: value.value),
+        );
+      },
+      svgIcon: IconPathConstants.deleteIcon,
+      description: 'Emin misiniz?',
+      title: 'Hesabiniz silinecek',
+      leftButtonOnPressed: () {
+        Navigator.of(context).pop();
+      },
+      leftButtonText: 'Cancel',
+      rightButtonText: 'Devam et',
+    ).show(context);
   }
 }

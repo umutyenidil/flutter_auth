@@ -261,7 +261,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           StateLoadingDeleteUser(),
         );
 
-        await _provider.deleteCurrentUser();
+        String userPassword = event.password;
+        await _provider.deleteCurrentUser(password: userPassword);
 
         emit(
           StateSuccessfulDeleteUser(),
