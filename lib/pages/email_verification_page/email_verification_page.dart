@@ -11,12 +11,12 @@ import 'package:flutter_auth/common_widgets/vertical_space.dart';
 import 'package:flutter_auth/constants/icon_path_constants.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
-import 'package:flutter_auth/pages/create_profile_page/create_profile_page.dart';
 import 'package:flutter_auth/pages/email_verification_page/widgets/image_field.dart';
 import 'package:flutter_auth/pages/email_verification_page/widgets/logout_button.dart';
 import 'package:flutter_auth/pages/email_verification_page/widgets/page_container.dart';
 import 'package:flutter_auth/pages/email_verification_page/widgets/send_email_verification_button.dart';
 import 'package:flutter_auth/pages/home_page/home_page.dart';
+import 'package:flutter_auth/pages/profile_create_page/profile_create_page.dart';
 import 'package:flutter_auth/pages/sign_in_page/sign_in_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_mail_app/open_mail_app.dart';
@@ -253,7 +253,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> with Widg
       }
       if (context.mounted) {
         context.pageTransitionFade(
-          page: const CreateProfilePage(),
+          page: const ProfileCreatePage(),
         );
       }
       return;

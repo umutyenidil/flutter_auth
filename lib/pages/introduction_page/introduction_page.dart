@@ -3,9 +3,9 @@ import 'package:flutter_auth/blocs/auth_bloc/auth_bloc.dart';
 import 'package:flutter_auth/blocs/remote_storage_bloc/remote_storage_bloc.dart';
 import 'package:flutter_auth/constants/lottie_path_constants.dart';
 import 'package:flutter_auth/extensions/build_context_extensions.dart';
-import 'package:flutter_auth/pages/create_profile_page/create_profile_page.dart';
 import 'package:flutter_auth/pages/email_verification_page/email_verification_page.dart';
 import 'package:flutter_auth/pages/home_page/home_page.dart';
+import 'package:flutter_auth/pages/profile_create_page/profile_create_page.dart';
 import 'package:flutter_auth/pages/sign_in_page/sign_in_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -118,7 +118,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
     }
     if (previous is StateLoadingIsUserProfileCreated && current is StateFalseUserProfileCreated) {
       context.pageTransitionScale(
-        page: const CreateProfilePage(),
+        page: const ProfileCreatePage(),
       );
     }
 

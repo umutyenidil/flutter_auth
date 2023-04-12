@@ -11,21 +11,21 @@ import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/input_values/avatar_image_value.dart';
 import 'package:flutter_auth/input_values/input_field_value.dart';
 import 'package:flutter_auth/models/user_model.dart';
-import 'package:flutter_auth/pages/create_profile_page/widgets/avatar_list_view.dart';
-import 'package:flutter_auth/pages/create_profile_page/widgets/page_container.dart';
-import 'package:flutter_auth/pages/create_profile_page/widgets/save_button.dart';
-import 'package:flutter_auth/pages/create_profile_page/widgets/top_bar.dart';
 import 'package:flutter_auth/pages/home_page/home_page.dart';
+import 'package:flutter_auth/pages/profile_create_page/widgets/avatar_list_view.dart';
+import 'package:flutter_auth/pages/profile_create_page/widgets/save_button.dart';
+import 'package:flutter_auth/pages/profile_create_page/widgets/top_bar.dart';
+import 'package:flutter_auth/pages/profile_create_page/widgets/page_container.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CreateProfilePage extends StatefulWidget {
-  const CreateProfilePage({Key? key}) : super(key: key);
+class ProfileCreatePage extends StatefulWidget {
+  const ProfileCreatePage({Key? key}) : super(key: key);
 
   @override
-  State<CreateProfilePage> createState() => _CreateProfilePageState();
+  State<ProfileCreatePage> createState() => _ProfileCreatePageState();
 }
 
-class _CreateProfilePageState extends State<CreateProfilePage> {
+class _ProfileCreatePageState extends State<ProfileCreatePage> {
   late FocusNode _usernameInputNode;
   InputFieldValue? _usernameInputValue;
   AvatarImageValue? _avatarImageValue;

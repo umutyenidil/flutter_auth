@@ -17,9 +17,9 @@ import 'package:flutter_auth/common_widgets/secure_input_field.dart';
 import 'package:flutter_auth/common_widgets/social_media_svg_button.dart';
 import 'package:flutter_auth/extensions/pop_up_extensions.dart';
 import 'package:flutter_auth/input_values/input_field_value.dart';
-import 'package:flutter_auth/pages/create_profile_page/create_profile_page.dart';
 import 'package:flutter_auth/pages/email_verification_page/email_verification_page.dart';
 import 'package:flutter_auth/pages/home_page/home_page.dart';
+import 'package:flutter_auth/pages/profile_create_page/profile_create_page.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/forgot_your_password_button.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/page_container.dart';
 import 'package:flutter_auth/pages/sign_in_page/widgets/sign_in_button.dart';
@@ -319,7 +319,7 @@ class _SignInPageState extends State<SignInPage> {
       }
       if (context.mounted) {
         context.pageTransitionFade(
-          page: const CreateProfilePage(),
+          page: const ProfileCreatePage(),
         );
       }
       return;
